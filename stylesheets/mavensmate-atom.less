@@ -1,0 +1,250 @@
+@import "ui-variables";
+@import "octicon-mixins";
+
+.line-number:before {
+  visibility: hidden;
+  position: relative;
+  bottom: .19em;
+  margin-right: .6em;
+  content: "\f111";
+  font-size:  0.7em;
+  display: inline-block;
+  font-family: FontAwesome;
+  font-style: normal;
+  font-weight: normal;
+  -webkit-font-smoothing: antialiased;
+}
+
+.mm-compile-error:before {
+  visibility: visible !important;
+  color: red;
+}
+
+.mavensmate-output {
+  .message {
+    max-height: 150px;
+    overflow-y: scroll;
+  }
+
+  pre {
+    background: #161719;
+    color: #fff;
+    font-size: 10px;
+  }
+}
+
+#mavensmateSvgIcon {
+  width: 16px;
+  height: 16px;
+  top: 3px;
+  position: relative;
+}
+
+// top left
+svg.busy circle.circle1 {
+  -webkit-animation-name: circle1Busy; 
+  -webkit-animation-duration: 2.0s; 
+  -webkit-animation-iteration-count: infinite; 
+}
+
+// bottom left
+svg.busy circle.circle2 {
+  -webkit-animation-name: circle2Busy; 
+  -webkit-animation-duration: 2.0s; 
+  -webkit-animation-iteration-count: infinite; 
+}
+
+// middle right
+svg.busy circle.circle3 {
+  -webkit-animation-name: circle3Busy; 
+  -webkit-animation-duration: 2.0s; 
+  -webkit-animation-iteration-count: infinite; 
+}
+
+@-webkit-keyframes circle1Busy {
+  from {
+    fill: #C3C3C2;
+  }
+  50% {
+    fill: #009edf;
+  }
+  to { 
+    fill: #C3C3C2;
+  }
+}
+
+@-webkit-keyframes circle2Busy {
+  from {
+    fill: #C3C3C2;
+  }
+  50% {
+    fill: #4e76bb;
+  }
+  to { 
+    fill: #C3C3C2;
+  }
+}
+
+@-webkit-keyframes circle3Busy {
+  from {
+    fill: #C3C3C2;
+  }
+  50% {
+    fill: #85469b; 
+  }
+  to { 
+    fill: #C3C3C2;
+  }
+}
+
+.mavensmate.tool-panel.panel-left {
+  border-right: 1px solid rgba(0, 0, 0, 0.5);
+}
+.mavensmate.tool-panel {
+  font-weight: normal;
+  color: #aaaaaa;
+  text-shadow: none;
+  position: relative;
+  background-color: #1d1f21;
+}
+
+.mavensmate {
+   
+
+  h3 {
+    padding: 11px;
+    margin: 0px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+    background: #292c2f url('atom://mavensmate/assets/img/mm.svg') no-repeat;
+    background-size: 16px;
+    background-position: 10px 9px;
+    padding-left:30px;
+  }
+
+  .panel-item {
+    padding:15px 0px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+    position: relative;
+  }
+
+  .panel-item:hover {
+    /*cursor: pointer;
+    background: #161719;*/
+  }
+
+  .panel-item {
+    progress {
+      width:40px;
+    }
+  }
+
+  .tab-pane {
+    background: #161719;
+    padding:15px;
+  }
+
+  div.progress {
+    width:60px;
+    height:18px;
+    border-radius: 2px;
+  }
+
+  ul.nav {
+    margin-top: -1px;
+  }
+
+  ul.nav li a {
+    padding:2px 10px;
+  }
+
+  .nav-pills > li > a {
+    border-radius: 2px;
+  }
+
+  &.pending {
+    color: @text-color-warning;
+  }
+
+  &.success {
+    color: @text-color-success;
+  }
+
+  &.fail {
+    color: @text-color-error;
+  }
+
+  &.dots {
+    color:#fff;
+    width:16px;
+    height:21px;
+    display: block;
+  }
+
+  // All icons are smaller than normal (normal is 16px)
+  // Borrowed from status-bar
+  .icon:before {
+    .icon-size(14px);
+    position: relative;
+    top: 1px;
+    margin-right: 0px;
+    color:#000;
+  }
+
+  table {
+    color:#fff;
+    width: 100%;
+  }
+
+  table.body {
+    background: #161719;
+  }
+
+  progress.pending::-webkit-progress-value
+  {
+    /* Gradient background with Stripes */
+    background-image:
+    -webkit-linear-gradient( 135deg,
+                             transparent,
+                             transparent 33%,
+                             rgba(0,0,0,.1) 33%,
+                             rgba(0,0,0,.1) 66%,
+                             transparent 66%),
+      -webkit-linear-gradient( top,
+                              rgba(255, 255, 255, .25),
+                              rgba(0,0,0,.2)),
+       -webkit-linear-gradient( left, #009edf, #4e76bb, #85469b);
+  }
+
+  progress.success::-webkit-progress-value
+  {
+    background:#00a65d;
+  }
+
+  progress.error::-webkit-progress-value
+  {
+    background:#a94442;
+  }
+
+  progress.pending[value]::-webkit-progress-bar {
+    background-color: whiteSmoke;
+    border-radius: 3px;
+    box-shadow: 0 2px 3px rgba(0,0,0,.5) inset;
+  }
+
+  progress.pending[value]::-webkit-progress-value {
+    position: relative;
+    
+    background-size: 35px 20px, 100% 100%, 100% 100%;
+    border-radius:3px;
+    
+    /* Let's animate this */
+    animation: animate-stripes 5s linear infinite;
+    -webkit-animation: animate-stripes 5s linear infinite;
+  }
+
+  @keyframes animate-stripes { 100% { background-position: -100px 0; } }
+
+
+}

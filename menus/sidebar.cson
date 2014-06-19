@@ -1,0 +1,6 @@
+'context-menu':
+  '.workspace':
+    'MavensMate':
+      'child-1': 'test-submenu:toggle'
+      '-': '-'
+      'child-2': 'test-submenu:toggle'

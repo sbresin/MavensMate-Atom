@@ -1,0 +1,86 @@
+'menu': [
+  {
+    'label': 'MavensMate'
+    'submenu': [
+      {
+        'label': 'Project'
+        'submenu': [
+          { 'label': 'Open Project', 'command': 'mavensmate:open-project' }
+          { 'label': 'New Project', 'command': 'mavensmate:new-project' }
+          { 'label': 'Edit Project', 'command': 'mavensmate:edit-project' }
+          { 'label': 'Compile Project', 'command': 'mavensmate:compile-project' }
+          { 'label': 'Clean Project', 'command': 'mavensmate:clean-project' }
+        ]
+      }
+      {
+        'label': 'Metadata'
+        'submenu': [
+          { 'label': 'New Apex Class', 'command': 'mavensmate:new-apex-class' }
+          { 'label': 'New Apex Trigger', 'command': 'mavensmate:run-tests' }
+          { 'label': 'New VisualForce Page', 'command': 'mavensmate:run-tests' }
+          { 'label': 'New Visualforce Component', 'command': 'mavensmate:run-tests' }
+          { 'label': 'List Fields For Object... (beta)', 'command': 'mavensmate:run-tests' }
+          { 'label': 'Update Project Metadata Index (.org_metadata)', 'command': 'mavensmate:run-tests' }
+        ]
+      }
+      {
+        'label': 'Debugging'
+        'submenu': [
+          { 'label': 'New Debug Log...', 'command': 'mavensmate:run-unit-tests' }
+          { 'label': 'New Quick Log', 'command': 'mavensmate:run-unit-tests' }
+          { 'label': 'Fetch Logs', 'command': 'mavensmate:run-unit-tests' }
+          { 'label': 'Scrub Log', 'command': 'mavensmate:run-unit-tests' }
+          { 'label': 'Delete Trace Flags For This User', 'command': 'mavensmate:run-unit-tests' }
+          { '-': '-' }
+          { 'label': 'New Apex Checkpoint...', 'command': 'mavensmate:run-unit-tests' }
+          { 'label': 'Delete Apex Checkpoint...', 'command': 'mavensmate:run-unit-tests' }
+          { 'label': 'Fetch Checkpoints', 'command': 'mavensmate:run-unit-tests' }
+          { 'label': 'Show Apex Checkpoints For This File', 'command': 'mavensmate:run-unit-tests' }
+          { 'label': 'Hide Apex Checkpoints For This File', 'command': 'mavensmate:run-unit-tests' }
+        ]
+      }
+      {
+        'label': 'Unit Testing'
+        'submenu': [
+          {
+            'label': 'Open Apex Test Runner UI...',  
+            'command': 'mavensmate:run-apex-unit-tests'
+          },
+          {
+            'label': 'Run Async Apex Tests For This Class',
+            'command': 'mavensmate:run-async-apex-tests'
+          },
+          {
+            'label': 'Run All Tests (beta)',
+            'command': 'mavensmate:run-all-tests-async'
+          },
+          {
+            'label': 'Show Apex Code Coverage For This Apex Class',
+            'command': 'mavensmate:get-apex-code-coverage'
+          },
+          {
+            'label': 'Hide Coverage Indicators For This Class',
+            'command': 'mavensmate:hide-coverage'
+          },
+          {
+            'label': 'Generate Apex Test Coverage Report',
+            'command': 'mavensmate:generate-apex-test-coverage-report'
+          },
+          {
+            'label': 'Show Org Wide Test Coverage',
+            'command': 'mavensmate:get-org-wide-test-coverage'
+          }
+        ]
+      }
+      {
+        'label': 'Apex Scripting'
+        'submenu': [
+          { 'label': 'Run Tests', 'command': 'mavensmate:run-tests' }
+          { 'label': 'Toggle Output', 'command': 'mavensmate:toggle-output' }
+        ]
+      }
+
+      
+    ]
+  }
+]
