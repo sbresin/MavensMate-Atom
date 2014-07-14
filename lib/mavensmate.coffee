@@ -307,9 +307,9 @@ module.exports =
           @autocomplete.registerProviderForEditorView apexProvider, editorView
           @providers.push apexProvider
 
-          # apexContextProvider = new MavensMateCodeAssistProviders.ApexContextProvider(editorView)
-          # @autocomplete.registerProviderForEditorView apexContextProvider, editorView
-          # @providers.push apexContextProvider
+          apexContextProvider = new MavensMateCodeAssistProviders.ApexContextProvider(editorView)
+          @autocomplete.registerProviderForEditorView apexContextProvider, editorView
+          @providers.push apexContextProvider
 
           # sobjectProvider = new MavensMateCodeAssistProviders.SobjectProvider(editorView)
           # @autocomplete.registerProviderForEditorView sobjectProvider, editorView
