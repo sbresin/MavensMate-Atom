@@ -240,7 +240,9 @@ class MavensMatePanelView extends View
       stackTrace: ""
       isException: false
 
+    passCounter = 0
     failedCounter = 0
+
     for apexClass in result
       for test in apexClass.detailed_results
         if test.Outcome == "Fail"
@@ -250,9 +252,12 @@ class MavensMatePanelView extends View
           obj.stackTrace += "\n#{test.ApexClass.Name}.#{test.MethodName}:\n#{test.StackTrace}\n"
           obj.indicator = 'danger'
           obj.isException = true
+        else
+          passCounter++
+
 
     if failedCounter == 0
-      obj.message = 'Run all tests complete.'
+      obj.message = "Run all tests complete. #{passCounter} test" + (if passCounter > 1 then "s " else " ") + "passed."
       obj.indicator = 'success'
 
     return obj
