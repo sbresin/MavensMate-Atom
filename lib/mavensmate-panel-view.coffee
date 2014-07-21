@@ -5,7 +5,7 @@ emitter   = require('./mavensmate-emitter').pubsub
 util      = require './mavensmate-util'
 
 class MavensMatePanelViewItem extends View
-  
+
   constructor: (params, message) ->
     super
     promiseId = params.promiseId
@@ -29,7 +29,7 @@ class MavensMatePanelViewItem extends View
       e.preventDefault()
       $(this).tab "show"
       return
-    
+
   # Internal: Initialize mavensmate output view DOM contents.
   @content: ->
     @div class: 'panel-item',  =>
@@ -60,9 +60,9 @@ class MavensMatePanelViewItem extends View
                 @div class: 'tab-pane', outlet: 'stackTracePane', =>
                   @div =>
                     @pre 'foo bar bat'
-  
+
   initialize: ->
-   
+
   updateStatus: (status) ->
 
 
@@ -76,7 +76,7 @@ class MavensMatePanelView extends View
       @h3 outlet: 'myHeader'
       @div class: 'block padded mavensmate-panel', =>
         @div class: 'message', outlet: 'myOutput'
- 
+
   # Internal: Initialize the mavensmate output view and event handlers.
   initialize: ->
     @myHeader.html('MavensMate for Atom.io')
@@ -95,38 +95,43 @@ class MavensMatePanelView extends View
       console.log params
       console.log result
       command = util.getCommandName(params)
-      if command not in util.panelExemptCommands()        
+      if command not in util.panelExemptCommands()
         panelOutput = me.getPanelOutput command, params, result
-        
+
         console.log 'panel output ---->'
         console.log panelOutput
 
-        # update progress bar depending on outcome of command 
-        # 
+        # update progress bar depending on outcome of command
+        #
         # TODO: not all commands will return success true/false unfortunately (tooling api compiles, for example)
         panelItemProgressBar = me.myOutput.find('div#'+promiseId+' div.progress')
         panelItemProgressBar.attr 'class', 'progress'
 
         # grab progress bar
         panelItemProgressBarDiv = me.myOutput.find('div#'+promiseId+' div.progress > div')
-  
+
         # update status indicator
         panelItemProgressBarDiv.attr 'class', 'progress-bar progress-bar-'+panelOutput.indicator
-        
+
         # put message in panel
-        messagePane = me.myOutput.find('div#message-'+promiseId)
+        messagePane = me.myOutput.find('div#message-' + promiseId)
+        console.log messagePane
         messagePane.html panelOutput.message
 
+        # add stackTrace
+        stackTracePane = me.myOutput.find('div#stackTrace-' + promiseId + " div pre")
+        stackTracePane.html panelOutput.stackTrace
+
         # show message panel
-        messageAnchor = me.myOutput.find('a#messageA-'+promiseId)
+        messageAnchor = me.myOutput.find('a#messageA-' + promiseId)
         messageAnchor.click()
       return
 
   # transforms the JSON returned by the cli into an object with properties that conform to the panel
   #
-  # output = 
+  # output =
   #   message: '(Line 17) Unexpected token, yada yada yada'
-  #   indicator: 'success' #warning, danger, etc. (bootstrap label class names) 
+  #   indicator: 'success' #warning, danger, etc. (bootstrap label class names)
   #   stackTrace: 'foo bar bat'
   #   isException: true
   #
@@ -142,7 +147,9 @@ class MavensMatePanelView extends View
     else
       switch command
         when 'compile'
-          obj = @getCompileCommandOutput command, params, result 
+          obj = @getCompileCommandOutput command, params, result
+        when 'run_all_tests'
+          obj = @getRunAllTestsCommandOutput command, params, result
         else
           obj = @getGenericOutput command, params, result
 
@@ -177,7 +184,7 @@ class MavensMatePanelView extends View
         message: 'No result message could be determined'
         indicator: 'warning'
         stackTrace: result.stackTrace
-        isException: result.stackTrace?  
+        isException: result.stackTrace?
 
   getCompileCommandOutput: (command, params, result) ->
     obj =
@@ -185,7 +192,7 @@ class MavensMatePanelView extends View
       indicator: null
       stackTrace: null
       isException: false
-    
+
     if result.State? # tooling
       if result.state is 'Error' and result.ErrorMsg?
         obj.message = result.ErrorMsg
@@ -193,7 +200,7 @@ class MavensMatePanelView extends View
       else if result.State is 'Failed' and result.CompilerErrors?
         if Object.prototype.toString.call result.CompilerErrors is '[object String]'
           result.CompilerErrors = JSON.parse result.CompilerErrors
-        
+
         errors = result.CompilerErrors
 
         message = ''
@@ -225,6 +232,32 @@ class MavensMatePanelView extends View
       #todo
 
     return obj
+
+  getRunAllTestsCommandOutput: (command, params, result) ->
+    obj =
+      message: null
+      indicator: null
+      stackTrace: ""
+      isException: false
+
+    failedCounter = 0
+    for apexClass in result
+      for test in apexClass.detailed_results
+        if test.Outcome == "Fail"
+          failedCounter++
+          obj.message = "#{failedCounter} failed test method"
+          obj.message += "s" if failedCounter > 1
+          obj.stackTrace += "\n#{test.ApexClass.Name}.#{test.MethodName}:\n#{test.StackTrace}\n"
+          obj.indicator = 'danger'
+          obj.isException = true
+
+    if failedCounter == 0
+      obj.message = 'Run all tests complete.'
+      obj.indicator = 'success'
+
+    return obj
+
+
 
   # Internal: Update the mavensmate output view contents.
   #
