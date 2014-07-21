@@ -114,11 +114,16 @@ class MavensMatePanelView extends View
         panelItemProgressBarDiv.attr 'class', 'progress-bar progress-bar-'+panelOutput.indicator
 
         # put message in panel
-        messagePane = me.myOutput.find('div#message-'+promiseId)
+        messagePane = me.myOutput.find('div#message-' + promiseId)
+        console.log messagePane
         messagePane.html panelOutput.message
 
+        # add stackTrace
+        stackTracePane = me.myOutput.find('div#stackTrace-' + promiseId + " div pre")
+        stackTracePane.html panelOutput.stackTrace
+
         # show message panel
-        messageAnchor = me.myOutput.find('a#messageA-'+promiseId)
+        messageAnchor = me.myOutput.find('a#messageA-' + promiseId)
         messageAnchor.click()
       return
 
@@ -242,7 +247,7 @@ class MavensMatePanelView extends View
           failedCounter++
           obj.message = "#{failedCounter} failed test method"
           obj.message += "s" if failedCounter > 1
-          obj.stackTrace += "\n#{test.ApexClass.Name} - #{test.MethodName}\n\n#{test.StackTrace}\n"
+          obj.stackTrace += "\n#{test.ApexClass.Name}.#{test.MethodName}:\n#{test.StackTrace}\n"
           obj.indicator = 'danger'
           obj.isException = true
 
