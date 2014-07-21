@@ -61,7 +61,7 @@ module.exports =
     # Returns nothing.
     init: ->
       #@promiseTracker = new MavensMatePromiseTracker()
-      
+
       # instantiate mm tool
       @mm = MavensMateCommandLineInterface
 
@@ -72,13 +72,13 @@ module.exports =
       # instantiate mavensmate panel, show it
       @panel = MavensMatePanelView
       @panel.toggle()
-     
+
       # @subscribe atom.workspace.eachEditor (editor) =>
       #   @handleEvents(editor)
 
       # set package default
       # TODO: should we do this elsewhere?
-      atom.config.setDefaults 'mavensmate', 
+      atom.config.setDefaults 'mavensmate',
         mm_location: 'mm/mm.py'
         mm_compile_on_save : true
         mm_api_version : '29.0'
@@ -97,10 +97,10 @@ module.exports =
           args:
             operation: 'compile'
             pane: atom.workspace.getActivePane()
-          payload: 
+          payload:
             files: [MavensMateUtil.activeFile]
         @mm.run(params).then (result) =>
-          @mmResponseHandler(params, result)  
+          @mmResponseHandler(params, result)
 
       # compiles entire project
       atom.workspaceView.command "mavensmate:compile-project", =>
@@ -109,7 +109,7 @@ module.exports =
             operation: 'compile_project'
             pane: atom.workspace.getActivePane()
         @mm.run(params).then (result) =>
-          @mmResponseHandler(params, result) 
+          @mmResponseHandler(params, result)
 
       # compiles entire project
       atom.workspaceView.command "mavensmate:clean-project", =>
@@ -118,10 +118,10 @@ module.exports =
             operation: 'clean_project'
             pane: atom.workspace.getActivePane()
         @mm.run(params).then (result) =>
-          @mmResponseHandler(params, result) 
+          @mmResponseHandler(params, result)
 
       # runs all tests
-      atom.workspaceView.command "mavensmate:run-all-tests", =>
+      atom.workspaceView.command "mavensmate:run-all-tests-async", =>
         params =
           args:
             operation: 'run_all_tests'
@@ -136,13 +136,13 @@ module.exports =
             operation: 'unit_test'
             pane: atom.workspace.getActivePane()
         @mm.run(params).then (result) =>
-          @mmResponseHandler(params, result)    
+          @mmResponseHandler(params, result)
 
       # UI commands
 
       atom.workspaceView.command "mavensmate:new-project", =>
         params =
-          args: 
+          args:
             operation: 'new_project'
             ui: true
             #pane: atom.workspace.getActivePane().splitLeft()
@@ -152,7 +152,7 @@ module.exports =
 
       atom.workspaceView.command "mavensmate:edit-project", =>
         params =
-          args: 
+          args:
             operation: 'edit_project'
             ui: true
             pane: atom.workspace.getActivePane()
@@ -161,7 +161,7 @@ module.exports =
 
       atom.workspaceView.command "mavensmate:upgrade-project", =>
         params =
-          args: 
+          args:
             operation: 'upgrade_project'
             ui: true
             pane: atom.workspace.getActivePane()
@@ -170,51 +170,51 @@ module.exports =
 
       atom.workspaceView.command "mavensmate:new-apex-class", =>
         params =
-          args: 
+          args:
             operation: 'new_metadata'
             ui: true
             pane: atom.workspace.getActivePane()
-          payload: 
+          payload:
             metadata_type: 'ApexClass'
         @mm.run(params).then (result) =>
           @mmResponseHandler(params, result)
 
       atom.workspaceView.command "mavensmate:new-apex-trigger", =>
         params =
-          args: 
+          args:
             operation: 'new_metadata'
             ui: true
             pane: atom.workspace.getActivePane()
-          payload: 
+          payload:
             metadata_type: 'ApexTrigger'
         @mm.run(params).then (result) =>
           @mmResponseHandler(params, result)
 
       atom.workspaceView.command "mavensmate:new-visualforce-page", =>
         params =
-          args: 
+          args:
             operation: 'new_metadata'
             ui: true
             pane: atom.workspace.getActivePane()
-          payload: 
+          payload:
             metadata_type: 'Visualforce Page'
         @mm.run(params).then (result) =>
           @mmResponseHandler(params, result)
 
       atom.workspaceView.command "mavensmate:new-visualforce-component", =>
         params =
-          args: 
+          args:
             operation: 'new_metadata'
             ui: true
             pane: atom.workspace.getActivePane()
-          payload: 
+          payload:
             metadata_type: 'Visualforce Component'
         @mm.run(params).then (result) =>
           @mmResponseHandler(params, result)
 
       atom.workspaceView.command "mavensmate:run-apex-unit-tests", =>
         params =
-          args: 
+          args:
             operation: 'unit_test'
             ui: true
             pane: atom.workspace.getActivePane()
@@ -223,7 +223,7 @@ module.exports =
 
       atom.workspaceView.command "mavensmate:deploy-to-server", =>
         params =
-          args: 
+          args:
             operation: 'deploy'
             ui: true
             pane: atom.workspace.getActivePane()
@@ -232,7 +232,7 @@ module.exports =
 
       atom.workspaceView.command "mavensmate:execute-apex", =>
         params =
-          args: 
+          args:
             operation: 'execute_apex'
             ui: true
             pane: atom.workspace.getActivePane()
@@ -241,7 +241,7 @@ module.exports =
 
       atom.workspaceView.command "mavensmate:new-project-from-existing-directory", =>
         params =
-          args: 
+          args:
             operation: 'new_project_from_existing_directory'
             ui: true
             pane: atom.workspace.getActivePane()
@@ -250,7 +250,7 @@ module.exports =
 
       atom.workspaceView.command "mavensmate:new-trace-flag", =>
         params =
-          args: 
+          args:
             operation: 'debug_log'
             ui: true
             pane: atom.workspace.getActivePane()
@@ -259,7 +259,7 @@ module.exports =
 
       atom.workspaceView.command "mavensmate:connect-to-github", =>
         params =
-          args: 
+          args:
             operation: 'github'
             ui: true
             pane: atom.workspace.getActivePane()
@@ -268,7 +268,7 @@ module.exports =
 
       atom.workspaceView.command "mavensmate:project-health-check", =>
         params =
-          args: 
+          args:
             operation: 'project_health_check'
             ui: true
             pane: atom.workspace.getActivePane()
@@ -298,9 +298,9 @@ module.exports =
         .then (pkg) =>
           @autocomplete = pkg.mainModule
           @registerProviders()
-      
 
-    registerProviders: ->      
+
+    registerProviders: ->
       @editorSubscription = atom.workspaceView.eachEditorView (editorView) =>
         if editorView.attached and not editorView.mini
           apexProvider = new MavensMateCodeAssistProviders.ApexProvider(editorView)
@@ -338,13 +338,13 @@ module.exports =
 
       @subscribe buffer.on 'saved', =>
         params =
-          args: 
+          args:
             operation: 'compile'
             pane: atom.workspace.getActivePane()
             editor: atom.workspace.getActiveEditor()
             editorView: atom.workspaceView.getActiveView()
             buffer: buffer
-          payload: 
+          payload:
             files: [buffer.file.path]
         @mm.run(params).then (result) =>
-          @mmResponseHandler(params, result) 
+          @mmResponseHandler(params, result)
