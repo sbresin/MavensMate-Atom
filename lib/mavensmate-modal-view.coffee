@@ -13,7 +13,7 @@ module.exports =
               @div class: 'modal-body', style: 'min-height:600px;padding:0px;', =>
                 @div outlet: 'loading', class: 'modal-loading', style: 'width:100px;margin:0 auto;padding-top:100px;', outlet: 'loading', =>
                   @i class: 'fa fa-spinner fa-spin', style: 'font-size:110px;color:#ccc;'
-                @iframe outlet: 'iframe', width: '100%', sandbox: 'allow-same-origin allow-top-navigation allow-forms allow-scripts', style: 'border:none;display:none;'
+                @iframe outlet: 'iframe', width: '100%', class: 'native-key-bindings', sandbox: 'allow-same-origin allow-top-navigation allow-forms allow-scripts', style: 'border:none;display:none;'
 
     constructor: (@promiseId, @filePath, @command) ->
       super
@@ -35,6 +35,7 @@ module.exports =
       @addIframeLoadListener()
 
       @iframe.attr 'src', @filePath
+      @iframe.attr 'id', 'iframe-'+@promiseId
 
       # show modal
       @modal.modal()
