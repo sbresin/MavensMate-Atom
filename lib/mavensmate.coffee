@@ -81,10 +81,10 @@ module.exports =
       atom.config.setDefaults 'mavensmate',
         mm_location: 'mm/mm.py'
         mm_compile_on_save : true
-        mm_api_version : '29.0'
+        mm_api_version : '30.0'
         mm_log_location : ''
         mm_python_location : '/usr/bin/python'
-        mm_workspace : ''
+        mm_workspace : ['/one/cool/workspace', '/one/not-so-cool/workspace']
         mm_open_project_on_create : true
         mm_log_level : 'DEBUG'
 
