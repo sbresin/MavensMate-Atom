@@ -1,9 +1,10 @@
-{$}   = require 'atom'
+{$, $$, $$$, EditorView, View} = require 'atom'
 fs    = require 'fs'
 path  = require 'path'
 {Subscriber,Emitter}                = require 'emissary'
 MavensMateEventEmitter              = require('./mavensmate-emitter').pubsub
 MavensMateLocalServer               = require './mavensmate-local-server'
+MavensMateProjectListView           = require './mavensmate-project-list-view'
 MavensMatePanelView                 = require('./mavensmate-panel-view').panel
 MavensMateStatusBarView             = require './mavensmate-status-bar-view'
 MavensMateAppView                   = require './mavensmate-app-view'
@@ -89,6 +90,13 @@ module.exports =
         mm_log_level : 'DEBUG'
 
       ##COMMANDS TODO: move
+
+      # presents a list of projects in a select list
+      atom.workspaceView.command "mavensmate:open-project", =>
+        # instantiate a mavensmate project list view instance
+        @selectList = new MavensMateProjectListView()
+        @selectList.toggle()
+
       atom.workspaceView.command "mavensmate:toggle-output", =>
         @panel.toggle()
 
