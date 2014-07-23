@@ -22,17 +22,20 @@ class MavensMateProjectListView extends SelectListView
     dirs = []
     cfg = atom.config.getSettings().mavensmate
     workspaces = cfg.mm_workspace
-
+    
+    if cfg.mm_workspace.indexOf(',') == -1
+      workspaces = [ cfg.mm_workspace ]
     for workspace in workspaces
-      files = fs.readdirSync workspace
-      for file in files
-        # console.log file
-        if file[0] != '.'
-          filePath = "#{workspace}/#{file}"
-          stat = fs.statSync filePath
+      if fs.existsSync workspace
+        files = fs.readdirSync workspace
+        for file in files
+          # console.log file
+          if file[0] != '.'
+            filePath = "#{workspace}/#{file}"
+            stat = fs.statSync filePath
 
-          if stat.isDirectory()
-              dirs.push { name : file, path: filePath }
+            if stat.isDirectory()
+                dirs.push { name : file, path: filePath }
 
     return dirs
 
