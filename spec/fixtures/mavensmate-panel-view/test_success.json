@@ -1,0 +1,77 @@
+[
+  {
+    "Status": "Completed",
+    "ApexClassId": "01pi0000004xq32AAA",
+    "detailed_results": [
+      {
+        "ApexLogId": null,
+        "StackTrace": null,
+        "MethodName": "SGToolKit_Batch_SendMessage_Test1",
+        "ApexClassId": "01pi0000004xq32AAA",
+        "attributes": {
+          "url": "/services/data/v30.0/sobjects/ApexTestResult/07Mi00000029VJPEA2",
+          "type": "ApexTestResult"
+        },
+        "Message": null,
+        "Outcome": "Pass",
+        "ApexClass": {
+          "attributes": {
+            "url": "/services/data/v30.0/sobjects/ApexClass/01pi0000004xq32AAA",
+            "type": "ApexClass"
+          },
+          "Name": "SGToolKit_Batch_SendMessage_Test"
+        }
+      },
+      {
+        "ApexLogId": null,
+        "StackTrace": null,
+        "MethodName": "SGToolKit_Batch_SendMessage_Test2",
+        "ApexClassId": "01pi0000004xq32AAA",
+        "attributes": {
+          "url": "/services/data/v30.0/sobjects/ApexTestResult/07Mi00000029VJQEA2",
+          "type": "ApexTestResult"
+        },
+        "Message": null,
+        "Outcome": "Pass",
+        "ApexClass": {
+          "attributes": {
+            "url": "/services/data/v30.0/sobjects/ApexClass/01pi0000004xq32AAA",
+            "type": "ApexClass"
+          },
+          "Name": "SGToolKit_Batch_SendMessage_Test"
+        }
+      },
+      {
+        "ApexLogId": null,
+        "StackTrace": null,
+        "MethodName": "shouldFail",
+        "ApexClassId": "01pi0000004xq32AAA",
+        "attributes": {
+          "url": "/services/data/v30.0/sobjects/ApexTestResult/07Mi00000029VJREA2",
+          "type": "ApexTestResult"
+        },
+        "Message": null,
+        "Outcome": "Pass",
+        "ApexClass": {
+          "attributes": {
+            "url": "/services/data/v30.0/sobjects/ApexClass/01pi0000004xq32AAA",
+            "type": "ApexClass"
+          },
+          "Name": "SGToolKit_Batch_SendMessage_Test"
+        }
+      }
+    ],
+    "attributes": {
+      "url": "/services/data/v30.0/sobjects/ApexTestQueueItem/709i0000000JYCvAAO",
+      "type": "ApexTestQueueItem"
+    },
+    "ApexClass": {
+      "attributes": {
+        "url": "/services/data/v30.0/sobjects/ApexClass/01pi0000004xq32AAA",
+        "type": "ApexClass"
+      },
+      "Name": "SGToolKit_Batch_SendMessage_Test"
+    },
+    "ExtendedStatus": "(3/3)"
+  }
+]
