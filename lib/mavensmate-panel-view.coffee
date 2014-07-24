@@ -27,7 +27,7 @@ class MavensMatePanelViewItem extends View
     @pillBar.find('a').click (e) ->
       console.log 'anchor clickeD!'
       e.preventDefault()
-      $(this).tab "show"
+      $(this).tab? "show"
       return
 
   # Internal: Initialize mavensmate output view DOM contents.
@@ -94,6 +94,7 @@ class MavensMatePanelView extends View
       console.log 'finish!'
       console.log params
       console.log result
+
       command = util.getCommandName(params)
       if command not in util.panelExemptCommands()
         panelOutput = me.getPanelOutput command, params, result
@@ -115,8 +116,8 @@ class MavensMatePanelView extends View
 
         # put message in panel
         messagePane = me.myOutput.find('div#message-' + promiseId)
-        console.log messagePane
         messagePane.html panelOutput.message
+        console.log me.myOutput.find('div#message-' + promiseId)
 
         # add stackTrace
         stackTracePane = me.myOutput.find('div#stackTrace-' + promiseId + " div pre")
@@ -150,6 +151,7 @@ class MavensMatePanelView extends View
           obj = @getCompileCommandOutput command, params, result
         when 'run_all_tests'
           obj = @getRunAllTestsCommandOutput command, params, result
+          console.log 'finished getRunAllTestsCommandOutput'
         else
           obj = @getGenericOutput command, params, result
 
@@ -234,10 +236,11 @@ class MavensMatePanelView extends View
     return obj
 
   getRunAllTestsCommandOutput: (command, params, result) ->
+    console.log 'running getRunAllTestsCommandOutput'
     obj =
       message: null
-      indicator: null
-      stackTrace: ""
+      indicator: 'warning'
+      stackTrace: ''
       isException: false
 
     passCounter = 0
@@ -248,10 +251,8 @@ class MavensMatePanelView extends View
         if test.Outcome == "Fail"
           failedCounter++
           obj.message = "#{failedCounter} failed test method"
-          obj.message += "s" if failedCounter > 1
-          obj.stackTrace += "\n#{test.ApexClass.Name}.#{test.MethodName}:\n#{test.StackTrace}\n"
-          obj.indicator = 'danger'
-          obj.isException = true
+          obj.message += 's' if failedCounter > 1
+          obj.stackTrace += "#{test.ApexClass.Name}.#{test.MethodName}:\n#{test.StackTrace}\n\n"
         else
           passCounter++
 
@@ -259,6 +260,9 @@ class MavensMatePanelView extends View
     if failedCounter == 0
       obj.message = "Run all tests complete. #{passCounter} test" + (if passCounter > 1 then "s " else " ") + "passed."
       obj.indicator = 'success'
+    else
+      obj.indicator = 'danger'
+      obj.isException = true
 
     return obj
 
