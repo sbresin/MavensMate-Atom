@@ -4,6 +4,7 @@ path  = require 'path'
 {Subscriber,Emitter}                = require 'emissary'
 MavensMateEventEmitter              = require('./mavensmate-emitter').pubsub
 MavensMateLocalServer               = require './mavensmate-local-server'
+MavensMateConfirmListView           = require './mavensmate-confirm-list-view'
 MavensMateProjectListView           = require './mavensmate-project-list-view'
 MavensMatePanelView                 = require('./mavensmate-panel-view').panel
 MavensMateStatusBarView             = require './mavensmate-status-bar-view'
@@ -116,8 +117,13 @@ module.exports =
           args:
             operation: 'compile_project'
             pane: atom.workspace.getActivePane()
-        @mm.run(params).then (result) =>
-          @mmResponseHandler(params, result)
+        atom.confirm
+          message: 'Confirm Compile Project'
+          detailedMessage: 'Would you like to compile the project?'
+          buttons:
+            'Yes': => @mm.run(params).then (result) =>
+                      @mmResponseHandler(params, result)
+            'No': null
 
       # compiles entire project
       atom.workspaceView.command "mavensmate:clean-project", =>
