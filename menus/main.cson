@@ -43,12 +43,12 @@
         'label': 'Unit Testing'
         'submenu': [
           {
-            'label': 'Open Apex Test Runner UI...',  
+            'label': 'Open Apex Test Runner UI...',
             'command': 'mavensmate:run-apex-unit-tests'
           },
           {
             'label': 'Run Async Apex Tests For This Class',
-            'command': 'mavensmate:run-async-apex-tests'
+            'command': 'mavensmate:run-async-unit-tests'
           },
           {
             'label': 'Run All Tests (beta)',
@@ -80,7 +80,7 @@
         ]
       }
 
-      
+
     ]
   }
 ]

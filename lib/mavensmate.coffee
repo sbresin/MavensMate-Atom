@@ -144,11 +144,19 @@ module.exports =
           @mmResponseHandler(params, result)
 
       # runs selected unit test
-      atom.workspaceView.command "mavensmate:run-async-unit-test", =>
+      atom.workspaceView.command "mavensmate:run-async-unit-tests", =>
+        classArray = []
+        currentFile = util.activeFile()
+
+        if currentFile.indexOf '.cls' >= 0
+          classArray.push currentFile.substring (currentFile.lastIndexOf('/')+1), currentFile.indexOf('.cls')
+
         params =
           args:
-            operation: 'unit_test'
+            operation: 'test_async'
             pane: atom.workspace.getActivePane()
+          payload:
+            classes: classArray
         @mm.run(params).then (result) =>
           @mmResponseHandler(params, result)
 

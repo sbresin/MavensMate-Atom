@@ -149,9 +149,9 @@ class MavensMatePanelView extends View
       switch command
         when 'compile'
           obj = @getCompileCommandOutput command, params, result
-        when 'run_all_tests'
-          obj = @getRunAllTestsCommandOutput command, params, result
-          console.log 'finished getRunAllTestsCommandOutput'
+        when 'run_all_tests', 'test_async'
+          obj = @getRunAsyncTestsCommandOutput command, params, result
+          console.log 'finished getRunAsyncTestsCommandOutput'
         else
           obj = @getGenericOutput command, params, result
 
@@ -235,7 +235,7 @@ class MavensMatePanelView extends View
 
     return obj
 
-  getRunAllTestsCommandOutput: (command, params, result) ->
+  getRunAsyncTestsCommandOutput: (command, params, result) ->
     console.log 'running getRunAllTestsCommandOutput'
     obj =
       message: null
