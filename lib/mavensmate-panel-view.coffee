@@ -59,7 +59,7 @@ class MavensMatePanelViewItem extends View
                   @div 'some stuff in messages'
                 @div class: 'tab-pane', outlet: 'stackTracePane', =>
                   @div =>
-                    @pre 'foo bar bat'
+                    @pre ''
 
   initialize: ->
 
