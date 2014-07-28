@@ -91,7 +91,7 @@ describe 'MavensMate Panel View', ->
     it 'should invoke mavensmate:run-async-unit-tests', ->
       atom.workspaceView.trigger 'mavensmate:run-async-unit-tests'
       expect(mm.run).toHaveBeenCalled()
-      expect(mm.run.mostRecentCall.args[0].args.operation).toBe('test_async')      
+      expect(mm.run.mostRecentCall.args[0].args.operation).toBe('test_async')
       expect(mm.run.mostRecentCall.args[0].payload.classes[0]).toBe('MyTest')
 
     it 'should indicate when all tests passed', ->
@@ -125,3 +125,20 @@ describe 'MavensMate Panel View', ->
       # ensure the correct message was set
       expect(panel.myOutput.find('div#message-my-fake-promiseId').html()).toBe('1 failed test method')
       expect(panel.myOutput.find('div#stackTrace-my-fake-promiseId div pre').html()).toBe('SGToolKit_Batch_SendMessage_Test.shouldFail:\nClass.SGToolKit_Batch_SendMessage_Test.shouldFail: line 135, column 1\n\n')
+
+
+
+
+  # Fetch Logs
+  describe 'Fetch Logs', ->
+    it 'should indicate how many logs were fetched', ->
+      myParams = {args: {operation: 'fetch_logs'}, promiseId: 'my-fake-promiseId'}
+      response = require('./fixtures/mavensmate-panel-view/fetch_logs_4.json')
+
+      # simulate the emitter firing due to a panel start then finish with a success response from tooling api
+      emitter.emit 'mavensmatePanelNotifyStart', myParams, 'my-fake-promiseId'
+      emitter.emit 'mavensmatePanelNotifyFinish', myParams, response, 'my-fake-promiseId'
+
+      # ensure the correct message was set
+      expect(panel.myOutput.find('div#message-my-fake-promiseId').html()).toBe('4 Logs successfully downloaded')
+      expect(panel.myOutput.find('div#stackTrace-my-fake-promiseId div pre').html()).toBe('')

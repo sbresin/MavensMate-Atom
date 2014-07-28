@@ -291,6 +291,14 @@ module.exports =
         @mm.run(params).then (result) =>
           @mmResponseHandler(params, result)
 
+      # fetch logs
+      atom.workspaceView.command "mavensmate:fetch-logs", =>
+        params =
+          args:
+            operation: 'fetch_logs'
+            pane: atom.workspace.getActivePane()
+        @mm.run(params).then (result) =>
+          @mmResponseHandler(params, result)
 
       # places mavensmate 3 dot icon in the status bar
       createStatusEntry = =>
