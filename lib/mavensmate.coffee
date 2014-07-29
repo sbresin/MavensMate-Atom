@@ -291,6 +291,15 @@ module.exports =
         @mm.run(params).then (result) =>
           @mmResponseHandler(params, result)
 
+      # New quick log
+      atom.workspaceView.command "mavensmate:new-quick-log", =>
+        params =
+          args:
+            operation: 'new_quick_trace_flag'
+            pane: atom.workspace.getActivePane()
+        @mm.run(params).then (result) =>
+          @mmResponseHandler(params, result)
+
       # fetch logs
       atom.workspaceView.command "mavensmate:fetch-logs", =>
         params =
