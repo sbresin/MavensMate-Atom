@@ -127,8 +127,6 @@ describe 'MavensMate Panel View', ->
       expect(panel.myOutput.find('div#stackTrace-my-fake-promiseId div pre').html()).toBe('SGToolKit_Batch_SendMessage_Test.shouldFail:\nClass.SGToolKit_Batch_SendMessage_Test.shouldFail: line 135, column 1\n\n')
 
 
-
-
   # Fetch Logs
   describe 'Fetch Logs', ->
     it 'should indicate how many logs were fetched', ->
@@ -142,3 +140,31 @@ describe 'MavensMate Panel View', ->
       # ensure the correct message was set
       expect(panel.myOutput.find('div#message-my-fake-promiseId').html()).toBe('4 Logs successfully downloaded')
       expect(panel.myOutput.find('div#stackTrace-my-fake-promiseId div pre').html()).toBe('')
+
+  # New Quick Log
+  describe 'New Quick Log', ->
+    it 'should indicate that new log was created', ->
+      myParams = {args: {operation: 'new_quick_trace_flag'}, promiseId: 'my-fake-promiseId'}
+      response = require('./fixtures/mavensmate-panel-view/new_quick_log.json')
+
+      # simulate the emitter firing due to a panel start then finish with a success response from tooling api
+      emitter.emit 'mavensmatePanelNotifyStart', myParams, 'my-fake-promiseId'
+      emitter.emit 'mavensmatePanelNotifyFinish', myParams, response, 'my-fake-promiseId'
+
+      # ensure the correct message was set
+      expect(panel.myOutput.find('div#message-my-fake-promiseId').html()).toBe('1 Log(s) created successfully')
+      expect(panel.myOutput.find('div#stackTrace-my-fake-promiseId div pre').html()).toBe('')
+      expect(panel.myOutput.find('div.progress-bar').hasClass('progress-bar-success')).toBe(true)
+
+    it 'should indicate when an error occurred creating new log', ->
+      myParams = {args: {operation: 'new_quick_trace_flag'}, promiseId: 'my-fake-promiseId'}
+      response = require('./fixtures/mavensmate-panel-view/new_quick_log_error.json')
+
+      # simulate the emitter firing due to a panel start then finish with a success response from tooling api
+      emitter.emit 'mavensmatePanelNotifyStart', myParams, 'my-fake-promiseId'
+      emitter.emit 'mavensmatePanelNotifyFinish', myParams, response, 'my-fake-promiseId'
+
+      # ensure the correct message was set
+      expect(panel.myOutput.find('div#message-my-fake-promiseId').html()).toBe('Malformed request...')
+      expect(panel.myOutput.find('div#stackTrace-my-fake-promiseId div pre').html()).not.toBe('')
+      expect(panel.myOutput.find('div.progress-bar').hasClass('progress-bar-danger')).toBe(true)
