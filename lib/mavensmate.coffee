@@ -4,7 +4,6 @@ path  = require 'path'
 {Subscriber,Emitter}                = require 'emissary'
 MavensMateEventEmitter              = require('./mavensmate-emitter').pubsub
 MavensMateLocalServer               = require './mavensmate-local-server'
-MavensMateConfirmListView           = require './mavensmate-confirm-list-view'
 MavensMateProjectListView           = require './mavensmate-project-list-view'
 MavensMatePanelView                 = require('./mavensmate-panel-view').panel
 MavensMateStatusBarView             = require './mavensmate-status-bar-view'

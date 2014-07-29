@@ -138,3 +138,30 @@ describe 'MavensMate Panel View', ->
       # ensure the correct message was set
       expect(panel.myOutput.find('div#message-my-fake-promiseId').html()).toBe('4 Logs successfully downloaded')
       expect(panel.myOutput.find('div#stackTrace-my-fake-promiseId div pre').html()).toBe('')
+
+  describe 'Compile Project', ->
+    beforeEach ->
+      spyOn(panel, 'getCompileCommandOutput').andCallThrough()
+      spyOn(mm, 'run').andCallThrough()
+
+    it 'should invoke mavensmate:compile-project', ->
+      spyOn(atom, 'confirm').andReturn(1)
+      atom.workspaceView.trigger 'mavensmate:compile-project'
+      
+      expect(atom.confirm).toHaveBeenCalled()
+
+    it 'should indicate when it is done compiling', ->
+      myParams = {args: {operation: 'compile_project'}, promiseId: 'my-fake-promiseId'}
+      successResponse = require('./fixtures/mavensmate-panel-view/compile_project_success.json')
+
+      # simulate the emitter firing due to a panel start then finish with a success response from tooling api
+      emitter.emit 'mavensmatePanelNotifyStart', myParams, 'my-fake-promiseId'
+      emitter.emit 'mavensmatePanelNotifyFinish', myParams, successResponse, 'my-fake-promiseId'
+
+      # ensure that getRunAsyncTestsCommandOutput has been called with expected params
+      expect(panel.getCompileCommandOutput).toHaveBeenCalled()
+      expect(panel.getCompileCommandOutput).toHaveBeenCalledWith('test_async', myParams, successResponse)
+
+      # ensure the correct message was set
+      expect(panel.myOutput.find('div#message-my-fake-promiseId').html()).toBe('Success')
+      expect(panel.myOutput.find('div#stackTrace-my-fake-promiseId div pre').html()).toBe('')
