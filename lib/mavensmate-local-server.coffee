@@ -1,5 +1,8 @@
 Q           = require 'q'
-bodyParser  = require 'body-parser'
+# import loophole to get around unsafe eval error on bodyParser
+# similar to https://discuss.atom.io/t/--template-causes-unsafe-eval-error/9310
+{allowUnsafeEval} = require 'loophole'
+bodyParser  = allowUnsafeEval -> require 'body-parser'
 tracker     = require('./mavensmate-promise-tracker').tracker
 mm          = require('./mavensmate-cli').mm
 emitter     = require('./mavensmate-emitter').pubsub
@@ -33,7 +36,7 @@ module.exports =
       portfinder.getPort (err, port) =>
         @startServer port
         deferred.resolve port
-    
+
     # extremely important middleware; without it, webkit refuses ajax requests from MavensMate UIs
     enableCors: (req, res, next) ->
       res.header 'Access-Control-Allow-Origin', '*'
@@ -41,7 +44,7 @@ module.exports =
       res.header 'Access-Control-Allow-Headers', ['Content-Type', 'X-Requested-With', 'mm_plugin_client']
       next()
 
-    
+
 
     # Route handlers
 
@@ -55,9 +58,9 @@ module.exports =
         res.send { 'status' : 'pending', 'id' : promiseId }
 
     synchronousPostRequestHandler: (req, res) ->
-      mm = req.app.get('mm') 
+      mm = req.app.get('mm')
       params =
-        payload:req.body    
+        payload:req.body
       mm.run(params).then (result) ->
         res.send result
         tracker.pop(result.promiseId).result # pops promise from tracker and returns result
@@ -65,9 +68,9 @@ module.exports =
         emitter.emit 'mavensmatePanelNotifyFinish', params, result, result.promiseId
 
     synchronousGetRequestHandler: (req, res) ->
-      mm = req.app.get('mm')  
+      mm = req.app.get('mm')
       params =
-        payload:req.query       
+        payload:req.query
       mm.run(params).then (result) ->
         res.send result
         tracker.pop(result.promiseId).result # pops promise from tracker and returns result
@@ -75,28 +78,28 @@ module.exports =
         emitter.emit 'mavensmatePanelNotifyFinish', params, result, result.promiseId
 
     asynchronousPostRequestHandler: (req, res) ->
-      tracker = req.app.get('tracker') 
-      mm = req.app.get('mm')   
-      promiseId = tracker.enqueuePromise()   
+      tracker = req.app.get('tracker')
+      mm = req.app.get('mm')
+      promiseId = tracker.enqueuePromise()
       params =
-        payload:req.body 
-        promiseId:promiseId  
+        payload:req.body
+        promiseId:promiseId
       mm.run(params).then (result) ->
         emitter.emit 'mavensmatePromiseCompleted', result.promiseId
-        emitter.emit 'mavensmatePanelNotifyFinish', params, result, result.promiseId    
+        emitter.emit 'mavensmatePanelNotifyFinish', params, result, result.promiseId
       res.send { 'status' : 'pending', 'id' : promiseId }
 
     asynchronousGetRequestHandler: (req, res) ->
-      tracker = req.app.get('tracker') 
+      tracker = req.app.get('tracker')
       mm = req.app.get('mm')
-      promiseId = tracker.enqueuePromise()   
+      promiseId = tracker.enqueuePromise()
       params =
-        payload:req.query 
+        payload:req.query
         promiseId:promiseId
       mm.run(params).then (result) ->
-        emitter.emit 'mavensmatePromiseCompleted', result.promiseId 
-        emitter.emit 'mavensmatePanelNotifyFinish', params, result, result.promiseId   
-      res.send { 'status' : 'pending', 'id' : promiseId }  
+        emitter.emit 'mavensmatePromiseCompleted', result.promiseId
+        emitter.emit 'mavensmatePanelNotifyFinish', params, result, result.promiseId
+      res.send { 'status' : 'pending', 'id' : promiseId }
 
     options: (req, res) ->
       res.send 200
@@ -114,17 +117,17 @@ module.exports =
       app.use(bodyParser())
       app.use(@enableCors)
 
-      app.set('tracker', @promiseTracker); #todo: should server have its own instance? 
-      app.set('mm', @mm); 
+      app.set('tracker', @promiseTracker); #todo: should server have its own instance?
+      app.set('mm', @mm);
 
       app.get('/status', @statusRequest)
 
       app.options('/generic', @options)
       app.options('/generic/async', @options)
-      
+
       app.post('/generic/async', @asynchronousPostRequestHandler)
       app.get('/generic/async', @asynchronousGetRequestHandler)
-      
+
       app.post('/generic', @synchronousPostRequestHandler)
       app.get('/generic', @synchronousGetRequestHandler)
 
