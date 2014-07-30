@@ -128,6 +128,20 @@ module.exports =
         @mm.run(params).then (result) =>
           @mmResponseHandler(params, result)
 
+      # compiles entire project
+      atom.workspaceView.command "mavensmate:reset-metadata-container", =>
+        params =
+          args:
+            operation: 'reset_metadata_container'
+            pane: atom.workspace.getActivePane()
+        atom.confirm
+          message: 'Reset Metadata Container'
+          detailedMessage: 'Are you sure you want to reset the metadata container?'
+          buttons:
+            'Yes': => @mm.run(params).then (result) =>
+                      @mmResponseHandler(params, result)
+            'No': null
+
       # runs all tests
       atom.workspaceView.command "mavensmate:run-all-tests-async", =>
         params =
