@@ -168,3 +168,24 @@ describe 'MavensMate Panel View', ->
       expect(panel.myOutput.find('div#message-my-fake-promiseId').html()).toBe('Malformed request...')
       expect(panel.myOutput.find('div#stackTrace-my-fake-promiseId div pre').html()).not.toBe('')
       expect(panel.myOutput.find('div.progress-bar').hasClass('progress-bar-danger')).toBe(true)
+  
+  describe 'Generic Operations', ->
+    beforeEach ->
+      spyOn(panel, 'getGenericOutput').andCallThrough()
+      spyOn(mm, 'run').andCallThrough()
+
+    it 'should indicate when it is done compiling', ->
+      myParams = {args: {operation: 'generic_command'}, promiseId: 'my-fake-promiseId'}
+      successResponse = require('./fixtures/mavensmate-panel-view/generic_success.json')
+
+      # simulate the emitter firing due to a panel start then finish with a success response from tooling api
+      emitter.emit 'mavensmatePanelNotifyStart', myParams, 'my-fake-promiseId'
+      emitter.emit 'mavensmatePanelNotifyFinish', myParams, successResponse, 'my-fake-promiseId'
+
+      # ensure that getRunAsyncTestsCommandOutput has been called with expected params
+      expect(panel.getGenericOutput).toHaveBeenCalled()
+      expect(panel.getGenericOutput).toHaveBeenCalledWith('generic_command', myParams, successResponse)
+
+      # ensure the correct message was set
+      expect(panel.myOutput.find('div#message-my-fake-promiseId').html()).toBe('Operation completed successfully')
+      expect(panel.myOutput.find('div#stackTrace-my-fake-promiseId div pre').html()).toBe('')
