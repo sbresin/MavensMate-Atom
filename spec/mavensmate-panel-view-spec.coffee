@@ -169,6 +169,17 @@ describe 'MavensMate Panel View', ->
       expect(panel.myOutput.find('div#stackTrace-my-fake-promiseId div pre').html()).not.toBe('')
       expect(panel.myOutput.find('div.progress-bar').hasClass('progress-bar-danger')).toBe(true)
   
+  describe 'Reset Metadata Container', ->
+    beforeEach ->
+      spyOn(panel, 'getGenericOutput').andCallThrough()
+      spyOn(mm, 'run').andCallThrough()
+
+    it 'should invoke mavensmate:reset-metadata-container', ->
+      spyOn(atom, 'confirm').andReturn(1)
+      atom.workspaceView.trigger 'mavensmate:reset-metadata-container'
+      
+      expect(atom.confirm).toHaveBeenCalled()
+
   describe 'Generic Operations', ->
     beforeEach ->
       spyOn(panel, 'getGenericOutput').andCallThrough()
