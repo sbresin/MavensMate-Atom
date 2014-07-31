@@ -2,7 +2,7 @@
 util                  = require './mavensmate-util'
 emitter               = require('./mavensmate-emitter').pubsub
 
-module.exports = 
+module.exports =
 class MavensMateErrorView
   Subscriber.includeInto(this)
 
@@ -14,9 +14,9 @@ class MavensMateErrorView
 
   initialize: ->
     thisView = @
-    emitter.on 'mavensmateCompileErrorBufferNotify', (command, params, result) -> 
+    emitter.on 'mavensmateCompileErrorBufferNotify', (command, params, result) ->
       thisView.refreshMarkers()
-    emitter.on 'mavensmateCompileSuccessBufferNotify', (params) -> 
+    emitter.on 'mavensmateCompileSuccessBufferNotify', (params) ->
       thisView.refreshMarkers()
 
   clearMarkers: ->
@@ -26,7 +26,7 @@ class MavensMateErrorView
 
   refreshMarkers: ->
     return unless @gutter.isVisible()
-    currentFileName = util.stripPath(@editor.getPath())
+    if @editor.getPath() then currentFileName = util.stripPath(@editor.getPath())
     @clearMarkers()
 
     errors = atom.project.errors[currentFileName] ? []
