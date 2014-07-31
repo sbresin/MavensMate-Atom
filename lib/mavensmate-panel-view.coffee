@@ -147,17 +147,31 @@ class MavensMatePanelView extends View
       obj = @getUiCommandOutput command, params, result
     else
       switch command
+        when 'delete'
+          obj = @getDeleteCommandOutput command, params, result
         when 'compile'
           obj = @getCompileCommandOutput command, params, result
         when 'compile_project'
           obj = @getCompileProjectCommandOutput command, params, result
         when 'run_all_tests', 'test_async'
           obj = @getRunAsyncTestsCommandOutput command, params, result
-          console.log 'finished getRunAsyncTestsCommandOutput'
+        when 'new_quick_trace_flag'
+          obj = @getNewQuickTraceFlagCommandOutput command, params, result
         else
           obj = @getGenericOutput command, params, result
 
     return obj
+
+  getDeleteCommandOutput: (command, params, result) ->
+    if result.success
+      obj = indicator: "success"
+      if params.payload.files? and params.payload.files.length is 1
+        obj.message = 'Deleted ' + util.baseName(params.payload.files[0])
+      else
+        obj.message = "Deleted selected metadata"
+      return obj
+    else
+      @getErrorOutput command, params, result
 
   getUiCommandOutput: (command, params, result) ->
     console.log 'parsing ui'
@@ -276,7 +290,6 @@ class MavensMatePanelView extends View
     return obj
 
   getRunAsyncTestsCommandOutput: (command, params, result) ->
-    console.log 'running getRunAllTestsCommandOutput'
     obj =
       message: null
       indicator: 'warning'
@@ -306,7 +319,22 @@ class MavensMatePanelView extends View
 
     return obj
 
+  getNewQuickTraceFlagCommandOutput: (command, params, result) ->
+    obj =
+      message: null
+      indicator: 'warning'
+      stackTrace: ''
+      isException: false
 
+    if result.success is false
+      obj.indicator = 'danger'
+      obj.isException = true
+      obj.stackTrace = result.stack_trace
+    else
+      obj.indicator = 'success'
+
+    obj.message = result.body
+    return obj
 
   # Internal: Update the mavensmate output view contents.
   #
