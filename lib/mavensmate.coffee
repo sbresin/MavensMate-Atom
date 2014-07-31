@@ -356,28 +356,6 @@ module.exports =
         @mm.run(params).then (result) =>
           @mmResponseHandler(params, result)
 
-      # toggle apex checkpoint
-      atom.workspaceView.command 'mavensmate:toggle-checkpoint', =>
-        currentFile = util.activeFile()
-        fileName = ''
-        if currentFile.indexOf '.cls' >= 0
-          fileName = currentFile.substring (currentFile.lastIndexOf('/')+1), currentFile.lastIndexOf('.')
-        console.log "filename is : #{fileName}"
-        console.log this
-        params =
-          args:
-            operation: 'new_apex_overlay'
-            pane: atom.workspace.getActivePane()
-          payload:
-            Iteration: 1
-            IsDumpingHeap: true
-            Line: 7
-            Object_Type: 'ApexClass'
-            API_Name: fileName
-            ActionScriptType: 'None'
-        @mm.run(params).then (result) =>
-          @mmResponseHandler(params, result)
-
       # places mavensmate 3 dot icon in the status bar
       createStatusEntry = =>
         @mavensmateStatusBar = new MavensMateStatusBarView(@panel)
@@ -444,10 +422,30 @@ module.exports =
           @mmResponseHandler(params, result)
 
     handleGutterClickEvents: (editorView) ->
-      editor = editorView.getEditor()
+      $('.line-number').on 'click', (event)->
+        # ignore clicks on icons in the right of the gutter
+        # so that collapsing and other events can still occur
+        if $(event.target).hasClass 'icon-right' then return
 
-      $('.line-number').on 'click', ->
-        line = parseInt $(this).text()
+        currentFile = util.activeFile()
+        fileName = ''
+        if currentFile.indexOf '.cls' >= 0
+          fileName = currentFile.substring (currentFile.lastIndexOf('/')+1), currentFile.lastIndexOf('.')
+        console.log "filename is : #{fileName}"
+        console.log this
+        params =
+          args:
+            operation: 'new_apex_overlay'
+            pane: atom.workspace.getActivePane()
+          payload:
+            Iteration: 1
+            IsDumpingHeap: true
+            Line: 7
+            Object_Type: 'ApexClass'
+            API_Name: fileName
+            ActionScriptType: 'None'
+        @mm.run(params).then (result) =>
+          @mmResponseHandler(params, result)
+
+        # line = parseInt $(this).text()
         # editor.selectLine(line)
-        console.log $(this)
-        console.log "line is: #{line}"
