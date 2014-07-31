@@ -146,14 +146,19 @@ module.exports =
                       @mmResponseHandler(params, result)
             'No': null
 
-      # compiles entire project
+      # cleans entire project
       atom.workspaceView.command "mavensmate:clean-project", =>
         params =
           args:
             operation: 'clean_project'
             pane: atom.workspace.getActivePane()
-        @mm.run(params).then (result) =>
-          @mmResponseHandler(params, result)
+        atom.confirm
+          message: 'Confirm Clean Project'
+          detailedMessage: 'Are you sure you want to clean this project? All local (non-server) files will be deleted and your project will be refreshed from the server.'
+          buttons:
+            'Yes': => @mm.run(params).then (result) =>
+                      @mmResponseHandler(params, result)
+            'No': null
 
       # compiles entire project
       atom.workspaceView.command "mavensmate:reset-metadata-container", =>
