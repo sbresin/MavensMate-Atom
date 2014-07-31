@@ -1,6 +1,9 @@
 'context-menu':
-  '.workspace':
+  # '.workspace':
+  #   'MavensMate':
+  #     'child-1': 'test-submenu:toggle'
+  #     '-': '-'
+  #     'child-2': 'test-submenu:toggle'
+  '.workspace .line-number':
     'MavensMate':
-      'child-1': 'test-submenu:toggle'
-      '-': '-'
-      'child-2': 'test-submenu:toggle'
+      'Toggle Checkpoint': 'mavensmate:toggle-checkpoint'

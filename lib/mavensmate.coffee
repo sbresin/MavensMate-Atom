@@ -79,6 +79,7 @@ module.exports =
       
       atom.workspaceView.eachEditorView (editorView) =>
         @handleBufferEvents editorView
+        @handleGutterClickEvents editorView
         new MavensMateErrorView(editorView)
 
       # set package default
@@ -107,7 +108,7 @@ module.exports =
       # deletes active file from the server
       atom.workspaceView.command "mavensmate:delete-file-from-server", =>
         file = util.activeFile()
-        params = 
+        params =
           args:
             operation: 'delete'
             pane: atom.workspace.getActivePane()
@@ -120,7 +121,7 @@ module.exports =
           buttons: ["Cancel", "Delete"]
         if answer == 1 # 1 => Delete
           @mm.run(params).then (result) =>
-            @mmResponseHandler(params, result)              
+            @mmResponseHandler(params, result)
 
       atom.workspaceView.command "mavensmate:compile", =>
         params =
@@ -347,11 +348,33 @@ module.exports =
           @mmResponseHandler(params, result)
 
       # fetch logs
-      atom.workspaceView.command "mavensmate:fetch-logs", =>
+      atom.workspaceView.command 'mavensmate:fetch-logs', =>
         params =
           args:
             operation: 'fetch_logs'
             pane: atom.workspace.getActivePane()
+        @mm.run(params).then (result) =>
+          @mmResponseHandler(params, result)
+
+      # toggle apex checkpoint
+      atom.workspaceView.command 'mavensmate:toggle-checkpoint', =>
+        currentFile = util.activeFile()
+        fileName = ''
+        if currentFile.indexOf '.cls' >= 0
+          fileName = currentFile.substring (currentFile.lastIndexOf('/')+1), currentFile.lastIndexOf('.')
+        console.log "filename is : #{fileName}"
+        console.log this
+        params =
+          args:
+            operation: 'new_apex_overlay'
+            pane: atom.workspace.getActivePane()
+          payload:
+            Iteration: 1
+            IsDumpingHeap: true
+            Line: 7
+            Object_Type: 'ApexClass'
+            API_Name: fileName
+            ActionScriptType: 'None'
         @mm.run(params).then (result) =>
           @mmResponseHandler(params, result)
 
@@ -419,3 +442,12 @@ module.exports =
             files: [buffer.file.path]
         @mm.run(params).then (result) =>
           @mmResponseHandler(params, result)
+
+    handleGutterClickEvents: (editorView) ->
+      editor = editorView.getEditor()
+
+      $('.line-number').on 'click', ->
+        line = parseInt $(this).text()
+        # editor.selectLine(line)
+        console.log $(this)
+        console.log "line is: #{line}"
