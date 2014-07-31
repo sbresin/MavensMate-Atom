@@ -141,7 +141,7 @@ describe 'MavensMate Panel View', ->
 
   describe 'Compile Project', ->
     beforeEach ->
-      spyOn(panel, 'getCompileCommandOutput').andCallThrough()
+      spyOn(panel, 'getCompileProjectCommandOutput').andCallThrough()
       spyOn(mm, 'run').andCallThrough()
 
     it 'should invoke mavensmate:compile-project', ->
@@ -159,8 +159,8 @@ describe 'MavensMate Panel View', ->
       emitter.emit 'mavensmatePanelNotifyFinish', myParams, successResponse, 'my-fake-promiseId'
 
       # ensure that getRunAsyncTestsCommandOutput has been called with expected params
-      expect(panel.getCompileCommandOutput).toHaveBeenCalled()
-      expect(panel.getCompileCommandOutput).toHaveBeenCalledWith('test_async', myParams, successResponse)
+      expect(panel.getCompileProjectCommandOutput).toHaveBeenCalled()
+      expect(panel.getCompileProjectCommandOutput).toHaveBeenCalledWith('compile_project', myParams, successResponse)
 
       # ensure the correct message was set
       expect(panel.myOutput.find('div#message-my-fake-promiseId').html()).toBe('Success')

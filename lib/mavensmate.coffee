@@ -5,6 +5,7 @@ path  = require 'path'
 MavensMateEventEmitter              = require('./mavensmate-emitter').pubsub
 MavensMateLocalServer               = require './mavensmate-local-server'
 MavensMateProjectListView           = require './mavensmate-project-list-view'
+MavensMateErrorView                 = require './mavensmate-error-view'
 MavensMatePanelView                 = require('./mavensmate-panel-view').panel
 MavensMateStatusBarView             = require './mavensmate-status-bar-view'
 MavensMateAppView                   = require './mavensmate-app-view'
@@ -37,9 +38,6 @@ module.exports =
       # @editorView = atom.workspaceView.getActiveView()
       # if @editorView?
       #   {@editor, @gutter} = @editorView
-
-      atom.workspaceView.eachEditorView (editorView) =>
-        @handleBufferEvents editorView
 
       @init()
 
@@ -77,6 +75,12 @@ module.exports =
       # @subscribe atom.workspace.eachEditor (editor) =>
       #   @handleEvents(editor)
 
+      atom.project.errors = {}
+      
+      atom.workspaceView.eachEditorView (editorView) =>
+        @handleBufferEvents editorView
+        new MavensMateErrorView(editorView)
+
       # set package default
       # TODO: should we do this elsewhere?
       atom.config.setDefaults 'mavensmate',
@@ -106,7 +110,7 @@ module.exports =
             operation: 'compile'
             pane: atom.workspace.getActivePane()
           payload:
-            files: [MavensMateUtil.activeFile]
+            files: [util.activeFile()]
         @mm.run(params).then (result) =>
           @mmResponseHandler(params, result)
 
@@ -314,14 +318,6 @@ module.exports =
       else
         atom.packages.once 'activated', ->
           createStatusEntry()
-
-      emitter.on 'mavensmateCompileErrorBufferNotify', (command, params, result, errorLines) ->
-        params.args.editorView.gutter.removeClassFromAllLines 'mm-compile-error'
-        for line in errorLines
-          params.args.editorView.gutter.addClassToLine line-1, 'mm-compile-error'
-
-      emitter.on 'mavensmateCompileSuccessBufferNotify', (params) ->
-        params.args.editorView.gutter.removeClassFromAllLines 'mm-compile-error'
 
       atom.packages.activatePackage("autocomplete-plus")
         .then (pkg) =>

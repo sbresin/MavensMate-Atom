@@ -6,6 +6,9 @@ module.exports =
     file = editor?.buffer.file
     file?.path
 
+  stripPath: (filePath) ->
+    return filePath.replace(/^.*[\\\/]/, '')
+
   # whether the given command is a request for a ui
   isUiCommand: (params) ->
     if params.args? and params.args.ui?
