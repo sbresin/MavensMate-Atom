@@ -147,15 +147,31 @@ class MavensMatePanelView extends View
       obj = @getUiCommandOutput command, params, result
     else
       switch command
+        when 'delete'
+          obj = @getDeleteCommandOutput command, params, result
         when 'compile'
           obj = @getCompileCommandOutput command, params, result
+        when 'compile_project'
+          obj = @getCompileProjectCommandOutput command, params, result
         when 'run_all_tests', 'test_async'
           obj = @getRunAsyncTestsCommandOutput command, params, result
-          console.log 'finished getRunAsyncTestsCommandOutput'
+        when 'new_quick_trace_flag'
+          obj = @getNewQuickTraceFlagCommandOutput command, params, result
         else
           obj = @getGenericOutput command, params, result
 
     return obj
+
+  getDeleteCommandOutput: (command, params, result) ->
+    if result.success
+      obj = indicator: "success"
+      if params.payload.files? and params.payload.files.length is 1
+        obj.message = 'Deleted ' + util.baseName(params.payload.files[0])
+      else
+        obj.message = "Deleted selected metadata"
+      return obj
+    else
+      @getErrorOutput command, params, result
 
   getUiCommandOutput: (command, params, result) ->
     console.log 'parsing ui'
@@ -195,6 +211,11 @@ class MavensMatePanelView extends View
       stackTrace: null
       isException: false
 
+    filesCompiled = (util.stripPath(filePath) for filePath in params.payload.files ? [])
+
+    for compiledFile in filesCompiled
+      atom.project.errors[compiledFile] = []
+
     if result.State? # tooling
       if result.state is 'Error' and result.ErrorMsg?
         obj.message = result.ErrorMsg
@@ -204,22 +225,21 @@ class MavensMatePanelView extends View
           result.CompilerErrors = JSON.parse result.CompilerErrors
 
         errors = result.CompilerErrors
-
-        message = ''
-        errorLines = []
+        message = 'Compile Failed'
         for error in errors
+          errorFileName = error.name + ".cls"
           if error.line?
-            message += '(Line '+error.line+') '
-            errorLines.push error.line
-          message += error.problem
+            errorMessage = "#{errorFileName}: #{error.problem[0]} (Line: #{error.line[0]})"
+            error.lineNumber = error.line[0]
+          else
+            errorMessage = "#{errorFileName}: #{error.problem}"
+          message += '<br/>' + errorMessage
+
+          atom.project.errors[errorFileName] ?= []
+          atom.project.errors[errorFileName].push(error)
         obj.message = message
         obj.indicator = 'danger'
-
-        console.log 'NEED TO EMIT TO BUFFER MANAGER HERE'
-        #console.log params.args.editor
-        #console.log params.args.editor.gutter
-        emitter.emit 'mavensmateCompileErrorBufferNotify', command, params, result, errorLines
-
+        emitter.emit 'mavensmateCompileErrorBufferNotify', command, params, result
       else if result.State is 'Completed' and not result.ErrorMsg
         obj.indicator = 'success'
         obj.message = 'Success'
@@ -235,8 +255,41 @@ class MavensMatePanelView extends View
 
     return obj
 
+  getCompileProjectCommandOutput: (command, params, result) ->
+    obj =
+      message: null
+      indicator: null
+      stackTrace: null
+      isException: false
+
+    if result.success?
+      atom.project.errors = {}
+      obj.success = result.success;
+      if result.success
+        obj.message = "Success"
+        obj.indicator = 'success'
+        emitter.emit 'mavensmateCompileSuccessBufferNotify', params
+      else
+        errors = result.Messages
+        obj.indicator = 'danger'
+
+        message = 'Compile Project Failed'
+        for error in errors
+          errorFileName = util.stripPath(error.fileName)
+          errorMessage = "#{errorFileName}: #{error.problem} (Line: #{error.lineNumber}, Column: #{error.columnNumber})"
+          message += '<br/>' + errorMessage
+
+          atom.project.errors[errorFileName] ?= []
+          atom.project.errors[errorFileName].push(error)
+        console.log("Emitting mavensmateCompileErrorBufferNotify")
+        console.log(atom.project.errors)
+        emitter.emit 'mavensmateCompileErrorBufferNotify', command, params, result
+
+        obj.message = message
+        obj.indicator = 'danger'
+    return obj
+
   getRunAsyncTestsCommandOutput: (command, params, result) ->
-    console.log 'running getRunAllTestsCommandOutput'
     obj =
       message: null
       indicator: 'warning'
@@ -266,7 +319,22 @@ class MavensMatePanelView extends View
 
     return obj
 
+  getNewQuickTraceFlagCommandOutput: (command, params, result) ->
+    obj =
+      message: null
+      indicator: 'warning'
+      stackTrace: ''
+      isException: false
 
+    if result.success is false
+      obj.indicator = 'danger'
+      obj.isException = true
+      obj.stackTrace = result.stack_trace
+    else
+      obj.indicator = 'success'
+
+    obj.message = result.body
+    return obj
 
   # Internal: Update the mavensmate output view contents.
   #

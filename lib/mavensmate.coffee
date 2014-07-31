@@ -5,6 +5,7 @@ path  = require 'path'
 MavensMateEventEmitter              = require('./mavensmate-emitter').pubsub
 MavensMateLocalServer               = require './mavensmate-local-server'
 MavensMateProjectListView           = require './mavensmate-project-list-view'
+MavensMateErrorView                 = require './mavensmate-error-view'
 MavensMatePanelView                 = require('./mavensmate-panel-view').panel
 MavensMateStatusBarView             = require './mavensmate-status-bar-view'
 MavensMateAppView                   = require './mavensmate-app-view'
@@ -37,9 +38,6 @@ module.exports =
       # @editorView = atom.workspaceView.getActiveView()
       # if @editorView?
       #   {@editor, @gutter} = @editorView
-
-      atom.workspaceView.eachEditorView (editorView) =>
-        @handleBufferEvents editorView
 
       @init()
 
@@ -77,6 +75,12 @@ module.exports =
       # @subscribe atom.workspace.eachEditor (editor) =>
       #   @handleEvents(editor)
 
+      atom.project.errors = {}
+      
+      atom.workspaceView.eachEditorView (editorView) =>
+        @handleBufferEvents editorView
+        new MavensMateErrorView(editorView)
+
       # set package default
       # TODO: should we do this elsewhere?
       atom.config.setDefaults 'mavensmate',
@@ -100,13 +104,31 @@ module.exports =
       atom.workspaceView.command "mavensmate:toggle-output", =>
         @panel.toggle()
 
+      # deletes active file from the server
+      atom.workspaceView.command "mavensmate:delete-file-from-server", =>
+        file = util.activeFile()
+        params = 
+          args:
+            operation: 'delete'
+            pane: atom.workspace.getActivePane()
+          payload:
+            files: [file]
+        answer = atom.confirm
+          message: "Are you sure you want to delete #{util.activeFileBaseName()} file from Salesforce?"
+          # NB: specs expects the following buton indices, 0: Cancel, 1: Delete
+          #     so that we can simulate button clicks properly in the spec
+          buttons: ["Cancel", "Delete"]
+        if answer == 1 # 1 => Delete
+          @mm.run(params).then (result) =>
+            @mmResponseHandler(params, result)              
+
       atom.workspaceView.command "mavensmate:compile", =>
         params =
           args:
             operation: 'compile'
             pane: atom.workspace.getActivePane()
           payload:
-            files: [MavensMateUtil.activeFile]
+            files: [util.activeFile()]
         @mm.run(params).then (result) =>
           @mmResponseHandler(params, result)
 
@@ -116,8 +138,13 @@ module.exports =
           args:
             operation: 'compile_project'
             pane: atom.workspace.getActivePane()
-        @mm.run(params).then (result) =>
-          @mmResponseHandler(params, result)
+        atom.confirm
+          message: 'Confirm Compile Project'
+          detailedMessage: 'Would you like to compile the project?'
+          buttons:
+            'Yes': => @mm.run(params).then (result) =>
+                      @mmResponseHandler(params, result)
+            'No': null
 
       # cleans entire project
       atom.workspaceView.command "mavensmate:clean-project", =>
@@ -128,6 +155,20 @@ module.exports =
         atom.confirm
           message: 'Confirm Clean Project'
           detailedMessage: 'Are you sure you want to clean this project? All local (non-server) files will be deleted and your project will be refreshed from the server.'
+          buttons:
+            'Yes': => @mm.run(params).then (result) =>
+                      @mmResponseHandler(params, result)
+            'No': null
+
+      # compiles entire project
+      atom.workspaceView.command "mavensmate:reset-metadata-container", =>
+        params =
+          args:
+            operation: 'reset_metadata_container'
+            pane: atom.workspace.getActivePane()
+        atom.confirm
+          message: 'Reset Metadata Container'
+          detailedMessage: 'Are you sure you want to reset the metadata container?'
           buttons:
             'Yes': => @mm.run(params).then (result) =>
                       @mmResponseHandler(params, result)
@@ -296,6 +337,15 @@ module.exports =
         @mm.run(params).then (result) =>
           @mmResponseHandler(params, result)
 
+      # New quick log
+      atom.workspaceView.command "mavensmate:new-quick-log", =>
+        params =
+          args:
+            operation: 'new_quick_trace_flag'
+            pane: atom.workspace.getActivePane()
+        @mm.run(params).then (result) =>
+          @mmResponseHandler(params, result)
+
       # fetch logs
       atom.workspaceView.command "mavensmate:fetch-logs", =>
         params =
@@ -314,14 +364,6 @@ module.exports =
       else
         atom.packages.once 'activated', ->
           createStatusEntry()
-
-      emitter.on 'mavensmateCompileErrorBufferNotify', (command, params, result, errorLines) ->
-        params.args.editorView.gutter.removeClassFromAllLines 'mm-compile-error'
-        for line in errorLines
-          params.args.editorView.gutter.addClassToLine line-1, 'mm-compile-error'
-
-      emitter.on 'mavensmateCompileSuccessBufferNotify', (params) ->
-        params.args.editorView.gutter.removeClassFromAllLines 'mm-compile-error'
 
       atom.packages.activatePackage("autocomplete-plus")
         .then (pkg) =>
