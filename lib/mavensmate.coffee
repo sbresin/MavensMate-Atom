@@ -76,7 +76,7 @@ module.exports =
       #   @handleEvents(editor)
 
       atom.project.errors = {}
-      
+
       atom.workspaceView.eachEditorView (editorView) =>
         @handleBufferEvents editorView
         @handleGutterClickEvents editorView
@@ -422,30 +422,38 @@ module.exports =
           @mmResponseHandler(params, result)
 
     handleGutterClickEvents: (editorView) ->
-      $('.line-number').on 'click', (event)->
+      $('.line-number').on 'click', (event) =>
         # ignore clicks on icons in the right of the gutter
         # so that collapsing and other events can still occur
-        if $(event.target).hasClass 'icon-right' then return
+        target = $(event.target)
+        if target.hasClass 'icon-right' then return
 
-        currentFile = util.activeFile()
-        fileName = ''
-        if currentFile.indexOf '.cls' >= 0
-          fileName = currentFile.substring (currentFile.lastIndexOf('/')+1), currentFile.lastIndexOf('.')
-        console.log "filename is : #{fileName}"
-        console.log this
+        currentFile = util.activeFileBaseName()
+        if currentFile.indexOf('.trigger') < 0 and currentFile.indexOf('.cls') < 0 then return
+
+        op = ''
+        if target.hasClass 'checkpoint'
+          op = 'delete_apex_overlay'
+          target.removeClass 'checkpoint'
+        else
+          op = 'new_apex_overlay'
+          target.addClass 'checkpoint'
+        # trim off the extension
+        fileName = currentFile.split('.')[0]
+        lineNum = parseInt target.text()
+
         params =
           args:
-            operation: 'new_apex_overlay'
+            operation: op
             pane: atom.workspace.getActivePane()
           payload:
             Iteration: 1
             IsDumpingHeap: true
-            Line: 7
-            Object_Type: 'ApexClass'
+            Line: lineNum
+            Object_Type: if currentFile.indexOf('.cls') >= 0 then 'ApexClass' else 'Trigger'
             API_Name: fileName
             ActionScriptType: 'None'
         @mm.run(params).then (result) =>
           @mmResponseHandler(params, result)
 
-        # line = parseInt $(this).text()
         # editor.selectLine(line)
