@@ -6,10 +6,6 @@ module.exports =
     file = editor?.buffer.file
     file?.path
 
-
-  stripPath: (filePath) ->
-    return filePath.replace(/^.*[\\\/]/, '')
-
   # returns base name for active file
   activeFileBaseName: ->
     editor = atom.workspace.getActivePaneItem()
