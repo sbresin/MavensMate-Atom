@@ -174,6 +174,15 @@ module.exports =
                       @mmResponseHandler(params, result)
             'No': null
 
+      # index metadata
+      atom.workspaceView.command "mavensmate:index-metadata", (event)=>        
+        params =
+          args:
+            operation: 'index_metadata'
+            pane: atom.workspace.getActivePane()
+        @mm.run(params).then (result) =>
+          @mmResponseHandler(params, result)
+
       # refresh metadata
       atom.workspaceView.command "mavensmate:refresh-selected-metadata", (event)=>        
         filesToRefresh = []

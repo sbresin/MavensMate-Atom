@@ -64,6 +64,7 @@ module.exports =
     messages =
       new_project : 'Creating new project'
       compile_project: 'Compiling project'
+      index_metadata: 'Indexing metadata'
       compile: ->
         if params.payload.files? and params.payload.files.length is 1
           'Compiling '+params.payload.files[0]
