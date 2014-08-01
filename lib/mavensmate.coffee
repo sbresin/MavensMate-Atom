@@ -160,7 +160,7 @@ module.exports =
                       @mmResponseHandler(params, result)
             'No': null
 
-      # compiles entire project
+      # reset metadata container
       atom.workspaceView.command "mavensmate:reset-metadata-container", =>
         params =
           args:
@@ -173,6 +173,28 @@ module.exports =
             'Yes': => @mm.run(params).then (result) =>
                       @mmResponseHandler(params, result)
             'No': null
+
+      # refresh metadata
+      atom.workspaceView.command "mavensmate:refresh-selected-metadata", (event)=>        
+        filesToRefresh = []
+        fileNamesToRefresh = []
+        atom.workspaceView.find('.selected .icon-file-text').each (index, element) =>                    
+          filesToRefresh.push(util.filePathFromTreePath($(element).data('path'))) 
+
+        if filesToRefresh.length > 0
+          params =
+            args:
+              operation: 'refresh'
+              pane: atom.workspace.getActivePane()
+            payload:
+              files: filesToRefresh
+          atom.confirm
+            message: 'Refresh Selected Metadata'
+            detailedMessage: "Are you sure you want to overwrite the selected files' contents from Salesforce?"
+            buttons:
+              'Yes': => @mm.run(params).then (result) =>
+                        @mmResponseHandler(params, result)
+              'No': null
 
       # runs all tests
       atom.workspaceView.command "mavensmate:run-all-tests-async", =>

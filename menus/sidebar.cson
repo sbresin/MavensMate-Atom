@@ -1,6 +1,7 @@
 'context-menu':
   '.workspace':
     'MavensMate':
+      'Refresh From Server': 'mavensmate:refresh-selected-metadata'
       'child-1': 'test-submenu:toggle'
       '-': '-'
       'child-2': 'test-submenu:toggle'
