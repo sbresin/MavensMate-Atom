@@ -1,14 +1,13 @@
 module.exports =
+  # returns the fully resolved file path given a path relative to the root of the project
+  filePathFromTreePath: (treePath) ->
+    atom.project.resolve('./' + treePath)
 
   # returns the active file path 
-	activeFile: ->
+  activeFile: ->
     editor = atom.workspace.getActivePaneItem()
     file = editor?.buffer.file
     file?.path
-
-
-  stripPath: (filePath) ->
-    return filePath.replace(/^.*[\\\/]/, '')
 
   # returns base name for active file
   activeFileBaseName: ->
@@ -75,6 +74,11 @@ module.exports =
           'Deleting ' + params.payload.files[0].split(/[\\/]/).pop() # extract base name
         else
           'Deleting selected metadata'
+      refresh: ->
+        if params.payload.files? and params.payload.files.length is 1
+          'Refreshing ' + params.payload.files[0]
+        else
+          'Refreshing selected metadata'
 
     if isUi
       msg = uiMessages[command]
