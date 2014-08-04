@@ -138,13 +138,13 @@ module.exports =
           args:
             operation: 'compile_project'
             pane: atom.workspace.getActivePane()
-        atom.confirm
+        answer = atom.confirm
           message: 'Confirm Compile Project'
           detailedMessage: 'Would you like to compile the project?'
-          buttons:
-            'Yes': => @mm.run(params).then (result) =>
-                      @mmResponseHandler(params, result)
-            'No': null
+          buttons: ['Yes', 'No']
+        if answer == 0 # Yes
+          @mm.run(params).then (result) =>
+            @mmResponseHandler(params, result)
 
       # cleans entire project
       atom.workspaceView.command "mavensmate:clean-project", =>
@@ -152,13 +152,13 @@ module.exports =
           args:
             operation: 'clean_project'
             pane: atom.workspace.getActivePane()
-        atom.confirm
+        answer = atom.confirm
           message: 'Confirm Clean Project'
           detailedMessage: 'Are you sure you want to clean this project? All local (non-server) files will be deleted and your project will be refreshed from the server.'
-          buttons:
-            'Yes': => @mm.run(params).then (result) =>
-                      @mmResponseHandler(params, result)
-            'No': null
+          buttons: ['Yes', 'No']
+        if answer == 0 # Yes
+          @mm.run(params).then (result) =>
+            @mmResponseHandler(params, result)
 
       # reset metadata container
       atom.workspaceView.command "mavensmate:reset-metadata-container", =>
@@ -166,13 +166,13 @@ module.exports =
           args:
             operation: 'reset_metadata_container'
             pane: atom.workspace.getActivePane()
-        atom.confirm
+        answer = atom.confirm
           message: 'Reset Metadata Container'
           detailedMessage: 'Are you sure you want to reset the metadata container?'
-          buttons:
-            'Yes': => @mm.run(params).then (result) =>
-                      @mmResponseHandler(params, result)
-            'No': null
+          buttons: ['Yes', 'No']
+        if answer == 0 # Yes
+          @mm.run(params).then (result) =>
+            @mmResponseHandler(params, result)
 
       # index metadata
       atom.workspaceView.command "mavensmate:index-metadata", (event)=>        
@@ -197,13 +197,13 @@ module.exports =
               pane: atom.workspace.getActivePane()
             payload:
               files: filesToRefresh
-          atom.confirm
+          answer = atom.confirm
             message: 'Refresh Selected Metadata'
             detailedMessage: "Are you sure you want to overwrite the selected files' contents from Salesforce?"
-            buttons:
-              'Yes': => @mm.run(params).then (result) =>
-                        @mmResponseHandler(params, result)
-              'No': null
+            buttons: ['Yes', 'No']
+          if answer == 0 # Yes
+            @mm.run(params).then (result) =>
+              @mmResponseHandler(params, result)
 
       # runs all tests
       atom.workspaceView.command "mavensmate:run-all-tests-async", =>
