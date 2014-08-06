@@ -109,3 +109,8 @@ module.exports =
       params.args.operation
     else
       params.payload.command
+
+  getSelectedFiles: ->
+    selectedFilePaths = []    
+    atom.workspaceView.find('.selected .icon-file-text').each (index, element) =>                    
+      selectedFilePaths.push(util.filePathFromTreePath($(element).data('path'))) 
