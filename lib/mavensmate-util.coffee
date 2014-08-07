@@ -1,6 +1,9 @@
 module.exports =
+	# setting object to configure MavensMate for future SFDC updates
+	sfdcSettings:
+		maxCheckpoints: 5
 
-  # returns the active file path 
+	# returns the active file path
 	activeFile: ->
     editor = atom.workspace.getActivePaneItem()
     file = editor?.buffer.file
@@ -27,7 +30,7 @@ module.exports =
     if params.args? and params.args.ui?
       params.args.ui
     else
-      false  
+      false
 
   # ui commands that use a modal (others use an atom pane)
   modalCommands: ->
@@ -50,7 +53,10 @@ module.exports =
     [
       'get_indexed_metadata',
       'deploy',
-      'get_active_session'
+      'get_active_session',
+      'new_apex_overlay',
+      'delete_apex_overlay',
+      'index_apex_overlays'
     ]
 
   # returns the command message to be displayed in the panel
@@ -58,7 +64,7 @@ module.exports =
     console.log params
 
     # todo: move objects to global?
-    uiMessages = 
+    uiMessages =
       new_project : 'Opening new project panel'
       edit_project : 'Opening edit project panel'
 
@@ -69,7 +75,7 @@ module.exports =
         if params.payload.files? and params.payload.files.length is 1
           'Compiling '+params.payload.files[0]
         else
-          'Compiling selected metadata' 
+          'Compiling selected metadata'
       delete: ->
         if params.payload.files? and params.payload.files.length is 1
           'Deleting ' + params.payload.files[0].split(/[\\/]/).pop() # extract base name
@@ -101,3 +107,7 @@ module.exports =
       params.args.operation
     else
       params.payload.command
+
+	# whether the given file is a trigger or apex class
+	isClassOrTrigger: (currentFile) ->
+		return currentFile? and (currentFile.indexOf('.trigger') >= 0 or currentFile.indexOf('.cls') >= 0)
