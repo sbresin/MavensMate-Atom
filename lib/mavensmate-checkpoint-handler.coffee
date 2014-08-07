@@ -40,7 +40,7 @@ module.exports =
       if atom.project.path and @currentFile?
         fs.readFile atom.project.path + '/config/.overlays', (error, data) =>
           if error
-            console.log err
+            console.log error
           else
             overlays = JSON.parse data
             atom.project.checkpointCount = overlays.length
