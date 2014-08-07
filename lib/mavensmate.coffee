@@ -6,6 +6,7 @@ MavensMateEventEmitter              = require('./mavensmate-emitter').pubsub
 MavensMateLocalServer               = require './mavensmate-local-server'
 MavensMateProjectListView           = require './mavensmate-project-list-view'
 MavensMateErrorView                 = require './mavensmate-error-view'
+MavensMateCheckpointHandler         = require './mavensmate-checkpoint-handler'
 MavensMatePanelView                 = require('./mavensmate-panel-view').panel
 MavensMateStatusBarView             = require './mavensmate-status-bar-view'
 MavensMateAppView                   = require './mavensmate-app-view'
@@ -76,11 +77,19 @@ module.exports =
       #   @handleEvents(editor)
 
       atom.project.errors = {}
+      atom.project.checkpointCount = 0
+      if atom.project.path
+        try
+          data = fs.readFileSync atom.project.path + '/config/.overlays'
+          overlays = JSON.parse data
+          atom.project.checkpointCount = overlays.length
+        catch error
+          console.log error
 
       atom.workspaceView.eachEditorView (editorView) =>
         @handleBufferEvents editorView
-        @handleGutterClickEvents editorView
         new MavensMateErrorView(editorView)
+        new MavensMateCheckpointHandler(editorView, @mm, @mmResponseHandler)
 
       # set package default
       # TODO: should we do this elsewhere?
@@ -356,6 +365,14 @@ module.exports =
         @mm.run(params).then (result) =>
           @mmResponseHandler(params, result)
 
+      atom.workspaceView.command 'mavensmate:refresh-checkpoints', =>
+          params =
+            args:
+              operation: 'index_apex_overlays'
+              pane: atom.workspace.getActivePane()
+          @mm.run(params).then (result) =>            
+            @mmResponseHandler params, result
+
       # places mavensmate 3 dot icon in the status bar
       createStatusEntry = =>
         @mavensmateStatusBar = new MavensMateStatusBarView(@panel)
@@ -420,40 +437,3 @@ module.exports =
             files: [buffer.file.path]
         @mm.run(params).then (result) =>
           @mmResponseHandler(params, result)
-
-    handleGutterClickEvents: (editorView) ->
-      $('.line-number').on 'click', (event) =>
-        # ignore clicks on icons in the right of the gutter
-        # so that collapsing and other events can still occur
-        target = $(event.target)
-        if target.hasClass 'icon-right' then return
-
-        currentFile = util.activeFileBaseName()
-        if currentFile.indexOf('.trigger') < 0 and currentFile.indexOf('.cls') < 0 then return
-
-        op = ''
-        if target.hasClass 'checkpoint'
-          op = 'delete_apex_overlay'
-          target.removeClass 'checkpoint'
-        else
-          op = 'new_apex_overlay'
-          target.addClass 'checkpoint'
-        # trim off the extension
-        fileName = currentFile.split('.')[0]
-        lineNum = parseInt target.text()
-
-        params =
-          args:
-            operation: op
-            pane: atom.workspace.getActivePane()
-          payload:
-            Iteration: 1
-            IsDumpingHeap: true
-            Line: lineNum
-            Object_Type: if currentFile.indexOf('.cls') >= 0 then 'ApexClass' else 'Trigger'
-            API_Name: fileName
-            ActionScriptType: 'None'
-        @mm.run(params).then (result) =>
-          @mmResponseHandler(params, result)
-
-        # editor.selectLine(line)
