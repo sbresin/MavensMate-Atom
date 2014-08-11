@@ -1,6 +1,8 @@
 MavensMate for Atom.io
 ===============
 
+![Travis CI Build Flag](https://travis-ci.org/joeferraro/MavensMate-Atom.svg?branch=master)
+
 MavensMate plugin for GitHub's Atom text editor
 
 **IMPORTANT**
