@@ -23,8 +23,6 @@ class MavensMateProjectListView extends SelectListView
     cfg = atom.config.getSettings()['MavensMate-Atom']
     workspaces = cfg.mm_workspace
     
-    if cfg.mm_workspace.indexOf(',') == -1
-      workspaces = [ cfg.mm_workspace ]
     for workspace in workspaces
       if fs.existsSync workspace
         files = fs.readdirSync workspace
