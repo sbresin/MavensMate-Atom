@@ -117,11 +117,13 @@ module.exports =
     else
       params.payload.command
 
+<<<<<<< HEAD
   getSelectedFiles: ->
     selectedFilePaths = []    
     atom.workspaceView.find('.selected .icon-file-text').each (index, element) =>                    
       selectedFilePaths.push(util.filePathFromTreePath($(element).data('path'))) 
-
+=======
 	# whether the given file is a trigger or apex class
 	isClassOrTrigger: (currentFile) ->
 		return currentFile? and (currentFile.indexOf('.trigger') >= 0 or currentFile.indexOf('.cls') >= 0)
+>>>>>>> master
