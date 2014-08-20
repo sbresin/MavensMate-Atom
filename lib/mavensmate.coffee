@@ -200,10 +200,8 @@ module.exports =
 
       # refresh metadata
       atom.workspaceView.command "mavensmate:refresh-selected-metadata", (event)=>
-        filesToRefresh = []
+        filesToRefresh = util.getSelectedFiles() 
         fileNamesToRefresh = []
-        atom.workspaceView.find('.selected .icon-file-text').each (index, element) =>
-          filesToRefresh.push(util.filePathFromTreePath($(element).data('path')))
 
         if filesToRefresh.length > 0
           params =

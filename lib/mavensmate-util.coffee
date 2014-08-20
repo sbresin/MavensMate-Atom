@@ -133,8 +133,12 @@ module.exports =
   getSelectedFiles: ->
     selectedFilePaths = []        
     apex_file_extensions = atom.config.getSettings()['MavensMate-Atom'].mm_apex_file_extensions
-    atom.workspaceView.find('.selected .icon-file-text').each (index, element) =>
-      filePath = this.filePathFromTreePath($(element).data('path'))
+    treeView = this.treeView()
+    if treeView.hasFocus() # clicked in sidebar
+      filePaths = treeView.selectedPaths()
+    else # command palette or right click in editor
+      filePaths = [this.activeFile()]
+    for filePath in filePaths
       if this.extension(filePath) in apex_file_extensions
         selectedFilePaths.push(filePath)
     return selectedFilePaths
