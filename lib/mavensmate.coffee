@@ -150,6 +150,17 @@ module.exports =
           @mm.run(params).then (result) =>
             @mmResponseHandler(params, result)
 
+      # compiles selected metadata
+      atom.workspaceView.command "mavensmate:compile-selected-metadata", =>
+        params =
+          args:
+            operation: 'compile'
+            pane: atom.workspace.getActivePane()  
+          payload:
+            files: util.getSelectedFiles()      
+        @mm.run(params).then (result) =>
+          @mmResponseHandler(params, result)
+
       # cleans entire project
       atom.workspaceView.command "mavensmate:clean-project", =>
         params =

@@ -1,3 +1,5 @@
+{$, $$, $$$, EditorView, View} = require 'atom'
+
 module.exports =
   # setting object to configure MavensMate for future SFDC updates
   sfdcSettings:
@@ -31,6 +33,9 @@ module.exports =
   # e.g. /workspace/MyApexClass.cls -> MyApexClass.cls
   baseName: (filePath) ->
     filePath.split(/[\\/]/).pop()
+
+  extension: (filePath) ->
+    '.' + filePath.split(/[.]/).pop()
 
   # returns tree view
   treeView: ->
@@ -126,9 +131,13 @@ module.exports =
       params.payload.command
 
   getSelectedFiles: ->
-    selectedFilePaths = []    
-    atom.workspaceView.find('.selected .icon-file-text').each (index, element) =>                    
-      selectedFilePaths.push(util.filePathFromTreePath($(element).data('path'))) 
+    selectedFilePaths = []        
+    apex_file_extensions = atom.config.getSettings()['MavensMate-Atom'].mm_apex_file_extensions
+    atom.workspaceView.find('.selected .icon-file-text').each (index, element) =>
+      filePath = this.filePathFromTreePath($(element).data('path'))
+      if this.extension(filePath) in apex_file_extensions
+        selectedFilePaths.push(filePath)
+    return selectedFilePaths
 
   # whether the given file is a trigger or apex class
   isClassOrTrigger: (currentFile) ->
