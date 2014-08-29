@@ -1,3 +1,4 @@
+{$} = require 'atom'
 MavensMate = require './mavensmate'
 
 module.exports =
@@ -18,8 +19,10 @@ module.exports =
   # i think we want to keep each MavensMate() instance tied to a project, but not 100% sure how to approach that
   activate: =>
     console.log 'activating mavensmate'
-    @mavensmate = new MavensMate()
+    @mavensmate = new MavensMate
 
   deactivate: =>
     console.log 'deactivating mavensmate'
+    @mavensmate.destroy()
     delete @mavensmate
+
