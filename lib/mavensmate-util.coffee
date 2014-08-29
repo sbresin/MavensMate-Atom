@@ -26,7 +26,7 @@ module.exports =
   # returns base name for active file
   activeFileBaseName: ->
     editor = atom.workspace.getActivePaneItem()
-    file = editor?.buffer.file
+    file = editor?.buffer?.file
     file?.getBaseName()
 
   # returns base name for file path
@@ -132,7 +132,7 @@ module.exports =
 
   # filters the selected items against metadata extensions
   getSelectedFiles: ->
-    selectedFilePaths = []        
+    selectedFilePaths = []
     apex_file_extensions = atom.config.getSettings()['MavensMate-Atom'].mm_apex_file_extensions
     treeView = this.treeView()
     if treeView.hasFocus() # clicked in sidebar
