@@ -155,9 +155,9 @@ module.exports =
         params =
           args:
             operation: 'compile'
-            pane: atom.workspace.getActivePane()  
+            pane: atom.workspace.getActivePane()
           payload:
-            files: util.getSelectedFiles()      
+            files: util.getSelectedFiles()
         @mm.run(params).then (result) =>
           @mmResponseHandler(params, result)
 
@@ -200,7 +200,7 @@ module.exports =
 
       # refresh metadata
       atom.workspaceView.command "mavensmate:refresh-selected-metadata", (event)=>
-        filesToRefresh = util.getSelectedFiles() 
+        filesToRefresh = util.getSelectedFiles()
         fileNamesToRefresh = []
 
         if filesToRefresh.length > 0
@@ -419,12 +419,12 @@ module.exports =
 
       if !util.isAutocompletePlusInstalled()
         @installAutocompletePlus()
-      else 
+      else
         @enableAutocomplete()
 
     installAutocompletePlus: ->
       cmd = "#{atom.packages.getApmPath()} install autocomplete-plus"
-      exec cmd, @enableAutocomplete 
+      exec cmd, @enableAutocomplete
 
     enableAutocomplete: ->
       atom.packages.activatePackage("autocomplete-plus")
@@ -450,11 +450,20 @@ module.exports =
     # Public: Deactivate the package and destroy the mavensmate views.
     #
     # Returns nothing.
-    deactivate: ->
-      @mavensMateAppView.destroy()
+    destroy: ->
+      # remove MavensMate items from the status bar
       @mavensmateStatusBar?.destroy()
       @mavensmateStatusBar = null
-      @localHttpServer.destroy()
+
+      # remove the MavensMate panel
+      @panel.destroy()
+      @panel = null
+
+      #unsubscribe from all listeners
+      @unsubscribe()
+
+      # @localHttpServer.destroy() #this crashes out the app
+      @localHttpServer = null
 
     mmResponseHandler: (params, result) ->
       tracker.pop(result.promiseId).result
