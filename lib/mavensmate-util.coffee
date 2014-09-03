@@ -1,9 +1,23 @@
+{$, $$, $$$, EditorView, View} = require 'atom'
+
 module.exports =
+  # setting object to configure MavensMate for future SFDC updates
+  sfdcSettings:
+    maxCheckpoints: 5
+
+  # returns true if autocomplete-plus is installed
+  isAutocompletePlusInstalled: ->
+    atom.packages.getAvailablePackageNames().indexOf('autocomplete-plus') > -1
+
+  typeIsArray: (value) ->
+    Array.isArray or (value) ->
+      {}.toString.call(value) is "[object Array]"
+
   # returns the fully resolved file path given a path relative to the root of the project
   filePathFromTreePath: (treePath) ->
     atom.project.resolve('./' + treePath)
 
-  # returns the active file path 
+  # returns the active file path
   activeFile: ->
     editor = atom.workspace.getActivePaneItem()
     file = editor?.buffer.file
@@ -12,7 +26,7 @@ module.exports =
   # returns base name for active file
   activeFileBaseName: ->
     editor = atom.workspace.getActivePaneItem()
-    file = editor?.buffer.file
+    file = editor?.buffer?.file
     file?.getBaseName()
 
   # returns base name for file path
@@ -20,13 +34,19 @@ module.exports =
   baseName: (filePath) ->
     filePath.split(/[\\/]/).pop()
 
+  extension: (filePath) ->
+    '.' + filePath.split(/[.]/).pop()
+
+  # returns tree view
+  treeView: ->
+    atom.workspaceView.find('.tree-view').view()
 
   # whether the given command is a request for a ui
   isUiCommand: (params) ->
     if params.args? and params.args.ui?
       params.args.ui
     else
-      false  
+      false
 
   # ui commands that use a modal (others use an atom pane)
   modalCommands: ->
@@ -49,7 +69,10 @@ module.exports =
     [
       'get_indexed_metadata',
       'deploy',
-      'get_active_session'
+      'get_active_session',
+      'new_apex_overlay',
+      'delete_apex_overlay',
+      'index_apex_overlays'
     ]
 
   # returns the command message to be displayed in the panel
@@ -57,18 +80,19 @@ module.exports =
     console.log params
 
     # todo: move objects to global?
-    uiMessages = 
+    uiMessages =
       new_project : 'Opening new project panel'
       edit_project : 'Opening edit project panel'
 
     messages =
       new_project : 'Creating new project'
       compile_project: 'Compiling project'
+      index_metadata: 'Indexing metadata'
       compile: ->
         if params.payload.files? and params.payload.files.length is 1
           'Compiling '+params.payload.files[0]
         else
-          'Compiling selected metadata' 
+          'Compiling selected metadata'
       delete: ->
         if params.payload.files? and params.payload.files.length is 1
           'Deleting ' + params.payload.files[0].split(/[\\/]/).pop() # extract base name
@@ -105,3 +129,21 @@ module.exports =
       params.args.operation
     else
       params.payload.command
+
+  # filters the selected items against metadata extensions
+  getSelectedFiles: ->
+    selectedFilePaths = []
+    apex_file_extensions = atom.config.getSettings()['MavensMate-Atom'].mm_apex_file_extensions
+    treeView = this.treeView()
+    if treeView.hasFocus() # clicked in sidebar
+      filePaths = treeView.selectedPaths()
+    else # command palette or right click in editor
+      filePaths = [this.activeFile()]
+    for filePath in filePaths
+      if this.extension(filePath) in apex_file_extensions
+        selectedFilePaths.push(filePath)
+    return selectedFilePaths
+
+  # whether the given file is a trigger or apex class
+  isClassOrTrigger: (currentFile) ->
+    return currentFile? and (currentFile.indexOf('.trigger') >= 0 or currentFile.indexOf('.cls') >= 0)
