@@ -67,7 +67,8 @@ module.exports =
       @mm = MavensMateCommandLineInterface
 
       # start the local express.js server, returns a promise, set the server port that was randomly selected
-      @localHttpServer = new MavensMateLocalServer().start().then (result) =>
+      @localHttpServer = new MavensMateLocalServer()
+      @localHttpServer.start().then (result) =>
         atom.config.set('MavensMate-Atom.mm_server_port', result)
 
       # instantiate mavensmate panel, show it
@@ -451,6 +452,10 @@ module.exports =
     #
     # Returns nothing.
     destroy: ->
+      # stop/destroy local express server
+      @localHttpServer.destroy()
+      delete @localHttpServer
+    
       # remove MavensMate items from the status bar
       @mavensmateStatusBar?.destroy()
       @mavensmateStatusBar = null
@@ -461,9 +466,6 @@ module.exports =
 
       #unsubscribe from all listeners
       @unsubscribe()
-
-      # @localHttpServer.destroy() #this crashes out the app
-      @localHttpServer = null
 
     mmResponseHandler: (params, result) ->
       tracker.pop(result.promiseId).result
