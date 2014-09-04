@@ -72,7 +72,27 @@ module.exports =
         atom.config.set('MavensMate-Atom.mm_server_port', result)
 
       # instantiate mavensmate panel, show it
-      @panel = MavensMatePanelView
+      @panel = MavensMatePanelView    
+
+      atom.workspaceView.command "mavensmate:new-project", =>
+        params =
+          args:
+            operation: 'new_project'
+            ui: true
+            #pane: atom.workspace.getActivePane().splitLeft()
+            pane: atom.workspace.getActivePane()
+        @mm.run(params).then (result) =>
+          @mmResponseHandler(params, result)
+
+      # presents a list of projects in a select list
+      atom.workspaceView.command "mavensmate:open-project", =>
+        # instantiate a mavensmate project list view instance
+        @selectList = new MavensMateProjectListView()
+        @selectList.toggle()
+
+      @initializeProject()
+    initializeProject: ->
+      
       @panel.toggle()
 
       # @subscribe atom.workspace.eachEditor (editor) =>
@@ -88,18 +108,8 @@ module.exports =
         catch error
           console.log error
 
-      atom.workspaceView.eachEditorView (editorView) =>
-        @handleBufferEvents editorView
-        new MavensMateErrorView(editorView)
-        new MavensMateCheckpointHandler(editorView, @mm, @mmResponseHandler)
-
       ##COMMANDS TODO: move
 
-      # presents a list of projects in a select list
-      atom.workspaceView.command "mavensmate:open-project", =>
-        # instantiate a mavensmate project list view instance
-        @selectList = new MavensMateProjectListView()
-        @selectList.toggle()
 
       atom.workspaceView.command "mavensmate:toggle-output", =>
         @panel.toggle()
@@ -247,15 +257,6 @@ module.exports =
 
       # UI commands
 
-      atom.workspaceView.command "mavensmate:new-project", =>
-        params =
-          args:
-            operation: 'new_project'
-            ui: true
-            #pane: atom.workspace.getActivePane().splitLeft()
-            pane: atom.workspace.getActivePane()
-        @mm.run(params).then (result) =>
-          @mmResponseHandler(params, result)
 
       atom.workspaceView.command "mavensmate:edit-project", =>
         params =
@@ -423,6 +424,11 @@ module.exports =
       else
         @enableAutocomplete()
 
+      atom.workspaceView.eachEditorView (editorView) =>        
+        @handleBufferEvents editorView
+        editorView.errorView = new MavensMateErrorView(editorView)
+        editorView.checkpointHandler = new MavensMateCheckpointHandler(editorView, @mm, @mmResponseHandler)
+
     installAutocompletePlus: ->
       cmd = "#{atom.packages.getApmPath()} install autocomplete-plus"
       exec cmd, @enableAutocomplete
@@ -479,15 +485,18 @@ module.exports =
     handleBufferEvents: (editorView) ->
       buffer = editorView.editor.getBuffer()
 
-      @subscribe buffer.on 'saved', =>
-        params =
-          args:
-            operation: 'compile'
-            pane: atom.workspace.getActivePane()
-            editor: atom.workspace.getActiveEditor()
-            editorView: atom.workspaceView.getActiveView()
-            buffer: buffer
-          payload:
-            files: [buffer.file.path]
-        @mm.run(params).then (result) =>
-          @mmResponseHandler(params, result)
+      console.log('should this editorview have buffer events?')
+      console.log('well it is this file ' + buffer.file.getBaseName() + ' and is it metadata? ' + util.isMetadata(buffer.file.getBaseName()))
+      if buffer.file? and util.isMetadata(buffer.file.getBaseName())
+        @subscribe buffer.on 'saved', =>
+          params =
+            args:
+              operation: 'compile'
+              pane: atom.workspace.getActivePane()
+              editor: atom.workspace.getActiveEditor()
+              editorView: atom.workspaceView.getActiveView()
+              buffer: buffer
+            payload:
+              files: [buffer.file.path]
+          @mm.run(params).then (result) =>
+            @mmResponseHandler(params, result)

@@ -130,6 +130,10 @@ module.exports =
     else
       params.payload.command
 
+  isMetadata: (filePath) ->    
+    apex_file_extensions = atom.config.getSettings()['MavensMate-Atom'].mm_apex_file_extensions
+    return this.extension(filePath) in apex_file_extensions
+
   # filters the selected items against metadata extensions
   getSelectedFiles: ->
     selectedFilePaths = []
