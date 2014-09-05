@@ -12,6 +12,7 @@ emitter = require('../lib/mavensmate-emitter').pubsub
 
 describe 'MavensMate Panel View', ->
   beforeEach ->
+    atom.project.setPath(path.join(__dirname, 'fixtures', 'testProject'))
     # set up the workspace
     atom.workspaceView = new WorkspaceView()
     atom.workspace = atom.workspaceView.model
