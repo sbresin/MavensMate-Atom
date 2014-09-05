@@ -61,12 +61,14 @@ module.exports =
     #
     # Returns nothing.
     init: ->
+      console.log 'initing mavensmate.coffee'
       #@promiseTracker = new MavensMatePromiseTracker()
 
       # instantiate mm tool
       @mm = MavensMateCommandLineInterface
 
       # start the local express.js server, returns a promise, set the server port that was randomly selected
+      console.log 'initing express.js'
       @localHttpServer = new MavensMateLocalServer()
       @localHttpServer.start().then (result) =>
         atom.config.set('MavensMate-Atom.mm_server_port', result)
@@ -452,9 +454,11 @@ module.exports =
     #
     # Returns nothing.
     destroy: ->
-      # stop/destroy local express server
-      @localHttpServer.destroy()
-      delete @localHttpServer
+      if @localHttpServer?
+        # console.log '========================> SHUTTING DOWN LOCAL SERVER'
+        # console.log @localHttpServer
+        @localHttpServer.destroy()
+        delete @localHttpServer
     
       # remove MavensMate items from the status bar
       @mavensmateStatusBar?.destroy()
