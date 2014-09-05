@@ -1,4 +1,5 @@
 {$, $$, $$$, EditorView, View} = require 'atom'
+fs                              = require 'fs'
 
 module.exports =
   # setting object to configure MavensMate for future SFDC updates
@@ -134,7 +135,8 @@ module.exports =
     settingsPath = atom.project.path + '/config/.settings'
     oldSettingsPath = atom.project.path + '/config/settings.yaml'
 
-    return atom.project.contains(settingsPath) or atom.project.contains(oldSettingsPath)
+
+    return fs.existsSync(settingsPath) or fs.existsSync(oldSettingsPath)
 
   isMetadata: (filePath) ->    
     apex_file_extensions = atom.config.getSettings()['MavensMate-Atom'].mm_apex_file_extensions
