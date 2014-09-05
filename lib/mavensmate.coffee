@@ -60,7 +60,8 @@ module.exports =
     # Activates the package, starts the local server, instantiates the views, etc.
     #
     # Returns nothing.
-    init: ->
+    init: -> 
+      atom.workspaceView.mavensMateProjectInitialized ?= false
       #@promiseTracker = new MavensMatePromiseTracker()
 
       # instantiate mm tool
@@ -90,11 +91,19 @@ module.exports =
         @selectList = new MavensMateProjectListView()
         @selectList.toggle()
 
-      if util.isMavensMateProject()
+      atom.project.on 'path-changed', => @onProjectPathChanged()
+
+      @onProjectPathChanged()
+
+    onProjectPathChanged: ->
+      if util.isMavensMateProject() and not atom.workspaceView.mavensMateProjectInitialized
+        atom.workspaceView.mavensMateProjectInitialized = true
         @initializeProject()
+      else
+        console.log('not a mavensmate project or already initialized')
+
 
     initializeProject: ->
-      
       @panel.toggle()
 
       # @subscribe atom.workspace.eachEditor (editor) =>
