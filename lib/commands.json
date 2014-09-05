@@ -24,7 +24,7 @@
               "buttons": ["Yes", "No"]
             }
         },
-        "reset-metadata": {
+        "reset-metadata-container": {
             "operation": "reset_metadata_container",
             "confirm": {
               "message": "Reset Metadata Container",
