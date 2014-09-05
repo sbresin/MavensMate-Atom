@@ -90,7 +90,9 @@ module.exports =
         @selectList = new MavensMateProjectListView()
         @selectList.toggle()
 
-      @initializeProject()
+      if util.isMavensMateProject()
+        @initializeProject()
+
     initializeProject: ->
       
       @panel.toggle()
@@ -485,8 +487,6 @@ module.exports =
     handleBufferEvents: (editorView) ->
       buffer = editorView.editor.getBuffer()
 
-      console.log('should this editorview have buffer events?')
-      console.log('well it is this file ' + buffer.file.getBaseName() + ' and is it metadata? ' + util.isMetadata(buffer.file.getBaseName()))
       if buffer.file? and util.isMetadata(buffer.file.getBaseName())
         @subscribe buffer.on 'saved', =>
           params =

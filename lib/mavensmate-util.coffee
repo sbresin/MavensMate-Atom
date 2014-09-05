@@ -130,6 +130,12 @@ module.exports =
     else
       params.payload.command
 
+  isMavensMateProject: ->
+    settingsPath = atom.project.path + '/config/.settings'
+    oldSettingsPath = atom.project.path + '/config/settings.yaml'
+
+    return atom.project.contains(settingsPath) or atom.project.contains(oldSettingsPath)
+
   isMetadata: (filePath) ->    
     apex_file_extensions = atom.config.getSettings()['MavensMate-Atom'].mm_apex_file_extensions
     return this.extension(filePath) in apex_file_extensions
