@@ -50,12 +50,19 @@ class MavensMateCommandLineInterface
 
     operation = if args.operation then args.operation else payload.command
 
-    if cfg.mm_location == 'mm/mm.py'
-      mm_location = path.join(atom.packages.resolvePackagePath('MavensMate-Atom'),cfg.mm_location)
+    if cfg.mm_developer_mode
+      if cfg.mm_location == 'mm/mm.py'
+        mm_location = path.join(atom.packages.resolvePackagePath('MavensMate-Atom'),cfg.mm_location)
+      else
+        mm_location = cfg.mm_location
+      cmd = cfg.mm_python_location+' "'+mm_location+'" '+operation
     else
-      mm_location = cfg.mm_location
+      if cfg.mm_path == 'default'
+        mm_path = path.join(atom.packages.resolvePackagePath('MavensMate-Atom'),'mm')
+      else
+        mm_path = cfg.mm_path
 
-    cmd = cfg.mm_python_location+' "'+mm_location+'" '+operation
+      cmd = '"'+mm_path+'" '+operation
 
     # ui operations
     if 'ui' of args && args['ui']
