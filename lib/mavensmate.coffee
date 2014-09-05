@@ -174,9 +174,6 @@ module.exports =
                   payload.files = [util.activeFile()]
                 when 'selected'
                   payload.files = util.getSelectedFiles()
-            console.log(command)
-            console.log(util.activeFile())
-            console.log([util.activeFileBaseName()])
             if 'payloadClasses' of command
               switch command['payloadClasses']
                 when 'activeBaseName'
