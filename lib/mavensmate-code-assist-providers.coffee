@@ -3,6 +3,8 @@ fuzzaldrin = require 'fuzzaldrin'
 apex = require './apex.json'
 console.log apex
 _ = require 'underscore-plus'
+mm = require('./mavensmate-cli').mm
+util = require './mavensmate-util'
 
 module.exports =
   
@@ -48,22 +50,36 @@ module.exports =
     wordRegex: /\b\w*[a-zA-Z_]\w*\b./g
     buildSuggestions: ->
       selection = @editor.getSelection()
+      console.log selection
       prefix = @prefixOfSelection selection
       prefix = prefix.replace /./, ''
       console.log 'prefix!'
       console.log prefix
-      # selection = @editor.getSelection()
-      # prefix = @prefixOfSelection selection
-      # return unless prefix.length
+      #@editor.
+      
+      cursorPosition = @editor.getCursorBufferPosition() #=> returns a point
+      cachedBufferText = @editor.getBuffer().cachedText #=> returns the CURRENT buffer
+      console.log cachedBufferText
+      if prefix == '.'
+        params =
+          args:
+            operation: 'get_apex_class_completions'
+            pane: atom.workspace.getActivePane()
+            offline: true
+          payload:
+            point: [cursorPosition.row, cursorPosition.column]
+            buffer: cachedBufferText
+            #file_name: util.activeFile()
+        mm.run(params).then (result) =>
+          # console.log result
+          # TODO: waiting on: https://github.com/saschagehlich/autocomplete-plus/pull/99
+          suggestions = []
+          for s in result.body
+            suggestions.push new Suggestion(this, word: s.name, label: "@"+s.name, prefix: prefix) 
+          console.log suggestions
+          return suggestions
 
-      # suggestions = []
-      # suggestions.push new Suggestion(this, word: "async", label: "@async", prefix: prefix)
-      # suggestions.push new Suggestion(this, word: "attributes", label: "@attribute", prefix: prefix)
-      # suggestions.push new Suggestion(this, word: "author", label: "@author", prefix: prefix)
-      # suggestions.push new Suggestion(this, word: "beta", label: "@beta", prefix: prefix)
-      # suggestions.push new Suggestion(this, word: "borrows", label: "@borrows", prefix: prefix)
-      # suggestions.push new Suggestion(this, word: "bubbles", label: "@bubbles", prefix: prefix)
-      # return suggestions
+      
       return []
 
   # provides list of Sobjects available in the source org

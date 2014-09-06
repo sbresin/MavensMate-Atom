@@ -51,10 +51,10 @@ class MavensMateCommandLineInterface
     operation = if args.operation then args.operation else payload.command
 
     if cfg.mm_developer_mode
-      if cfg.mm_location == 'mm/mm.py'
-        mm_location = path.join(atom.packages.resolvePackagePath('MavensMate-Atom'),cfg.mm_location)
+      if cfg.mm_mm_py_location == 'mm/mm.py'
+        mm_location = path.join(atom.packages.resolvePackagePath('MavensMate-Atom'),cfg.mm_mm_py_location)
       else
-        mm_location = cfg.mm_location
+        mm_location = cfg.mm_mm_py_location
       cmd = cfg.mm_python_location+' "'+mm_location+'" '+operation
     else
       if cfg.mm_path == 'default'
@@ -70,6 +70,10 @@ class MavensMateCommandLineInterface
         cmd = cmd + ' --ui -uid='+promiseId
       else
         cmd = cmd + ' --ui -uid='+args.pane.id
+
+    # offline operations
+    if 'offline' of args && args['offline']
+      cmd = cmd + ' --offline'
 
     # set client name argument
     cmd = cmd + ' -c=ATOM'

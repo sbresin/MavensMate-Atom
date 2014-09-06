@@ -38,6 +38,22 @@
     color: #fff;
     font-size: 10px;
   }
+
+  pre.terminal.active {
+    border-left:5px solid #f8e63c;
+  }
+
+  pre.terminal.success {
+    border-left:5px solid @text-color-success;
+  }
+
+  pre.terminal.warning {
+    border-left:5px solid @text-color-warning;
+  }
+
+  pre.terminal.danger {
+    border-left:5px solid @text-color-error;
+  }
 }
 
 #mavensmateSvgIcon {
@@ -116,7 +132,15 @@ svg.busy circle.circle3 {
 }
 
 .mavensmate {
+  .modal-dialog.modal-lg {
+    padding:10px;
+    background: #999;
+    border-radius:3px;
+  }
 
+  .model-content {
+    box-shadow: none;
+  }
 
   h3 {
     padding: 11px;
