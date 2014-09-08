@@ -13,14 +13,20 @@ module.exports =
 
     promiseTracker: null
     mm: null
+    httpServer: null
 
     constructor: () ->
       @promiseTracker = tracker
       @mm = mm
 
+    stop: ->
+      if @httpServer?
+        @httpServer.close()
+
     # # Tear down any state and detach
     destroy: ->
-      @detach()
+      if @httpServer?
+        @httpServer.close()
 
     # returns promise
     #
@@ -108,9 +114,7 @@ module.exports =
 
 
 
-    startServer: (port) ->
-      open = require 'open'
-
+    startServer: (port) ->      
       express = allowUnsafeEval -> require 'express'
       app = express()
 
@@ -131,4 +135,8 @@ module.exports =
       app.post('/generic', @synchronousPostRequestHandler)
       app.get('/generic', @synchronousGetRequestHandler)
 
-      app.listen port
+      # workaround to enable stopping of express.js server: https://github.com/strongloop/express/issues/1101#issuecomment-13668964
+      @httpServer = require('http').createServer(app);
+      @httpServer.listen port
+
+      console.log 'express.js listening on port: '+port
