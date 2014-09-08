@@ -1,3 +1,5 @@
+path    = require 'path' # npm install path
+
 emitter = require('../lib/mavensmate-emitter').pubsub
 MavensMateCheckpointHandler = require '../lib/mavensmate-checkpoint-handler'
 {Editor, EditorView, WorkspaceView, $} = require 'atom'
@@ -5,16 +7,20 @@ MavensMateCheckpointHandler = require '../lib/mavensmate-checkpoint-handler'
 describe 'MavensMate Checkpoint Handler', ->
 
   beforeEach ->
+    console.log atom
+    atom.project.setPath(path.join(__dirname, 'fixtures', 'testProject'))
+    # set up the workspace
     atom.workspaceView = new WorkspaceView()
+    atom.workspace = atom.workspaceView.model
     atom.workspaceView.attachToDom()
     # activate the mavensmate package
     waitsForPromise ->
       atom.packages.activatePackage('MavensMate-Atom')
 
     waitsForPromise ->
-      atom.workspace.open('sample.cls')
+      atom.workspace.open('testProject/src/classes/MatchController.cls')
 
-  it 'should intialize with handlers', ->
+  fit 'should intialize with handlers', ->
     @editor = atom.workspace.getActiveEditor()
     spyOn(@editor.checkpointHandler, 'clearMarkers').andCallThrough()
     spyOn(@editor.checkpointHandler, 'refreshMarkers').andCallThrough()
@@ -34,7 +40,7 @@ describe 'MavensMate Checkpoint Handler', ->
     # clearMarkers will be called for each 'start' emitted as well as when refreshMarkers and refreshCheckpoints is called
     expect(@editor.checkpointHandler.clearMarkers.calls.length).toEqual(4)
 
-  fit 'should detect gutter click events', ->
+  it 'should detect gutter click events', ->
     @editor = atom.workspace.getActiveEditor()
     editorView = new EditorView(mini: false)
     console.log editorView
