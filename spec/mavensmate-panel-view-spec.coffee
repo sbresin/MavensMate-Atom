@@ -336,17 +336,6 @@ describe 'MavensMate Panel View', ->
       expect(mm.run).toHaveBeenCalled()
       expect(mm.run.mostRecentCall.args[0].args.operation).toBe('clean_project')
 
-  describe 'Compile Project', ->
-    beforeEach ->
-      spyOn(mm, 'run').andCallThrough()
-      spyOn(atom, 'confirm').andReturn(0)
-
-    it 'should invoke mavensmate:compile-project', ->
-      atom.workspaceView.trigger 'mavensmate:compile-project'
-
-      expect(mm.run).toHaveBeenCalled()
-      expect(mm.run.mostRecentCall.args[0].args.operation).toBe('compile_project')
-
   describe 'Generic Operations', ->
     beforeEach ->
       spyOn(panel, 'getGenericOutput').andCallThrough()
