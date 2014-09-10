@@ -9,6 +9,7 @@ MavensMateErrorView                 = require './mavensmate-error-view'
 MavensMateCheckpointHandler         = require './mavensmate-checkpoint-handler'
 MavensMatePanelView                 = require('./mavensmate-panel-view').panel
 MavensMateStatusBarView             = require './mavensmate-status-bar-view'
+# MavensMateShareView                 = require './mavensmate-share-view'
 MavensMateAppView                   = require './mavensmate-app-view'
 MavensMateModalView                 = require './mavensmate-modal-view'
 MavensMateCommandLineInterface      = require('./mavensmate-cli').mm
@@ -218,6 +219,7 @@ module.exports =
         @handleBufferEvents editorView
         editorView.errorView = new MavensMateErrorView(editorView)
         editorView.checkpointHandler = new MavensMateCheckpointHandler(editorView, @mm, @mmResponseHandler)
+        # editorView.shareView = new MavensMateShareView() contextify npm package is incompatible right now
 
     installAutocompletePlus: ->
       cmd = "#{atom.packages.getApmPath()} install autocomplete-plus"
