@@ -1,7 +1,7 @@
 {Provider, Suggestion} = require 'autocomplete-plus'
 fuzzaldrin = require 'fuzzaldrin'
 apex = require './apex.json'
-console.log apex
+# console.log apex
 _ = require 'underscore-plus'
 mm = require('./mavensmate-cli').mm
 util = require './mavensmate-util'
@@ -19,7 +19,7 @@ module.exports =
       apexClasses = []
       apexNamespaces = apex.publicDeclarations
       _.each _.keys(apexNamespaces), (ns) ->
-        console.log ns
+        # console.log ns
         _.each _.keys(apexNamespaces[ns]), (cls) ->
           apexClasses.push cls
       @apexClasses = apexClasses
@@ -50,16 +50,16 @@ module.exports =
     wordRegex: /\b\w*[a-zA-Z_]\w*\b./g
     buildSuggestions: ->
       selection = @editor.getSelection()
-      console.log selection
+      # console.log selection
       prefix = @prefixOfSelection selection
       prefix = prefix.replace /./, ''
-      console.log 'prefix!'
-      console.log prefix
+      # console.log 'prefix!'
+      # console.log prefix
       #@editor.
       
       cursorPosition = @editor.getCursorBufferPosition() #=> returns a point
       cachedBufferText = @editor.getBuffer().cachedText #=> returns the CURRENT buffer
-      console.log cachedBufferText
+      # console.log cachedBufferText
       if prefix == '.'
         params =
           args:
@@ -102,7 +102,7 @@ module.exports =
         # Filter the words using fuzzaldrin
         words = fuzzaldrin.filter @sobjects, prefix
 
-        console.log words
+        # console.log words
 
         # Builds suggestions for the words
         suggestions = for word in words
