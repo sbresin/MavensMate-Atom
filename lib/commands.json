@@ -115,6 +115,9 @@
         },
         "refresh-checkpoints": {
             "operation": "index_apex_overlays"
+        },
+        "refresh-apex-symbols": {
+            "operation": "index_apex"
         }
     }
 }
