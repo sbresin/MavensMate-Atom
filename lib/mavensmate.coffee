@@ -63,6 +63,7 @@ module.exports =
     #
     # Returns nothing.
     init: -> 
+      atom.mavensmate = {}
       atom.workspaceView.mavensMateProjectInitialized ?= false
       console.log 'initing mavensmate.coffee'
       #@promiseTracker = new MavensMatePromiseTracker()
@@ -220,6 +221,18 @@ module.exports =
         editorView.errorView = new MavensMateErrorView(editorView)
         editorView.checkpointHandler = new MavensMateCheckpointHandler(editorView, @mm, @mmResponseHandler)
         # editorView.shareView = new MavensMateShareView() contextify npm package is incompatible right now
+        
+      # retrieve code helper metadata, set up code helper buffers
+      m = new CodeHelperMetadata()
+      m.retrieve().then (metadata) ->
+        console.log 'ok!!!! yahhhhhh'
+        atom.mavensmate.codeHelperMetadata = metadata
+        console.log atom.mavensmate.codeHelperMetadata
+
+        # attach MavensMate views/handlers to each present and future editor views
+        atom.workspaceView.eachEditorView (editorView) =>        
+          editorView.codeHelperBufferView = new CodeHelperBufferView(editorView)
+          console.log editorView.codeHelperBufferView
 
     installAutocompletePlus: ->
       cmd = "#{atom.packages.getApmPath()} install autocomplete-plus"
