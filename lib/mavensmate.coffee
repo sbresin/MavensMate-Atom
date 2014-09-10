@@ -268,9 +268,9 @@ module.exports =
     mmResponseHandler: (params, result) ->
       tracker.pop(result.promiseId).result
       if params.args.ui
-        #params.args.pane.addItem new MavensMateAppView result.body, params.args.operation #attach app view pane
-        modalView = new MavensMateModalView result.promiseId, result.body, params.args.operation #attach app view pane
-        modalView.appendTo document.body
+        if result.success
+          modalView = new MavensMateModalView result.promiseId, result.body, params.args.operation #attach app view pane
+          modalView.appendTo document.body
       MavensMateEventEmitter.emit 'mavensmatePromiseCompleted', result.promiseId
       MavensMateEventEmitter.emit 'mavensmatePanelNotifyFinish', params, result, result.promiseId
 
