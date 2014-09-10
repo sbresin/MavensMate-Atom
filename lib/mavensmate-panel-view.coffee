@@ -8,6 +8,8 @@ moment    = require 'moment'
 # represents a single operation/command within the panel
 class MavensMatePanelViewItem extends View
 
+  promiseId = null
+
   constructor: (command, params) ->
     super
     
@@ -19,8 +21,8 @@ class MavensMatePanelViewItem extends View
     message = @.panelCommandMessage params, command, util.isUiCommand params
 
     # scope this panel by the promiseId
-    promiseId = params.promiseId
-    @item.attr 'id', promiseId
+    @promiseId = params.promiseId
+    @item.attr 'id', @promiseId
     
     # write the message to the terminal
     @terminal.html message
@@ -31,11 +33,7 @@ class MavensMatePanelViewItem extends View
       @div outlet: 'item', =>
         @div class: 'container-fluid', =>
           @div class: 'row', =>
-            # left column
             @div class: 'col-md-12', =>
-              # @div class: 'progress progress-striped active', outlet: 'progress', =>
-              #   @div class: 'progress-bar', role: 'progressbar', 'aria-valuenow': '100', 'aria-valuemax': '100', style: 'width:100%', outlet: 'progressBar', =>
-              #     @span class: 'sr-only'
               @div =>
                 @pre class: 'terminal active', outlet: 'terminal'
 
@@ -56,7 +54,7 @@ class MavensMatePanelViewItem extends View
       me.terminal.addClass panelOutput.indicator
 
       # update terminal
-      me.terminal.append '<br/>> '+ panelOutput.message
+      me.terminal.append '<br/>> '+ '<span id="message-'+@promiseId+'">'+panelOutput.message+'</span>'
     return
 
   # returns the command message to be displayed in the panel
@@ -117,14 +115,15 @@ class MavensMatePanelView extends View
   # Internal: Initialize mavensmate output view DOM contents.
   @content: ->
     @div tabIndex: -1, class: 'mavensmate mavensmate-output tool-panel panel-bottom native-key-bindings', =>
-      @h3 outlet: 'myHeader'
+      @h3 'MavensMate Salesforce1 IDE for Atom.io', outlet: 'myHeader', class: 'clearfix', =>
+        @span class: 'config', style: 'float:right', =>
+          @i class: 'fa fa-gears'
       @div class: 'block padded mavensmate-panel', =>
         @div class: 'message', outlet: 'myOutput'
 
   # Internal: Initialize the mavensmate output view and event handlers.
   initialize: ->
-    @myHeader.html('MavensMate for Atom.io')
-    #@myOutput.html(@output).css('font-size', "#{atom.config.getInt('editor.fontSize')}px")
+    # @myOutput.html(@output).css('font-size', "#{atom.config.getInt('editor.fontSize')}px")
 
     me = @ # this
 

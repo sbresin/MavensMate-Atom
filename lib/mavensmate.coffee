@@ -13,6 +13,8 @@ MavensMateStatusBarView             = require './mavensmate-status-bar-view'
 MavensMateAppView                   = require './mavensmate-app-view'
 MavensMateModalView                 = require './mavensmate-modal-view'
 MavensMateCommandLineInterface      = require('./mavensmate-cli').mm
+CodeHelperMetadata                  = require './code-helper/metadata'
+CodeHelperBufferView                = require './code-helper/buffer-view'
 tracker                             = require('./mavensmate-promise-tracker').tracker
 util                                = require './mavensmate-util'
 MavensMateEventHandler              = require('./mavensmate-event-handler').handler
@@ -156,6 +158,7 @@ module.exports =
             @mmResponseHandler(params, result)
 
 
+      # attach commands to workspace based on commands.json
       for commandName, command of @projectCommands
         resolvedName = 'mavensmate:' + commandName
 
@@ -211,15 +214,18 @@ module.exports =
         atom.packages.once 'activated', ->
           createStatusEntry()
 
+      # we rely upon autocomplete plus right now
       if !util.isAutocompletePlusInstalled()
         @installAutocompletePlus()
       else
         @enableAutocomplete()
 
+      # attach MavensMate views/handlers to each present and future editor views
       atom.workspaceView.eachEditorView (editorView) =>        
         @handleBufferEvents editorView
-        editorView.errorView = new MavensMateErrorView(editorView)
-        editorView.checkpointHandler = new MavensMateCheckpointHandler(editorView, @mm, @mmResponseHandler)
+        # TODO: shouldn't we scope this to MavensMate projects only?
+        editorView.errorView = new MavensMateErrorView(editorView) # displays gutter marks, etc. on compile errors
+        editorView.checkpointHandler = new MavensMateCheckpointHandler(editorView, @mm, @mmResponseHandler) # creates/deletes/displays checkpoints in gutter
         # editorView.shareView = new MavensMateShareView() contextify npm package is incompatible right now
         
       # retrieve code helper metadata, set up code helper buffers
@@ -264,8 +270,6 @@ module.exports =
     # Returns nothing.
     destroy: ->
       if @localHttpServer?
-        # console.log '========================> SHUTTING DOWN LOCAL SERVER'
-        # console.log @localHttpServer
         @localHttpServer.destroy()
         delete @localHttpServer
     

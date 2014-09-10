@@ -70,6 +70,7 @@ module.exports =
     [
       'new_project',
       'get_indexed_metadata',
+      'unit_test',
       'deploy',
       'get_active_session',
       'new_apex_overlay',
