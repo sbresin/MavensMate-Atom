@@ -36,6 +36,7 @@ class MavensMateErrorView
         @markRange(line-1, line-1, 'mm-compile-error-line', 'line')
 
   markRange: (startRow, endRow, klass, type) ->
+    # todo: range = editor.getBuffer().rangeForRow(34)?
     marker = @editor.markBufferRange([[startRow, 0], [endRow, Infinity]], invalidate: 'never')
     @editor.decorateMarker(marker, type: type, class: klass)
     @markers ?= []
