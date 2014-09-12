@@ -31,7 +31,12 @@
     "fuzzaldrin": "~1.0.0",
     "underscore-plus": "1.x",
     "underscore.string": "2.3.x",
-    "loophole" : "1.0.0"
+    "loophole" : "1.0.0",
+    "moment": "2.8.3",
+    "lodash":"2.4.1",
+    "color":"0.7.1",
+    "open":"0.0.5",
+    "repeat":"0.0.6"
   },
   "devDependencies": {
     "temp": "latest"

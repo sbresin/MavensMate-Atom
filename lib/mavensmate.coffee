@@ -4,17 +4,19 @@ path  = require 'path'
 {Subscriber,Emitter}                = require 'emissary'
 MavensMateEventEmitter              = require('./mavensmate-emitter').pubsub
 MavensMateLocalServer               = require './mavensmate-local-server'
+MavensMateCommandLineInterface      = require('./mavensmate-cli').mm
 MavensMateProjectListView           = require './mavensmate-project-list-view'
 MavensMateErrorMarkers              = require './mavensmate-error-markers'
 MavensMateCheckpointHandler         = require './mavensmate-checkpoint-handler'
 MavensMatePanelView                 = require('./mavensmate-panel-view').panel
 MavensMateStatusBarView             = require './mavensmate-status-bar-view'
+# MavensMateShareView                 = require './mavensmate-share-view'
 MavensMateAppView                   = require './mavensmate-app-view'
 MavensMateModalView                 = require './mavensmate-modal-view'
-MavensMateCommandLineInterface      = require('./mavensmate-cli').mm
+CodeHelperMetadata                  = require './code-helper/metadata'
+CodeHelperBufferView                = require './code-helper/buffer-view'
 tracker                             = require('./mavensmate-promise-tracker').tracker
 util                                = require './mavensmate-util'
-MavensMateEventHandler              = require('./mavensmate-event-handler').handler
 emitter                             = require('./mavensmate-emitter').pubsub
 MavensMateCodeAssistProviders       = require './mavensmate-code-assist-providers'
 commands                            = require './commands.json'
@@ -62,6 +64,7 @@ module.exports =
     #
     # Returns nothing.
     init: -> 
+      atom.mavensmate = {}
       atom.workspaceView.mavensMateProjectInitialized ?= false
       console.log 'initing mavensmate.coffee'
       #@promiseTracker = new MavensMatePromiseTracker()
@@ -154,6 +157,7 @@ module.exports =
             @mmResponseHandler(params, result)
 
 
+      # attach commands to workspace based on commands.json
       for commandName, command of @projectCommands
         resolvedName = 'mavensmate:' + commandName
 
@@ -209,15 +213,31 @@ module.exports =
         atom.packages.once 'activated', ->
           createStatusEntry()
 
+      # we rely upon autocomplete plus right now
       if !util.isAutocompletePlusInstalled()
         @installAutocompletePlus()
       else
         @enableAutocomplete()
 
+      # attach MavensMate views/handlers to each present and future editor views
       atom.workspaceView.eachEditorView (editorView) =>        
         @handleBufferEvents editorView
         editorView.errorMarkers = new MavensMateErrorMarkers(editorView)
-        editorView.checkpointHandler = new MavensMateCheckpointHandler(editorView, @mm, @mmResponseHandler)
+        # TODO: shouldn't we scope this to MavensMate projects only?
+        editorView.checkpointHandler = new MavensMateCheckpointHandler(editorView, @mm, @mmResponseHandler) # creates/deletes/displays checkpoints in gutter
+        # editorView.shareView = new MavensMateShareView() contextify npm package is incompatible right now
+        
+      # retrieve code helper metadata, set up code helper buffers
+      m = new CodeHelperMetadata()
+      m.retrieve().then (metadata) ->
+        console.log 'ok!!!! yahhhhhh'
+        atom.mavensmate.codeHelperMetadata = metadata
+        console.log atom.mavensmate.codeHelperMetadata
+
+        # attach MavensMate views/handlers to each present and future editor views
+        atom.workspaceView.eachEditorView (editorView) =>        
+          editorView.codeHelperBufferView = new CodeHelperBufferView(editorView)
+          console.log editorView.codeHelperBufferView
 
     installAutocompletePlus: ->
       cmd = "#{atom.packages.getApmPath()} install autocomplete-plus"
@@ -249,8 +269,6 @@ module.exports =
     # Returns nothing.
     destroy: ->
       if @localHttpServer?
-        # console.log '========================> SHUTTING DOWN LOCAL SERVER'
-        # console.log @localHttpServer
         @localHttpServer.destroy()
         delete @localHttpServer
     
@@ -268,9 +286,9 @@ module.exports =
     mmResponseHandler: (params, result) ->
       tracker.pop(result.promiseId).result
       if params.args.ui
-        #params.args.pane.addItem new MavensMateAppView result.body, params.args.operation #attach app view pane
-        modalView = new MavensMateModalView result.promiseId, result.body, params.args.operation #attach app view pane
-        modalView.appendTo document.body
+        if result.success
+          modalView = new MavensMateModalView result.promiseId, result.body, params.args.operation #attach app view pane
+          modalView.appendTo document.body
       MavensMateEventEmitter.emit 'mavensmatePromiseCompleted', result.promiseId
       MavensMateEventEmitter.emit 'mavensmatePanelNotifyFinish', params, result, result.promiseId
 
