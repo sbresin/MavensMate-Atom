@@ -3,7 +3,7 @@ util                  = require './mavensmate-util'
 emitter               = require('./mavensmate-emitter').pubsub
 
 module.exports =
-class MavensMateErrorView
+class MavensMateErrorMarkers
   Subscriber.includeInto(this)
 
   constructor: (@editorView) ->

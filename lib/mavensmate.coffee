@@ -5,7 +5,7 @@ path  = require 'path'
 MavensMateEventEmitter              = require('./mavensmate-emitter').pubsub
 MavensMateLocalServer               = require './mavensmate-local-server'
 MavensMateProjectListView           = require './mavensmate-project-list-view'
-MavensMateErrorView                 = require './mavensmate-error-view'
+MavensMateErrorMarkers              = require './mavensmate-error-markers'
 MavensMateCheckpointHandler         = require './mavensmate-checkpoint-handler'
 MavensMatePanelView                 = require('./mavensmate-panel-view').panel
 MavensMateStatusBarView             = require './mavensmate-status-bar-view'
@@ -216,7 +216,7 @@ module.exports =
 
       atom.workspaceView.eachEditorView (editorView) =>        
         @handleBufferEvents editorView
-        editorView.errorView = new MavensMateErrorView(editorView)
+        editorView.errorMarkers = new MavensMateErrorMarkers(editorView)
         editorView.checkpointHandler = new MavensMateCheckpointHandler(editorView, @mm, @mmResponseHandler)
 
     installAutocompletePlus: ->
