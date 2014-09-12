@@ -16,9 +16,27 @@ module.exports =
     mm_compile_on_save : true
     mm_api_version : '31.0'
     mm_log_location : ''
+    mm_log_level : 'DEBUG'
     mm_workspace : ['/one/cool/workspace', '/one/not-so-cool/workspace']
     mm_open_project_on_create : true
-    mm_log_level : 'DEBUG'
+    mm_http_proxy : '',
+    mm_https_proxy : '',
+    mm_play_sounds: true,
+    mm_template_location: 'remote',
+    mm_template_source: 'joeferraro/MavensMate-Templates/master',
+    mm_default_subscription: [
+      'ApexClass',
+      'ApexComponent',
+      'ApexPage',
+      'ApexTrigger',
+      'StaticResource',
+      'CustomObject',
+      'Profile'
+    ],
+    mm_ignore_managed_metadata: true,
+    mm_archive_deployments: true,
+    mm_use_org_metadata_for_completions: true,
+    mm_compare_before_deployment: true,
     mm_apex_file_extensions: [".page", ".component", ".cls", ".object", ".trigger", ".layout", ".resource", ".remoteSite", ".labels", ".app", ".dashboard", ".permissionset", ".workflow", ".email", ".profile", ".scf", ".queue", ".reportType", ".report", ".weblink", ".tab", ".letter", ".role", ".homePageComponent", ".homePageLayout", ".objectTranslation", ".flow", ".datacategorygroup", ".snapshot", ".site", ".sharingRules", ".settings", ".callCenter", ".community", ".authProvider", ".customApplicationComponent", ".quickAction", ".approvalProcess", ".html" ]
 
   # todo: should we initiate the app per editorview?

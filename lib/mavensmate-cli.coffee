@@ -102,15 +102,12 @@ class MavensMateCommandLineInterface
 
   # Execute the command, resolve the promise
   execute: (cmd, deferred, promiseId) ->
-
-    project = atom.project
-    # console.log project
-
-    cwd = if project.path? then project.path else null
-    options = { cwd : cwd }
-    # console.log options
-
     try
+      project = atom.project
+
+      cwd = if atom.project? and project.path? then project.path else null
+      options = { cwd : cwd }
+
       exec cmd, options, (exception, stdout) ->
         console.log 'COMMAND RESULT -->'
         console.log exception
