@@ -1,4 +1,4 @@
-{$, $$, ScrollView} = 'atom'
+{$, $$, ScrollView} = require 'atom'
 
 module.exports =
 class MavensMateErrorsView extends ScrollView
@@ -12,3 +12,15 @@ class MavensMateErrorsView extends ScrollView
     deserializer: 'MavensMateErrorsView'
     version: 1
     uri: @uri
+
+  getTitle: ->
+    'Errors'
+
+  getIconName: ->
+    'bug'
+
+  getUri: ->
+    @uri
+
+  isEqual: (other) ->
+    other instanceof ErrorsView

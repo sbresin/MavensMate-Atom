@@ -25,6 +25,22 @@ commands                            = require './commands.json'
 window.jQuery = $
 require '../scripts/bootstrap'
 
+ErrorsView = null
+errorsView = null
+
+errorsViewUri = 'mavensmate://errorsView'
+
+createErrorsView = (params) ->
+  ErrorsView ?= require './mavensmate-errors-view'
+  errorsView = new ErrorsView(params)
+
+errorsDeserializer =
+  name: 'MavensMateErrorsView'
+  version: 1
+  deserialize: (state) ->
+    createErrorsView(state) if state.constructor is Object
+atom.deserializers.add(errorsDeserializer)
+
 module.exports =
 
   class MavensMate
@@ -102,6 +118,12 @@ module.exports =
       atom.project.on 'path-changed', => @onProjectPathChanged()
 
       @onProjectPathChanged()
+
+      atom.workspace.registerOpener (uri) ->
+        createErrorsView({uri}) if uri is errorsViewUri
+
+      atom.workspaceView.command 'mavensmate:open-errors', =>
+        atom.workspaceView.open(errorsViewUri)
 
     onProjectPathChanged: ->
       if util.isMavensMateProject() and not atom.workspaceView.mavensMateProjectInitialized
