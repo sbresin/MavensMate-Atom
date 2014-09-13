@@ -24,7 +24,7 @@ class MavensMatePanelView extends View
               @h3 'MavensMate Salesforce1 IDE for Atom.io', outlet: 'myHeader', class: 'clearfix', =>
             @div class: 'col-md-6', =>
               @span class: 'config', style: 'float:right', =>
-                @button class: 'btn btn-sm btn-default', outlet: 'btnFetchLogs', =>
+                @button class: 'btn btn-sm btn-default btn-fetch-logs', outlet: 'btnFetchLogs', =>
                   @i class: 'fa fa-refresh', outlet: 'fetchLogsIcon'
                   @span 'Fetch Logs', outlet: 'fetchLogsLabel', style: 'display:inline-block;padding-left:5px;'
       @div class: 'block padded mavensmate-panel', =>
@@ -49,6 +49,10 @@ class MavensMatePanelView extends View
         me.fetchLogsIcon.removeClass 'fa-spin'
         me.fetchLogsLabel.html 'Fetch Logs'
         logFetcher.stop()
+
+    # updates panel view font size(s) based on editor font-size updates (see mavensmate-atom-watcher.coffee)
+    emitter.on 'mavensmate:font-size-changed', (newFontSize) ->
+      jQuery('div.mavensmate pre.terminal').css('font-size', newFontSize)
 
     # event handler which creates a panelViewItem corresponding to the command promise requested
     emitter.on 'mavensmatePanelNotifyStart', (params, promiseId) ->
@@ -85,6 +89,134 @@ class MavensMatePanelView extends View
     #   target.style.height = newHeight + "px"
     #   target.textContent = newWidth + "×" + newHeight
     #   return
+
+  # Internal: Update the mavensmate output view contents.
+  #
+  # output - A string of the test runner results.
+  #
+  # Returns nothing.
+  update: (command, params) ->
+    panelItem = new MavensMatePanelViewItem(command, params) # initiate new panel item
+    @panelItems[params.promiseId] = panelItem # add panel to dictionary
+    @myOutput.prepend panelItem # add panel item to panel
+
+  # Internal: Detach and destroy the mavensmate output view.
+  #           clear the existing panel items.
+  # Returns nothing.
+  destroy: ->
+    $('.panel-item').remove()
+    @unsubscribe()
+    @detach()
+
+  # Internal: Toggle the visibilty of the mavensmate output view.
+  #
+  # Returns nothing.
+  toggle: ->
+    if @hasParent()
+      @detach()
+    else
+      atom.workspaceView.prependToBottom(this) unless @hasParent() #todo: attach to specific workspace view
+
+# represents a single operation/command within the panel
+class MavensMatePanelViewItem extends View
+
+  promiseId = null
+
+  constructor: (command, params) ->
+    super
+    
+    # set panel font-size to that of the editor
+    fontSize = jQuery("div.editor-contents").css('font-size')
+    @terminal.context.style.fontSize = fontSize
+    
+    # get the message
+    message = @.panelCommandMessage params, command, util.isUiCommand params
+
+    # scope this panel by the promiseId
+    @promiseId = params.promiseId
+    @item.attr 'id', @promiseId
+    
+    # write the message to the terminal
+    @terminal.html message
+    
+  # Internal: Initialize mavensmate output view DOM contents.
+  @content: ->
+    @div class: 'panel-item',  =>
+      @div outlet: 'item', =>
+        @div class: 'container-fluid', =>
+          @div class: 'row', =>
+            @div class: 'col-md-12', =>
+              @div =>
+                @pre class: 'terminal active', outlet: 'terminal'
+
+  initialize: ->
+
+  update: (panel, params, result) ->
+    me = @
+    command = util.getCommandName(params)
+    if command not in util.panelExemptCommands()
+      panelOutput = @getPanelOutput command, params, result
+      console.log 'panel output ---->'
+      console.log panelOutput
+
+      # update progress bar depending on outcome of command
+      # me.progress.attr 'class', 'progress'
+      # me.progressBar.attr 'class', 'progress-bar progress-bar-'+panelOutput.indicator
+      me.terminal.removeClass 'active'
+      me.terminal.addClass panelOutput.indicator
+
+      # update terminal
+      me.terminal.append '<br/>> '+ '<span id="message-'+@promiseId+'">'+panelOutput.message+'</span>'
+    return
+
+  # returns the command message to be displayed in the panel
+  panelCommandMessage: (params, command, isUi=false) ->
+    console.log params
+
+    # todo: move objects to global?
+    uiMessages =
+      new_project : 'Opening new project panel'
+      edit_project : 'Opening edit project panel'
+
+    messages =
+      new_project : 'Creating new project'
+      compile_project: 'Compiling project'
+      index_metadata: 'Indexing metadata'
+      compile: ->
+        if params.payload.files? and params.payload.files.length is 1
+          'Compiling '+params.payload.files[0].split(/[\\/]/).pop() # extract base name
+        else
+          'Compiling selected metadata'
+      delete: ->
+        if params.payload.files? and params.payload.files.length is 1
+          'Deleting ' + params.payload.files[0].split(/[\\/]/).pop() # extract base name
+        else
+          'Deleting selected metadata'
+      refresh: ->
+        if params.payload.files? and params.payload.files.length is 1
+          'Refreshing ' + params.payload.files[0].split(/[\\/]/).pop() # extract base name
+        else
+          'Refreshing selected metadata'
+
+    if isUi
+      msg = uiMessages[command]
+    else
+      msg = messages[command]
+
+    console.log 'msgggggg'
+    console.log msg
+    console.log Object.prototype.toString.call msg
+
+    if msg?
+      if Object.prototype.toString.call(msg) is '[object Function]'
+        msg = msg() + '...'
+      else
+        msg = msg + '...'
+    else
+      msg = 'mm '+command
+
+    header = '['+moment().format('MMMM Do YYYY, h:mm:ss a')+']<br/>'
+    return header + '> ' + msg
 
   # transforms the JSON returned by the cli into an object with properties that conform to the panel
   #
@@ -310,135 +442,6 @@ class MavensMatePanelView extends View
 
     obj.message = result.body
     return obj
-
-  # Internal: Update the mavensmate output view contents.
-  #
-  # output - A string of the test runner results.
-  #
-  # Returns nothing.
-  update: (command, params) ->
-    panelItem = new MavensMatePanelViewItem(command, params) # initiate new panel item
-    @panelItems[params.promiseId] = panelItem # add panel to dictionary
-    @myOutput.prepend panelItem # add panel item to panel
-
-  # Internal: Detach and destroy the mavensmate output view.
-  #           clear the existing panel items.
-  # Returns nothing.
-  destroy: ->
-    $('.panel-item').remove()
-    @unsubscribe()
-    @detach()
-
-  # Internal: Toggle the visibilty of the mavensmate output view.
-  #
-  # Returns nothing.
-  toggle: ->
-    if @hasParent()
-      @detach()
-    else
-      atom.workspaceView.prependToBottom(this) unless @hasParent() #todo: attach to specific workspace view
-
-
-# represents a single operation/command within the panel
-class MavensMatePanelViewItem extends View
-
-  promiseId = null
-
-  constructor: (command, params) ->
-    super
-    
-    # set panel font-size to that of the editor
-    fontSize = jQuery("div.editor-contents").css('font-size')
-    @terminal.context.style.fontSize = fontSize
-    
-    # get the message
-    message = @.panelCommandMessage params, command, util.isUiCommand params
-
-    # scope this panel by the promiseId
-    @promiseId = params.promiseId
-    @item.attr 'id', @promiseId
-    
-    # write the message to the terminal
-    @terminal.html message
-    
-  # Internal: Initialize mavensmate output view DOM contents.
-  @content: ->
-    @div class: 'panel-item',  =>
-      @div outlet: 'item', =>
-        @div class: 'container-fluid', =>
-          @div class: 'row', =>
-            @div class: 'col-md-12', =>
-              @div =>
-                @pre class: 'terminal active', outlet: 'terminal'
-
-  initialize: ->
-
-  update: (panel, params, result) ->
-    me = @
-    command = util.getCommandName(params)
-    if command not in util.panelExemptCommands()
-      panelOutput = panel.getPanelOutput command, params, result
-      console.log 'panel output ---->'
-      console.log panelOutput
-
-      # update progress bar depending on outcome of command
-      # me.progress.attr 'class', 'progress'
-      # me.progressBar.attr 'class', 'progress-bar progress-bar-'+panelOutput.indicator
-      me.terminal.removeClass 'active'
-      me.terminal.addClass panelOutput.indicator
-
-      # update terminal
-      me.terminal.append '<br/>> '+ '<span id="message-'+@promiseId+'">'+panelOutput.message+'</span>'
-    return
-
-  # returns the command message to be displayed in the panel
-  panelCommandMessage: (params, command, isUi=false) ->
-    console.log params
-
-    # todo: move objects to global?
-    uiMessages =
-      new_project : 'Opening new project panel'
-      edit_project : 'Opening edit project panel'
-
-    messages =
-      new_project : 'Creating new project'
-      compile_project: 'Compiling project'
-      index_metadata: 'Indexing metadata'
-      compile: ->
-        if params.payload.files? and params.payload.files.length is 1
-          'Compiling '+params.payload.files[0].split(/[\\/]/).pop() # extract base name
-        else
-          'Compiling selected metadata'
-      delete: ->
-        if params.payload.files? and params.payload.files.length is 1
-          'Deleting ' + params.payload.files[0].split(/[\\/]/).pop() # extract base name
-        else
-          'Deleting selected metadata'
-      refresh: ->
-        if params.payload.files? and params.payload.files.length is 1
-          'Refreshing ' + params.payload.files[0].split(/[\\/]/).pop() # extract base name
-        else
-          'Refreshing selected metadata'
-
-    if isUi
-      msg = uiMessages[command]
-    else
-      msg = messages[command]
-
-    console.log 'msgggggg'
-    console.log msg
-    console.log Object.prototype.toString.call msg
-
-    if msg?
-      if Object.prototype.toString.call(msg) is '[object Function]'
-        msg = msg() + '...'
-      else
-        msg = msg + '...'
-    else
-      msg = 'mm '+command
-
-    header = '['+moment().format('MMMM Do YYYY, h:mm:ss a')+']<br/>'
-    return header + '> ' + msg
 
 panel = new MavensMatePanelView()
 exports.panel = panel

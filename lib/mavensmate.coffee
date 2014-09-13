@@ -21,9 +21,10 @@ emitter                             = require('./mavensmate-emitter').pubsub
 MavensMateCodeAssistProviders       = require './mavensmate-code-assist-providers'
 commands                            = require './commands.json'
 {exec}                              = require 'child_process'
-
+atom.mavensmate = {}
 window.jQuery = $
 require '../scripts/bootstrap'
+MavensMateAtomWatcher = require('./mavensmate-atom-watcher').watcher
 
 module.exports =
 
@@ -64,7 +65,6 @@ module.exports =
     #
     # Returns nothing.
     init: -> 
-      atom.mavensmate = {}
       atom.workspaceView.mavensMateProjectInitialized ?= false
       console.log 'initing mavensmate.coffee'
       #@promiseTracker = new MavensMatePromiseTracker()
