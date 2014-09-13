@@ -53,7 +53,8 @@
         },
         "edit-project": {
             "operation": "edit_project",
-            "ui": true
+            "ui": true,
+            "view" : "tab"
         },
         "upgrade-project": {
             "operation": "upgrade_project",
@@ -89,7 +90,8 @@
         },
         "execute-apex": {
             "operation": "execute_apex",
-            "ui": true
+            "ui": true,
+            "view" : "tab"
         },
         "new-project-from-existing-directory": {
             "operation": "new_project_from_existing_directory",
@@ -112,6 +114,9 @@
         },
         "fetch-logs": {
             "operation": "fetch_logs"
+        },
+        "fetch-checkpoints": {
+            "operation": "fetch_checkpoints"
         },
         "refresh-checkpoints": {
             "operation": "index_apex_overlays"

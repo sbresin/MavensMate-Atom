@@ -14,9 +14,31 @@ class MavensMatePanelView extends View
   fetchingLogs: false
   panelItems: []
 
+  resizeStarted: =>
+    $(document).on('mousemove', @resizePanelView)
+    $(document).on('mouseup', @resizeStopped)
+
+  resizeStopped: =>
+    $(document).off('mousemove', @resizePanelView)
+    $(document).off('mouseup', @resizeStopped)
+
+  resizePanelView: (evt) =>
+    return @resizeStopped() unless evt.which is 1
+    # console.log evt
+    # console.log evt
+    height = jQuery("body").height() - evt.pageY - 10
+    @height(height)
+
+  handleEvents: ->
+    @on 'mousedown', '.entry', (e) =>
+      @onMouseDown(e)
+
+    @on 'mousedown', '.mavensmate-panel-view-resize-handle', (e) => @resizeStarted(e)
+
   # Internal: Initialize mavensmate output view DOM contents.
   @content: ->
     @div tabIndex: -1, class: 'mavensmate mavensmate-output tool-panel panel-bottom native-key-bindings resize', =>
+      @div class: 'mavensmate-panel-view-resize-handle', outlet: 'resizeHandle'
       @div class: 'panel-header', =>
         @div class: 'container-fluid', =>
           @div class: 'row', style: 'padding:10px 0px', =>
@@ -74,21 +96,7 @@ class MavensMatePanelView extends View
       console.log promisePanelView
       promisePanelView.update me, params, result
 
-    # @initHandle()
-
-  initHandle: ->
-    # interact(".resize").resizable(true).on "resizemove", (event) ->
-    #   target = event.target
-      
-    #   # add the change in coords to the previous width of the target element
-    #   newWidth = parseFloat(target.style.width) + event.dx
-    #   newHeight = parseFloat(target.style.height) + event.dy
-      
-    #   # update the element's style
-    #   target.style.width = newWidth + "px"
-    #   target.style.height = newHeight + "px"
-    #   target.textContent = newWidth + "×" + newHeight
-    #   return
+    @handleEvents()
 
   # Internal: Update the mavensmate output view contents.
   #
@@ -236,19 +244,22 @@ class MavensMatePanelViewItem extends View
       console.log 'cool!'
       obj = @getUiCommandOutput command, params, result
     else
-      switch command
-        when 'delete'
-          obj = @getDeleteCommandOutput command, params, result
-        when 'compile'
-          obj = @getCompileCommandOutput command, params, result
-        when 'compile_project'
-          obj = @getCompileProjectCommandOutput command, params, result
-        when 'run_all_tests', 'test_async'
-          obj = @getRunAsyncTestsCommandOutput command, params, result
-        when 'new_quick_trace_flag'
-          obj = @getNewQuickTraceFlagCommandOutput command, params, result
-        else
-          obj = @getGenericOutput command, params, result
+      try
+        switch command
+          when 'delete'
+            obj = @getDeleteCommandOutput command, params, result
+          when 'compile'
+            obj = @getCompileCommandOutput command, params, result
+          when 'compile_project'
+            obj = @getCompileProjectCommandOutput command, params, result
+          when 'run_all_tests', 'test_async'
+            obj = @getRunAsyncTestsCommandOutput command, params, result
+          when 'new_quick_trace_flag'
+            obj = @getNewQuickTraceFlagCommandOutput command, params, result
+          else
+            obj = @getGenericOutput command, params, result
+      catch
+        obj = @getGenericOutput command, params, result
 
     return obj
 
@@ -357,8 +368,11 @@ class MavensMatePanelViewItem extends View
       # need to diff
       obj.message = result.body
       obj.indicator = 'warning'
-    else # metadata api
-      #todo
+    # else # metadata api
+    #   #todo
+
+    if !obj.message?
+      throw 'unable to parse'
 
     return obj
 
