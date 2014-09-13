@@ -4,24 +4,28 @@ Repeat = require 'repeat'
 
 class MavensMateLogFetcher
   
+  repeater:null
+  fetching:false
+
   start: ->
     # todo: make interval configurable
     # todo: new_quick_log before starting the fetcher
     #Repeat(@goFetch).every(5000, 'ms').start.now();
     thiz = @
+    thiz.fetching = true
     params =
       skipPanel: true
       args:
         operation: 'new_quick_log'
     MmCli.run(params)
       .then (result) ->
-        Repeat(thiz.goFetch).every(2000, 'ms').for(5, 'minutes').start.now();
+        thiz.repeater = Repeat(thiz.goFetch).every(5000, 'ms').until(-> !thiz.fetching).start.now()
       .catch (error) ->
         console.log 'failed to start log fetcher!!!'
         console.log error
     
   stop: ->
-    Repeat.stop()
+    @fetching = false
 
   goFetch: ->
     params =

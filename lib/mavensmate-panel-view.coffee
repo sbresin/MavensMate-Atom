@@ -11,14 +11,22 @@ moment              = require 'moment'
 class MavensMatePanelView extends View
   Subscriber.includeInto this
 
+  fetchingLogs: false
   panelItems: []
 
   # Internal: Initialize mavensmate output view DOM contents.
   @content: ->
     @div tabIndex: -1, class: 'mavensmate mavensmate-output tool-panel panel-bottom native-key-bindings resize', =>
-      @h3 'MavensMate Salesforce1 IDE for Atom.io', outlet: 'myHeader', class: 'clearfix', =>
-        @span class: 'config', style: 'float:right', =>
-          @i class: 'fa fa-gears'
+      @div class: 'panel-header', =>
+        @div class: 'container-fluid', =>
+          @div class: 'row', style: 'padding:10px 0px', =>
+            @div class: 'col-md-6', =>
+              @h3 'MavensMate Salesforce1 IDE for Atom.io', outlet: 'myHeader', class: 'clearfix', =>
+            @div class: 'col-md-6', =>
+              @span class: 'config', style: 'float:right', =>
+                @button class: 'btn btn-sm btn-default', outlet: 'btnFetchLogs', =>
+                  @i class: 'fa fa-refresh', outlet: 'fetchLogsIcon'
+                  @span 'Fetch Logs', outlet: 'fetchLogsLabel', style: 'display:inline-block;padding-left:5px;'
       @div class: 'block padded mavensmate-panel', =>
         @div class: 'message', outlet: 'myOutput'
 
@@ -26,6 +34,21 @@ class MavensMatePanelView extends View
   initialize: ->
     # @myOutput.html(@output).css('font-size', "#{atom.config.getInt('editor.fontSize')}px")
     me = @ # this
+
+    @btnFetchLogs.click ->
+      me.fetchingLogs = !me.fetchingLogs
+      if me.fetchingLogs
+        me.btnFetchLogs.removeClass 'btn-default'
+        me.btnFetchLogs.addClass 'btn-success'
+        me.fetchLogsIcon.addClass 'fa-spin'
+        me.fetchLogsLabel.html 'Fetching Logs'
+        logFetcher.start()
+      else
+        me.btnFetchLogs.removeClass 'btn-success'
+        me.btnFetchLogs.addClass 'btn-default'
+        me.fetchLogsIcon.removeClass 'fa-spin'
+        me.fetchLogsLabel.html 'Fetch Logs'
+        logFetcher.stop()
 
     # event handler which creates a panelViewItem corresponding to the command promise requested
     emitter.on 'mavensmatePanelNotifyStart', (params, promiseId) ->
@@ -47,7 +70,6 @@ class MavensMatePanelView extends View
       console.log promisePanelView
       promisePanelView.update me, params, result
 
-    # logFetcher.start()
     # @initHandle()
 
   initHandle: ->
@@ -141,6 +163,7 @@ class MavensMatePanelView extends View
         isException: result.stackTrace?
 
   getCompileCommandOutput: (command, params, result) ->
+    console.log 'getCompileCommandOutput'
     obj =
       message: null
       indicator: null
@@ -148,7 +171,7 @@ class MavensMatePanelView extends View
       isException: false
 
     filesCompiled = (util.baseName(filePath) for filePath in params.payload.files ? [])
-
+    console.log filesCompiled
     for compiledFile in filesCompiled
       atom.project.errors[compiledFile] = []
 
@@ -176,6 +199,22 @@ class MavensMatePanelView extends View
         obj.message = message
         obj.indicator = 'danger'
         emitter.emit 'mavensmateCompileErrorBufferNotify', command, params, result
+      else if result.State is 'Failed' and result.DeployDetails?
+        errors = result.DeployDetails.componentFailures
+        message = 'Compile Failed'
+        for error in errors
+          errorFileName = error.fileName + ".cls"
+          if error.lineNumber
+            errorMessage = "#{errorFileName}: #{error.problem} (Line: #{error.lineNumber})"
+          else
+            errorMessage = "#{errorFileName}: #{error.problem}"
+          message += '<br/>' + errorMessage
+
+          atom.project.errors[errorFileName] ?= []
+          atom.project.errors[errorFileName].push(error)
+        obj.message = message
+        obj.indicator = 'danger'
+        emitter.emit 'mavensmateCompileErrorBufferNotify', command, params, result 
       else if result.State is 'Completed' and not result.ErrorMsg
         obj.indicator = 'success'
         obj.message = 'Success'
