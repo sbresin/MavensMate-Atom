@@ -46,6 +46,9 @@ class MavensMatePanelView extends View
               @h3 'MavensMate Salesforce1 IDE for Atom.io', outlet: 'myHeader', class: 'clearfix', =>
             @div class: 'col-md-6', =>
               @span class: 'config', style: 'float:right', =>
+                @button class: 'btn btn-sm btn-default btn-view-errors', outlet: 'btnViewErrors', =>
+                  @i class: 'fa fa-bug', outlet: 'viewErrorsIcon'
+                  @span '0 errors', outlet: 'viewErrorsLabel', style: 'display:inline-block;padding-left:5px;'
                 @button class: 'btn btn-sm btn-default btn-fetch-logs', outlet: 'btnFetchLogs', =>
                   @i class: 'fa fa-refresh', outlet: 'fetchLogsIcon'
                   @span 'Fetch Logs', outlet: 'fetchLogsLabel', style: 'display:inline-block;padding-left:5px;'
