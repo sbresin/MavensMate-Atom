@@ -73,12 +73,12 @@
         "new-visualforce-page": {
             "operation": "new_metadata",
             "ui": true,
-            "payloadMetadata": "Visualforce Page"
+            "payloadMetadata": "ApexPage"
         },
         "new-visualforce-component": {
             "operation": "new_metadata",
             "ui": true,
-            "payloadMetadata": "Visualforce Component"
+            "payloadMetadata": "ApexComponent"
         },
         "run-apex-unit-tests": {
             "operation": "unit_test",
