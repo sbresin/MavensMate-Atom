@@ -89,10 +89,14 @@ module.exports =
       params.payload.command
 
   isMavensMateProject: ->
-    settingsPath = path.join(atom.project.path, 'config','.settings')
-    oldSettingsPath = path.join(atom.project.path ,'config','settings.yaml')
+    if atom.project? and atom.project.path?
+      settingsPath = path.join(atom.project.path, 'config','.settings')
+      oldSettingsPath = path.join(atom.project.path ,'config','settings.yaml')
 
-    return fs.existsSync(settingsPath) or fs.existsSync(oldSettingsPath)
+      return fs.existsSync(settingsPath) or fs.existsSync(oldSettingsPath)
+    else 
+      console.log('atom.project does not exist')
+      return false
 
   isMetadata: (filePath) ->    
     apex_file_extensions = atom.config.getSettings()['MavensMate-Atom'].mm_apex_file_extensions
