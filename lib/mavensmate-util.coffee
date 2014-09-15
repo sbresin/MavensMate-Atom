@@ -7,6 +7,9 @@ module.exports =
   sfdcSettings:
     maxCheckpoints: 5
 
+  uris:
+    errorsView: 'mavensmate://errorsView'
+
   # returns true if autocomplete-plus is installed
   isAutocompletePlusInstalled: ->
     atom.packages.getAvailablePackageNames().indexOf('autocomplete-plus') > -1
@@ -88,7 +91,6 @@ module.exports =
 
   numberOfCompileErrors: (fileName) ->
     numberOfErrors = 0;
-    console.log fileName
     if fileName?
       numberOfErrors = atom.project.errors[fileName].length
     else

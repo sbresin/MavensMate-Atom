@@ -76,6 +76,9 @@ class MavensMatePanelView extends View
         me.fetchLogsLabel.html 'Fetch Logs'
         logFetcher.stop()
 
+    @btnViewErrors.click ->
+      atom.workspaceView.open(util.uris.errorsView)
+
     # updates panel view font size(s) based on editor font-size updates (see mavensmate-atom-watcher.coffee)
     emitter.on 'mavensmate:font-size-changed', (newFontSize) ->
       jQuery('div.mavensmate pre.terminal').css('font-size', newFontSize)

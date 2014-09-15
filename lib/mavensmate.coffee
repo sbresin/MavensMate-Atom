@@ -29,8 +29,6 @@ require '../scripts/bootstrap'
 ErrorsView = null
 errorsView = null
 
-errorsViewUri = 'mavensmate://errorsView'
-
 createErrorsView = (params) ->
   ErrorsView ?= require './mavensmate-errors-view'
   errorsView = new ErrorsView(params)
@@ -113,10 +111,10 @@ module.exports =
       @onProjectPathChanged()
 
       atom.workspace.registerOpener (uri) ->
-        createErrorsView({uri}) if uri is errorsViewUri
+        createErrorsView({uri}) if uri is util.uris.errorsView
 
-      atom.workspaceView.command 'mavensmate:open-errors', =>
-        atom.workspaceView.open(errorsViewUri)
+      atom.workspaceView.command 'mavensmate:view-errors', =>
+        atom.workspaceView.open(util.uris.errorsView)
 
     onProjectPathChanged: ->
       if util.isMavensMateProject() and not atom.workspaceView.mavensMateProjectInitialized
