@@ -6,7 +6,7 @@ Repeat = require 'repeat'
 class MavensMateAtomWatcher
 
   constructor: () ->
-    atom.mavensmate.currentFontSize = jQuery("div.editor-contents").css("font-size")
+    atom.mavensmate.currentFontSize = jQuery("div.item-views > div.editor > div.editor-contents").css("font-size")
     @startWatching()
 
   startWatching: ->
@@ -14,7 +14,7 @@ class MavensMateAtomWatcher
 
   # watches editor font size, emits event when it changes so that mavensmate views can update accordingly
   watchFontSize: ->
-    newFontSize = jQuery("div.editor-contents").css("font-size")
+    newFontSize = jQuery("div.item-views > div.editor > div.editor-contents").css("font-size")
     if newFontSize != atom.mavensmate.currentFontSize
       atom.mavensmate.currentFontSize = newFontSize
       emitter.emit 'mavensmate:font-size-changed', atom.mavensmate.currentFontSize
