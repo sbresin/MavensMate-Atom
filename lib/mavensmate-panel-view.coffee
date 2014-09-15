@@ -24,10 +24,9 @@ class MavensMatePanelView extends View
 
   resizePanelView: (evt) =>
     return @resizeStopped() unless evt.which is 1
-    # console.log evt
-    # console.log evt
     height = jQuery("body").height() - evt.pageY - 10
     @height(height)
+    jQuery('.mavensmate-output .message').css('max-height',height-54+'px')
 
   handleEvents: ->
     @on 'mousedown', '.entry', (e) =>
@@ -97,7 +96,8 @@ class MavensMatePanelView extends View
       promisePanelView.update me, params, result
 
     @handleEvents()
-
+    # jQuery('.mavensmate-output .message').css('max-height',jQuery('.mavensmate-output').height()+'px')
+    @resizePanelView({which:1,pageY:500})
   # Internal: Update the mavensmate output view contents.
   #
   # output - A string of the test runner results.
