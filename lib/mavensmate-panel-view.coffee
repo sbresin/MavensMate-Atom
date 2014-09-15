@@ -136,12 +136,13 @@ class MavensMatePanelViewItem extends View
   constructor: (command, params) ->
     super
     
+    @command = command
     # set panel font-size to that of the editor
     fontSize = jQuery("div.editor-contents").css('font-size')
     @terminal.context.style.fontSize = fontSize
     
     # get the message
-    message = @.panelCommandMessage params, command, util.isUiCommand params
+    message = @.panelCommandMessage params, util.isUiCommand params
 
     # scope this panel by the promiseId
     @promiseId = params.promiseId
@@ -163,10 +164,9 @@ class MavensMatePanelViewItem extends View
   initialize: ->
 
   update: (panel, params, result) ->
-    me = @
-    command = util.getCommandName(params)
-    if command not in util.panelExemptCommands()
-      panelOutput = @getPanelOutput command, params, result
+    me = @    
+    if @command not in util.panelExemptCommands()
+      panelOutput = @getPanelOutput params, result
       console.log 'panel output ---->'
       console.log panelOutput
 
@@ -181,50 +181,42 @@ class MavensMatePanelViewItem extends View
     return
 
   # returns the command message to be displayed in the panel
-  panelCommandMessage: (params, command, isUi=false) ->
+  panelCommandMessage: (params, isUi=false) ->
     console.log params
-
-    # todo: move objects to global?
-    uiMessages =
-      new_project : 'Opening new project panel'
-      edit_project : 'Opening edit project panel'
-
-    messages =
-      new_project : 'Creating new project'
-      compile_project: 'Compiling project'
-      index_metadata: 'Indexing metadata'
-      compile: ->
-        if params.payload.files? and params.payload.files.length is 1
-          'Compiling '+params.payload.files[0].split(/[\\/]/).pop() # extract base name
-        else
-          'Compiling selected metadata'
-      delete: ->
-        if params.payload.files? and params.payload.files.length is 1
-          'Deleting ' + params.payload.files[0].split(/[\\/]/).pop() # extract base name
-        else
-          'Deleting selected metadata'
-      refresh: ->
-        if params.payload.files? and params.payload.files.length is 1
-          'Refreshing ' + params.payload.files[0].split(/[\\/]/).pop() # extract base name
-        else
-          'Refreshing selected metadata'
-
+    
     if isUi
-      msg = uiMessages[command]
+      switch @command
+        when 'new_project'
+          msg = 'Opening new project panel'
+        when 'edit_project'
+          msg = 'Opening edit project panel'
+        else 
+          msg = 'mm ' + @command
     else
-      msg = messages[command]
-
-    console.log 'msgggggg'
-    console.log msg
-    console.log Object.prototype.toString.call msg
-
-    if msg?
-      if Object.prototype.toString.call(msg) is '[object Function]'
-        msg = msg() + '...'
-      else
-        msg = msg + '...'
-    else
-      msg = 'mm '+command
+      switch @command
+        when 'new_project'
+          msg =  'Creating new project'
+        when 'compile_project'
+          msg = 'Compiling project'
+        when 'index_metadata'
+          msg = 'Indexing metadata'
+        when 'compile'
+          if params.payload.files? and params.payload.files.length is 1
+            msg = 'Compiling '+params.payload.files[0].split(/[\\/]/).pop() # extract base name
+          else
+            msg = 'Compiling selected metadata'
+        when 'delete'
+          if params.payload.files? and params.payload.files.length is 1
+            msg = 'Deleting ' + params.payload.files[0].split(/[\\/]/).pop() # extract base name
+          else
+            msg = 'Deleting selected metadata'
+        when 'refresh'
+          if params.payload.files? and params.payload.files.length is 1
+            msg = 'Refreshing ' + params.payload.files[0].split(/[\\/]/).pop() # extract base name
+          else
+            msg = 'Refreshing selected metadata'
+        else
+          msg = 'mm ' + @command
 
     header = '['+moment().format('MMMM Do YYYY, h:mm:ss a')+']<br/>'
     return header + '> ' + msg
@@ -237,36 +229,36 @@ class MavensMatePanelViewItem extends View
   #   stackTrace: 'foo bar bat'
   #   isException: true
   #
-  getPanelOutput: (command, params, result) ->
+  getPanelOutput: (params, result) ->
     console.log '~~~~~~~~~~~'
-    console.log command
+    console.log @command
     console.log params
     console.log result
     obj = null
     if params.args? and params.args.ui
       console.log 'cool!'
-      obj = @getUiCommandOutput command, params, result
+      obj = @getUiCommandOutput params, result
     else
       try
-        switch command
+        switch @command
           when 'delete'
-            obj = @getDeleteCommandOutput command, params, result
+            obj = @getDeleteCommandOutput params, result
           when 'compile'
-            obj = @getCompileCommandOutput command, params, result
+            obj = @getCompileCommandOutput params, result
           when 'compile_project'
-            obj = @getCompileProjectCommandOutput command, params, result
+            obj = @getCompileProjectCommandOutput params, result
           when 'run_all_tests', 'test_async'
-            obj = @getRunAsyncTestsCommandOutput command, params, result
+            obj = @getRunAsyncTestsCommandOutput params, result
           when 'new_quick_trace_flag'
-            obj = @getNewQuickTraceFlagCommandOutput command, params, result
+            obj = @getNewQuickTraceFlagCommandOutput params, result
           else
-            obj = @getGenericOutput command, params, result
+            obj = @getGenericOutput params, result
       catch
-        obj = @getGenericOutput command, params, result
+        obj = @getGenericOutput params, result
 
     return obj
 
-  getDeleteCommandOutput: (command, params, result) ->
+  getDeleteCommandOutput: (params, result) ->
     if result.success
       obj = indicator: "success"
       if params.payload.files? and params.payload.files.length is 1
@@ -275,9 +267,9 @@ class MavensMatePanelViewItem extends View
         obj.message = "Deleted selected metadata"
       return obj
     else
-      @getErrorOutput command, params, result
+      @getErrorOutput params, result
 
-  getUiCommandOutput: (command, params, result) ->
+  getUiCommandOutput: (params, result) ->
     console.log 'parsing ui'
     if result.success
       obj =
@@ -285,16 +277,16 @@ class MavensMatePanelViewItem extends View
         indicator: 'success'
       return obj
     else
-      return @getErrorOutput command, params, result
+      return @getErrorOutput params, result
 
-  getErrorOutput: (command, params, result) ->
+  getErrorOutput: (params, result) ->
     output =
       message: result.body
       indicator: 'danger'
       stackTrace: result.stackTrace
       isException: result.stackTrace?
 
-  getGenericOutput: (command, params, result) ->
+  getGenericOutput: (params, result) ->
     if result.body? and result.success?
       output =
         message: result.body
@@ -308,7 +300,7 @@ class MavensMatePanelViewItem extends View
         stackTrace: result.stackTrace
         isException: result.stackTrace?
 
-  getCompileCommandOutput: (command, params, result) ->
+  getCompileCommandOutput: (params, result) ->
     console.log 'getCompileCommandOutput'
     obj =
       message: null
@@ -344,7 +336,7 @@ class MavensMatePanelViewItem extends View
           atom.project.errors[errorFileName].push(error)
         obj.message = message
         obj.indicator = 'danger'
-        emitter.emit 'mavensmateCompileErrorBufferNotify', command, params, result
+        emitter.emit 'mavensMateCompileFinished', params
       else if result.State is 'Failed' and result.DeployDetails?
         errors = result.DeployDetails.componentFailures
         message = 'Compile Failed'
@@ -360,11 +352,11 @@ class MavensMatePanelViewItem extends View
           atom.project.errors[errorFileName].push(error)
         obj.message = message
         obj.indicator = 'danger'
-        emitter.emit 'mavensmateCompileErrorBufferNotify', command, params, result 
+        emitter.emit 'mavensMateCompileFinished', params 
       else if result.State is 'Completed' and not result.ErrorMsg
         obj.indicator = 'success'
         obj.message = 'Success'
-        emitter.emit 'mavensmateCompileSuccessBufferNotify', params
+        emitter.emit 'mavensMateCompileFinished', params
       else
         #pass
     else if result.actions?
@@ -379,7 +371,7 @@ class MavensMatePanelViewItem extends View
 
     return obj
 
-  getCompileProjectCommandOutput: (command, params, result) ->
+  getCompileProjectCommandOutput: (params, result) ->
     obj =
       message: null
       indicator: null
@@ -392,7 +384,7 @@ class MavensMatePanelViewItem extends View
       if result.success
         obj.message = "Success"
         obj.indicator = 'success'
-        emitter.emit 'mavensmateCompileSuccessBufferNotify', params
+        emitter.emit 'mavensMateCompileFinished', params
       else
         errors = result.Messages
         obj.indicator = 'danger'
@@ -405,15 +397,15 @@ class MavensMatePanelViewItem extends View
 
           atom.project.errors[errorFileName] ?= []
           atom.project.errors[errorFileName].push(error)
-        console.log("Emitting mavensmateCompileErrorBufferNotify")
+        console.log("Emitting mavensMateCompileFinished")
         console.log(atom.project.errors)
-        emitter.emit 'mavensmateCompileErrorBufferNotify', command, params, result
+        emitter.emit 'mavensMateCompileFinished', params
 
         obj.message = message
         obj.indicator = 'danger'
     return obj
 
-  getRunAsyncTestsCommandOutput: (command, params, result) ->
+  getRunAsyncTestsCommandOutput: (params, result) ->
     obj =
       message: null
       indicator: 'warning'
@@ -443,7 +435,7 @@ class MavensMatePanelViewItem extends View
 
     return obj
 
-  getNewQuickTraceFlagCommandOutput: (command, params, result) ->
+  getNewQuickTraceFlagCommandOutput: (params, result) ->
     obj =
       message: null
       indicator: 'warning'

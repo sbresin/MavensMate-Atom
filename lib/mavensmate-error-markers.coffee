@@ -14,9 +14,7 @@ class MavensMateErrorMarkers
 
   initialize: ->
     thisView = @
-    emitter.on 'mavensmateCompileErrorBufferNotify', (command, params, result) ->
-      thisView.refreshMarkers()
-    emitter.on 'mavensmateCompileSuccessBufferNotify', (params) ->
+    emitter.on 'mavensMateCompileFinished', (params) ->
       thisView.refreshMarkers()
 
   clearMarkers: ->
