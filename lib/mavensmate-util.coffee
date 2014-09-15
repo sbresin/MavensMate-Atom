@@ -80,6 +80,22 @@ module.exports =
       'get_apex_class_completions'
     ]
 
+  compileCommands: ->
+    [
+      'compile',
+      'compile_project'
+    ]
+
+  numberOfCompileErrors: (fileName) ->
+    numberOfErrors = 0;
+    console.log fileName
+    if fileName?
+      numberOfErrors = atom.project.errors[fileName].length
+    else
+      for fileName, errors of atom.project.errors
+        numberOfErrors += errors.length
+    return numberOfErrors
+
   # returns the name of the command
   # useful because the command can reside in args or payload
   getCommandName: (params) ->

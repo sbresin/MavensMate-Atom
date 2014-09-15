@@ -5,6 +5,7 @@ emitter             = require('./mavensmate-emitter').pubsub
 logFetcher          = require('./mavensmate-log-fetcher').fetcher
 util                = require './mavensmate-util'
 moment              = require 'moment'
+pluralize           = require 'pluralize'
 # interact  = require 'interact'
 
 # The status panel that shows the result of command execution, etc.
@@ -85,6 +86,7 @@ class MavensMatePanelView extends View
       if command not in util.panelExemptCommands() and not params.skipPanel # some commands are not piped to the panel
         params.promiseId = promiseId
         me.update command, params
+      me.updateErrorsBtn()
       return
 
     # handler for finished operations
@@ -98,6 +100,9 @@ class MavensMatePanelView extends View
       promisePanelView = me.panelItems[promiseId]
       console.log promisePanelView
       promisePanelView.update me, params, result
+
+    emitter.on 'mavensMateCompileFinished', (params) ->
+      me.updateErrorsBtn()
 
     @handleEvents()
 
@@ -128,15 +133,50 @@ class MavensMatePanelView extends View
     else
       atom.workspaceView.prependToBottom(this) unless @hasParent() #todo: attach to specific workspace view
 
+  countPanels: (commands) ->
+    panelCount = 0
+    console.log @panelItems
+    for promiseId, panelViewItem of @panelItems
+      if panelViewItem.command in commands and panelViewItem.running
+        panelCount++
+    return panelCount
+
+  updateErrorsBtn: ->
+    console.log '-----> updateErrorsBtn'
+    panelsCompiling = @countPanels(util.compileCommands())
+
+    numberOfErrors = util.numberOfCompileErrors()
+
+    console.log(numberOfErrors)
+    @viewErrorsLabel.html(numberOfErrors + ' ' + pluralize('error', numberOfErrors))
+
+    if panelsCompiling == 0
+      @viewErrorsIcon.removeClass 'fa-spin'
+      if numberOfErrors == 0
+        @btnViewErrors.addClass 'btn-default'
+        @btnViewErrors.removeClass 'btn-error'
+        @btnViewErrors.removeClass 'btn-warning'
+      else
+        @btnViewErrors.removeClass 'btn-default'
+        @btnViewErrors.addClass 'btn-error'
+        @btnViewErrors.removeClass 'btn-warning'        
+    else
+      @viewErrorsIcon.addClass 'fa-spin'
+      @btnViewErrors.removeClass 'btn-default'
+      @btnViewErrors.removeClass 'btn-error'
+      @btnViewErrors.addClass 'btn-warning'
+
 # represents a single operation/command within the panel
 class MavensMatePanelViewItem extends View
 
   promiseId = null
+  
 
   constructor: (command, params) ->
     super
     
     @command = command
+    @running = true
     # set panel font-size to that of the editor
     fontSize = jQuery("div.editor-contents").css('font-size')
     @terminal.context.style.fontSize = fontSize
@@ -178,6 +218,7 @@ class MavensMatePanelViewItem extends View
 
       # update terminal
       me.terminal.append '<br/>> '+ '<span id="message-'+@promiseId+'">'+panelOutput.message+'</span>'
+      me.running = false
     return
 
   # returns the command message to be displayed in the panel
