@@ -110,8 +110,10 @@ class MavensMateCommandLineInterface
 
       exec cmd, options, (exception, stdout) ->
         console.log 'COMMAND RESULT -->'
-        console.log exception
-        console.log stdout
+        if exception?
+          console.log 'EXCEPTION: '+exception
+        if stdout?
+          console.log 'STDOUT: \n'+stdout
 
         jsonSTDOUT = JSON.parse stdout
         if promiseId?

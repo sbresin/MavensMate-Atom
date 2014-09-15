@@ -21,8 +21,9 @@ emitter                             = require('./mavensmate-emitter').pubsub
 MavensMateCodeAssistProviders       = require './mavensmate-code-assist-providers'
 commands                            = require './commands.json'
 {exec}                              = require 'child_process'
-
+atom.mavensmate = {}
 window.jQuery = $
+
 require '../scripts/bootstrap'
 
 ErrorsView = null
@@ -41,6 +42,14 @@ errorsDeserializer =
     createErrorsView(state) if state.constructor is Object
 atom.deserializers.add(errorsDeserializer)
 
+MavensMateAtomWatcher = require('./mavensmate-atom-watcher').watcher
+MavensMateTabView = null
+
+tabViewUri = 'mavensmate://tabView'
+createTabView = (params) ->
+  MavensMateTabView ?= require './mavensmate-tab-view'
+  tabView = new MavensMateTabView(params)
+
 module.exports =
 
   class MavensMate
@@ -50,37 +59,21 @@ module.exports =
     autocomplete: null
     providers: []
 
-    panel: null #mavensmate status panel
-    localHttpServer: null #express.js server that handles UI interaction
-    mm: null
+    panel: null # mavensmate status panel
+    localHttpServer: null # express.js server that handles UI interaction
+    mm: null # mm cli singleton
 
     constructor: ->
-      console.log 'NEW MAVENSMATE!!!'
-      # @editorView = atom.workspaceView.getActiveView()
-      # if @editorView?
-      #   {@editor, @gutter} = @editorView
-
+      console.log 'New instance of MavensMate plugin...'
       @init()
-
-    # constructor: (editorView) ->
-    #   console.log 'NEW MAVENSMATE!!!'
-
-    #   @editor = editorView.editor
-    #   @editorView = editorView
-
-    #   # {@editor, @gutter} = editorView
-    #   @handleBufferEvents editorView
-
-    #   # atom.workspaceView.eachEditorView (editorView) =>
-    #   #   @handleBufferEvents editorView
-
-    #   @init()
 
     # Activates the package, starts the local server, instantiates the views, etc.
     #
     # Returns nothing.
     init: -> 
-      atom.mavensmate = {}
+      atom.workspace.registerOpener (uri, params) ->
+        createTabView(params) if uri is tabViewUri
+
       atom.workspaceView.mavensMateProjectInitialized ?= false
       console.log 'initing mavensmate.coffee'
       #@promiseTracker = new MavensMatePromiseTracker()
@@ -194,6 +187,10 @@ module.exports =
 
             if 'ui' of command
               params.args.ui = command.ui
+            if 'view' of command
+              params.args.view = command.view
+            else
+              params.args.view = 'modal'
 
             payload = {}
             if 'payloadFiles' of command
@@ -309,8 +306,13 @@ module.exports =
       tracker.pop(result.promiseId).result
       if params.args.ui
         if result.success
-          modalView = new MavensMateModalView result.promiseId, result.body, params.args.operation #attach app view pane
-          modalView.appendTo document.body
+          if params.args.view == 'tab'
+            params.result = result
+            atom.workspaceView.open tabViewUri, params
+          else
+            modalView = new MavensMateModalView result.promiseId, result.body, params.args.operation #attach app view pane
+            modalView.appendTo document.body
+
       MavensMateEventEmitter.emit 'mavensmatePromiseCompleted', result.promiseId
       MavensMateEventEmitter.emit 'mavensmatePanelNotifyFinish', params, result, result.promiseId
 
