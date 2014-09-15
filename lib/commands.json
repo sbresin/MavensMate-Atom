@@ -82,7 +82,8 @@
         },
         "run-apex-unit-tests": {
             "operation": "unit_test",
-            "ui": true
+            "ui": true,
+            "view": "tab"
         },
         "deploy-to-server": {
             "operation": "deploy",
