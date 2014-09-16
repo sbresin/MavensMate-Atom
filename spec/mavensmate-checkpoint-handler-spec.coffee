@@ -1,4 +1,4 @@
-path    = require 'path' # npm install path
+path  = require 'path' # npm install path
 
 emitter = require('../lib/mavensmate-emitter').pubsub
 MavensMateCheckpointHandler = require '../lib/mavensmate-checkpoint-handler'
@@ -7,20 +7,18 @@ MavensMateCheckpointHandler = require '../lib/mavensmate-checkpoint-handler'
 describe 'MavensMate Checkpoint Handler', ->
 
   beforeEach ->
-    console.log atom
     atom.project.setPath(path.join(__dirname, 'fixtures', 'testProject'))
     # set up the workspace
-    atom.workspaceView = new WorkspaceView()
-    atom.workspace = atom.workspaceView.model
+    atom.workspaceView = new WorkspaceView
     atom.workspaceView.attachToDom()
-    # activate the mavensmate package
+
+    waitsForPromise ->
+      atom.workspace.open('src/classes/MatchController.cls')
+
     waitsForPromise ->
       atom.packages.activatePackage('MavensMate-Atom')
 
-    waitsForPromise ->
-      atom.workspace.open('testProject/src/classes/MatchController.cls')
-
-  fit 'should intialize with handlers', ->
+  it 'should intialize with handlers', ->
     @editor = atom.workspace.getActiveEditor()
     spyOn(@editor.checkpointHandler, 'clearMarkers').andCallThrough()
     spyOn(@editor.checkpointHandler, 'refreshMarkers').andCallThrough()
@@ -40,11 +38,12 @@ describe 'MavensMate Checkpoint Handler', ->
     # clearMarkers will be called for each 'start' emitted as well as when refreshMarkers and refreshCheckpoints is called
     expect(@editor.checkpointHandler.clearMarkers.calls.length).toEqual(4)
 
-  it 'should detect gutter click events', ->
-    @editor = atom.workspace.getActiveEditor()
-    editorView = new EditorView(mini: false)
-    console.log editorView
+  describe 'should detect gutter click events', ->
+    beforeEach ->
+      @editor = atom.workspace.getActiveEditor()
+      @editorView = atom.workspaceView.getActiveView()
 
-    console.log $._data(editorView.find('.line-numbers .line-number'), 'events')
-    # console.log editorView.find('.line-numbers .line-number').first().click()
-    expect(editorView.find('.line-numbers .line-number').first().hasClass('mm-checkpoint-gutter-processing')).toBe(true)
+    describe 'when line not marked', ->
+      it 'should mark with mm-checkpoint-gutter-processing', ->
+        @editorView.find('.line-numbers .line-number-0').click()
+        expect(@editorView.find('.line-numbers .line-number-0').hasClass('mm-checkpoint-gutter-processing')).toBe(true)
