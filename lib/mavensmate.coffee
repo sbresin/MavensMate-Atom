@@ -10,7 +10,7 @@ MavensMateErrorView                 = require './mavensmate-error-view'
 MavensMateCheckpointHandler         = require './mavensmate-checkpoint-handler'
 MavensMatePanelView                 = require('./mavensmate-panel-view').panel
 MavensMateStatusBarView             = require './mavensmate-status-bar-view'
-# MavensMateShareView                 = require './mavensmate-share-view'
+MavensMateShareView                 = require './mavensmate-share-view'
 MavensMateAppView                   = require './mavensmate-app-view'
 MavensMateModalView                 = require './mavensmate-modal-view'
 CodeHelperMetadata                  = require './code-helper/metadata'
@@ -222,7 +222,7 @@ module.exports =
         # TODO: shouldn't we scope this to MavensMate projects only?
         editorView.errorView = new MavensMateErrorView(editorView) # displays gutter marks, etc. on compile errors
         editorView.checkpointHandler = new MavensMateCheckpointHandler(editorView, @mm, @mmResponseHandler) # creates/deletes/displays checkpoints in gutter
-        # editorView.shareView = new MavensMateShareView() contextify npm package is incompatible right now
+        editorView.shareView = new MavensMateShareView() # contextify npm package is incompatible right now
         
       # retrieve code helper metadata, set up code helper buffers
       m = new CodeHelperMetadata()
