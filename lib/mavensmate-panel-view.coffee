@@ -485,11 +485,18 @@ class MavensMatePanelViewItem extends View
           error.fileName = util.baseName(error.returnedPath)
           treePath = './' + error.returnedPath.replace('unpackaged', 'src')
           error.filePath = atom.project.resolve(treePath)
-          errorMessage = "#{error.fileName}: #{error.problem} (Line: #{error.lineNumber}, Column: #{error.columnNumber})"
+          if error.lineNumber? and error.columnNumber?
+            errorMessage = "#{error.fileName}: #{error.problem} (Line: #{error.lineNumber}, Column: #{error.columnNumber})"
+          else 
+            lineColumnRegEx = /line\s(\d+)\scolumn\s(\d+)/
+            match = lineColumnRegEx.exec(error.problem)
+            error.lineNumber = match[0]
+            error.columnNumber = match[1]
+            errorMessage = "#{error.fileName}: #{error.problem}"
           message += '<br/>' + errorMessage
 
-          atom.project.errors[error.fileName] ?= []
-          atom.project.errors[error.fileName].push(error)
+          atom.project.errors[error.filePath] ?= []
+          atom.project.errors[error.filePath].push(error)
         obj.message = message
         obj.indicator = 'danger'
     return obj
