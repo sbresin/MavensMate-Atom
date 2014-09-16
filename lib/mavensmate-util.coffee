@@ -39,6 +39,9 @@ module.exports =
   baseName: (filePath) ->
     filePath.split(/[\\/]/).pop()
 
+  withoutExtension: (filePath) ->
+    filePath.split(/[.]/).shift()
+
   extension: (filePath) ->
     '.' + filePath.split(/[.]/).pop()
 

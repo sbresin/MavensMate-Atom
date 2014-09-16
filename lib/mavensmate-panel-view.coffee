@@ -6,6 +6,7 @@ logFetcher          = require('./mavensmate-log-fetcher').fetcher
 util                = require './mavensmate-util'
 moment              = require 'moment'
 pluralize           = require 'pluralize'
+path                = require 'path'
 # interact  = require 'interact'
 
 # The status panel that shows the result of command execution, etc.
@@ -103,12 +104,11 @@ class MavensMatePanelView extends View
       promisePanelView = me.panelItems[promiseId]
       console.log promisePanelView
       promisePanelView.update me, params, result
-      me.updateErrorsBtn()
 
-    emitter.on 'mavensMateCompileFinished', (params) ->
-      me.updateErrorsBtn()
+      if promisePanelView.command in util.compileCommands()
+        emitter.emit 'mavensMateCompileFinished', params, promiseId
 
-    emitter.on 'mavensMatePanelViewItemUpdated', (params) ->
+    emitter.on 'mavensMateCompileFinished', (params, promiseId) ->
       me.updateErrorsBtn()
 
     @handleEvents()
@@ -227,6 +227,7 @@ class MavensMatePanelViewItem extends View
       me.terminal.append '<br/>> '+ '<span id="message-'+@promiseId+'">'+panelOutput.message+'</span>'
       me.running = false
       emitter.emit 'mavensMatePanelViewItemUpdated', params
+
     return
 
   # returns the command message to be displayed in the panel
@@ -312,8 +313,6 @@ class MavensMatePanelViewItem extends View
         filesRefreshed = (util.baseName(filePath) for filePath in params.payload.files ? [])
         for refreshedFile in filesRefreshed
           atom.project.errors[refreshedFile] = []
-    if @command in util.compileCommands
-      emitter.emit 'mavensMateCompileFinished', params
     return obj
 
   getDeleteCommandOutput: (params, result) ->
@@ -367,10 +366,30 @@ class MavensMatePanelViewItem extends View
       stackTrace: null
       isException: false
 
-    filesCompiled = (util.baseName(filePath) for filePath in params.payload.files ? [])
-    console.log filesCompiled
-    for compiledFile in filesCompiled
-      atom.project.errors[compiledFile] = []
+    filesCompiled = {}
+  
+    for filePath in params.payload.files
+      fileNameBase = util.baseName(filePath)
+      fileNameWithoutExtension = util.withoutExtension(fileNameBase)
+      compiledFile = {}
+      compiledFile.filePath = filePath
+      compiledFile.fileNameWithoutExtension = fileNameWithoutExtension
+      compiledFile.fileNameBase = fileNameBase
+      filesCompiled[fileNameWithoutExtension] = compiledFile
+
+      atom.project.errors[filePath] = []
+    for filePath, errors of atom.project.errors
+      fileNameBase = util.baseName(filePath)
+      fileNameWithoutExtension = util.withoutExtension(fileNameBase)
+
+      if not filesCompiled[fileNameWithoutExtension]?
+        compiledFile = {}
+        compiledFile.filePath = filePath
+        compiledFile.fileNameWithoutExtension = fileNameWithoutExtension
+        compiledFile.fileNameBase = fileNameBase
+        filesCompiled[fileNameWithoutExtension] = compiledFile
+
+    errorsByFilePath = {}
 
     if result.State? # tooling
       if result.state is 'Error' and result.ErrorMsg?
@@ -383,31 +402,41 @@ class MavensMatePanelViewItem extends View
         errors = result.CompilerErrors
         message = 'Compile Failed'
         for error in errors
-          errorFileName = error.name + ".cls"
+          if filesCompiled[error.name]?
+            error.fileName = filesCompiled[error.name].fileNameBase
+            error.filePath = filesCompiled[error.name].filePath
+          else            
+            error.fileName = error.name
+            error.filePath = error.name
           if error.line?
-            errorMessage = "#{errorFileName}: #{error.problem[0]} (Line: #{error.line[0]})"
+            errorMessage = "#{error.fileName}: #{error.problem[0]} (Line: #{error.line[0]})"
             error.lineNumber = error.line[0]
           else
-            errorMessage = "#{errorFileName}: #{error.problem}"
+            errorMessage = "#{error.fileName}: #{error.problem}"
           message += '<br/>' + errorMessage
 
-          atom.project.errors[errorFileName] ?= []
-          atom.project.errors[errorFileName].push(error)
+          errorsByFilePath[error.filePath] ?= []
+          errorsByFilePath[error.filePath].push(error)
         obj.message = message
         obj.indicator = 'danger'        
       else if result.State is 'Failed' and result.DeployDetails?
         errors = result.DeployDetails.componentFailures
         message = 'Compile Failed'
         for error in errors
-          errorFileName = error.fileName + ".cls"
+          if filesCompiled[error.name]?
+            error.fileName = filesCompiled[error.name].fileNameBase
+            error.filePath = filesCompiled[error.name].filePath
+          else            
+            error.fileName = error.name
+            error.filePath = error.name
           if error.lineNumber
-            errorMessage = "#{errorFileName}: #{error.problem} (Line: #{error.lineNumber})"
+            errorMessage = "#{error.fileName}: #{error.problem} (Line: #{error.lineNumber})"
           else
-            errorMessage = "#{errorFileName}: #{error.problem}"
+            errorMessage = "#{error.fileName}: #{error.problem}"
           message += '<br/>' + errorMessage
 
-          atom.project.errors[errorFileName] ?= []
-          atom.project.errors[errorFileName].push(error)
+          errorsByFilePath[error.filePath] ?= []
+          errorsByFilePath[error.filePath].push(error)
         obj.message = message
         obj.indicator = 'danger'
       else if result.State is 'Completed' and not result.ErrorMsg
@@ -421,6 +450,13 @@ class MavensMatePanelViewItem extends View
       obj.indicator = 'warning'
     # else # metadata api
     #   #todo
+
+    for filePath, errors of errorsByFilePath
+      fileNameBase = util.baseName(filePath)
+      fileNameWithoutExtension = util.withoutExtension(fileNameBase)
+      if atom.project.errors[fileNameWithoutExtension]?
+        delete atom.project.errors[fileNameWithoutExtension]
+      atom.project.errors[filePath] = errors
 
     if !obj.message?
       throw 'unable to parse'
@@ -445,12 +481,15 @@ class MavensMatePanelViewItem extends View
 
         message = 'Compile Project Failed'
         for error in errors
-          errorFileName = util.baseName(error.fileName)
-          errorMessage = "#{errorFileName}: #{error.problem} (Line: #{error.lineNumber}, Column: #{error.columnNumber})"
+          error.returnedPath = error.fileName
+          error.fileName = util.baseName(error.returnedPath)
+          treePath = './' + error.returnedPath.replace('unpackaged', 'src')
+          error.filePath = atom.project.resolve(treePath)
+          errorMessage = "#{error.fileName}: #{error.problem} (Line: #{error.lineNumber}, Column: #{error.columnNumber})"
           message += '<br/>' + errorMessage
 
-          atom.project.errors[errorFileName] ?= []
-          atom.project.errors[errorFileName].push(error)
+          atom.project.errors[error.fileName] ?= []
+          atom.project.errors[error.fileName].push(error)
         obj.message = message
         obj.indicator = 'danger'
     return obj
