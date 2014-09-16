@@ -350,6 +350,22 @@ svg.busy circle.circle3 {
     background: #161719;
   }
 
+  .table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
+    border-top: 1px solid darken(@syntax-background-color, 20%);
+  }
+
+  .table-striped > tbody > tr:nth-child(odd) > td, .table-striped > tbody > tr:nth-child(odd) > th {
+    background-color: lighten(@syntax-background-color, 10%);    
+  }
+
+  .table-striped > tbody > tr:nth-child(even) > td, .table-striped > tbody > tr:nth-child(even) > th {
+    background-color: lighten(@syntax-background-color, 5%);    
+  }
+
+  .btn-errorItem i {
+    margin-left: 10px;
+  }
+
   progress.pending::-webkit-progress-value
   {
     /* Gradient background with Stripes */
