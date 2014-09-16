@@ -8,11 +8,11 @@ window.jQuery = $
 module.exports =
   class MavensMateCheckpointHandler
 
-    constructor: (@editorView, mm, rh) ->
+    constructor: (@editorView, @mm, @responseHandler) ->
       { @editor, @gutter } = @editorView
-      @mm = mm
-      @responseHandler = rh
-
+      # @mm = mm
+      # @responseHandler = rh
+      # console.log @responseHandler
       @initialize()
       @refreshMarkers()
       @handleGutterClickEvents()
@@ -117,13 +117,14 @@ module.exports =
           API_Name: fileName
           ActionScriptType: 'None'
 
+      thiz = @
       params =
         args:
           operation: op
           pane: atom.workspace.getActivePane()
         payload: payload
       @mm.run(params).then (result) =>
-        marker.mm_checkpointId = result.overlay_id
-        @responseHandler params, result
+        marker.mm_checkpointId = result.id
         if params.args.operation is 'new_apex_overlay'
           decoration.update {type: 'gutter', class: 'mm-checkpoint-gutter'}
+        thiz.responseHandler(params, result)
