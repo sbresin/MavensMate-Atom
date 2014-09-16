@@ -86,7 +86,9 @@ module.exports =
   compileCommands: ->
     [
       'compile',
-      'compile_project'
+      'compile_project',
+      'clean_project',
+      'refresh'
     ]
 
   numberOfCompileErrors: (fileName) ->

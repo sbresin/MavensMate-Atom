@@ -103,8 +103,12 @@ class MavensMatePanelView extends View
       promisePanelView = me.panelItems[promiseId]
       console.log promisePanelView
       promisePanelView.update me, params, result
+      me.updateErrorsBtn()
 
     emitter.on 'mavensMateCompileFinished', (params) ->
+      me.updateErrorsBtn()
+
+    emitter.on 'mavensMatePanelViewItemUpdated', (params) ->
       me.updateErrorsBtn()
 
     @handleEvents()
@@ -222,6 +226,7 @@ class MavensMatePanelViewItem extends View
       # update terminal
       me.terminal.append '<br/>> '+ '<span id="message-'+@promiseId+'">'+panelOutput.message+'</span>'
       me.running = false
+      emitter.emit 'mavensMatePanelViewItemUpdated', params
     return
 
   # returns the command message to be displayed in the panel
@@ -300,6 +305,15 @@ class MavensMatePanelViewItem extends View
       catch
         obj = @getGenericOutput params, result
 
+    switch @command
+      when 'clean_project'
+        atom.project.errors = {}
+      when 'refresh'
+        filesRefreshed = (util.baseName(filePath) for filePath in params.payload.files ? [])
+        for refreshedFile in filesRefreshed
+          atom.project.errors[refreshedFile] = []
+    if @command in util.compileCommands
+      emitter.emit 'mavensMateCompileFinished', params
     return obj
 
   getDeleteCommandOutput: (params, result) ->
@@ -343,6 +357,7 @@ class MavensMatePanelViewItem extends View
         indicator: 'warning'
         stackTrace: result.stackTrace
         isException: result.stackTrace?
+    return output
 
   getCompileCommandOutput: (params, result) ->
     console.log 'getCompileCommandOutput'
@@ -379,8 +394,7 @@ class MavensMatePanelViewItem extends View
           atom.project.errors[errorFileName] ?= []
           atom.project.errors[errorFileName].push(error)
         obj.message = message
-        obj.indicator = 'danger'
-        emitter.emit 'mavensMateCompileFinished', params
+        obj.indicator = 'danger'        
       else if result.State is 'Failed' and result.DeployDetails?
         errors = result.DeployDetails.componentFailures
         message = 'Compile Failed'
@@ -396,11 +410,9 @@ class MavensMatePanelViewItem extends View
           atom.project.errors[errorFileName].push(error)
         obj.message = message
         obj.indicator = 'danger'
-        emitter.emit 'mavensMateCompileFinished', params 
       else if result.State is 'Completed' and not result.ErrorMsg
         obj.indicator = 'success'
         obj.message = 'Success'
-        emitter.emit 'mavensMateCompileFinished', params
       else
         #pass
     else if result.actions?
@@ -412,7 +424,6 @@ class MavensMatePanelViewItem extends View
 
     if !obj.message?
       throw 'unable to parse'
-
     return obj
 
   getCompileProjectCommandOutput: (params, result) ->
@@ -428,7 +439,6 @@ class MavensMatePanelViewItem extends View
       if result.success
         obj.message = "Success"
         obj.indicator = 'success'
-        emitter.emit 'mavensMateCompileFinished', params
       else
         errors = result.Messages
         obj.indicator = 'danger'
@@ -441,10 +451,6 @@ class MavensMatePanelViewItem extends View
 
           atom.project.errors[errorFileName] ?= []
           atom.project.errors[errorFileName].push(error)
-        console.log("Emitting mavensMateCompileFinished")
-        console.log(atom.project.errors)
-        emitter.emit 'mavensMateCompileFinished', params
-
         obj.message = message
         obj.indicator = 'danger'
     return obj
