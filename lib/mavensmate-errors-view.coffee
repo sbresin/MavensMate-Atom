@@ -81,11 +81,9 @@ class MavensMateErrorsView extends ScrollView
         filesRunning = (util.baseName(filePath) for filePath in params.payload.files ? [])
         for runningFile in filesRunning
           if @running[runningFile][promiseId]?
-            console.log('deleting promise ' + promiseId + ' for ' + runningFile)
             delete @running[runningFile][promiseId]
 
   countFilesRunning: ->
-    console.log(@running)
     runningFiles = 0
     for runningFile, promises of @running
       if promises?
@@ -93,7 +91,6 @@ class MavensMateErrorsView extends ScrollView
     return runningFiles          
 
   refreshErrors: ->
-    console.log '-----> refreshErrors'
     filesRunning = @countFilesRunning()
     numberOfErrors = util.numberOfCompileErrors()
 
@@ -103,7 +100,6 @@ class MavensMateErrorsView extends ScrollView
       for fileName, errors of atom.project.errors
         for error in errors
           errorItem = new MavensMateErrorsViewItem(error)
-          console.log(error)
           @viewErrorsTableBody.prepend errorItem
 
     @viewErrorsLabel.html(numberOfErrors + ' ' + pluralize('error', numberOfErrors))
