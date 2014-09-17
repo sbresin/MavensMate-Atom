@@ -38,8 +38,7 @@
     "color":"0.7.1",
     "open":"0.0.5",
     "repeat":"0.0.6",
-    "firepad": "1.0.0",
-    "firebase": "~1.0.5",
+    "firebase": "1.0.21",
     "lodash":"2.4.1",
     "color":"0.7.1",
     "tmp":"0.0.24"
