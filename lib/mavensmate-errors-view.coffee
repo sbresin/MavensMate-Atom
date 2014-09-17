@@ -3,6 +3,7 @@
 emitter               = require('./mavensmate-emitter').pubsub
 util                  = require './mavensmate-util'
 pluralize             = require 'pluralize'
+fs                    = require 'fs'
 
 
 module.exports =
@@ -129,7 +130,22 @@ class MavensMateErrorsViewItem extends View
     super
 
     @errorDetails.html(error.problem)
-    @goToErrorLabel.html("#{error.fileName}: Line: #{error.lineNumber}")
+    if error.lineNumber? and error.filePath?
+      @goToErrorLabel.html("#{error.fileName}: Line: #{error.lineNumber}")
+      if fs.existsSync(error.filePath)
+        @btnGoToError.click ->
+          atom.workspace?.open(error.filePath).then (errorEditor) ->
+            errorEditor.setCursorBufferPosition([error.lineNumber-1, error.columnNumber-1], autoscroll: true)
+      else
+        @goToErrorLabel.html("Can't GoTo #{error.fileName}: Line: #{error.lineNumber}")
+        @goToIcon.removeClass('fa-bug')
+        @goToIcon.addClass('fa-frown-o')
+        @btnGoToError.attr('disabled','disabled')
+    else
+      @goToErrorLabel.html("MavensMate not sure what happened")
+      @goToIcon.removeClass('fa-bug')
+      @goToIcon.addClass('fa-meh-o')
+      @btnGoToError.attr('disabled','disabled')
 
   @content: ->
     @tr =>
@@ -138,7 +154,7 @@ class MavensMateErrorsViewItem extends View
       @td =>
         @button class: 'btn btn-sm btn-default btn-errorItem', outlet: 'btnGoToError', =>            
           @span 'Goto the error', outlet: 'goToErrorLabel', style: 'display:inline-block;padding-left:5px;'
-          @i class: 'fa fa-bug'
+          @i class: 'fa fa-bug', outlet: 'goToIcon'
       @td =>
         @button class: 'btn btn-sm btn-default btn-errorItem', outlet: 'btnGoogleError', =>            
           @span 'Search Google', outlet: 'viewErrorsLabel', style: 'display:inline-block;padding-left:5px;'
