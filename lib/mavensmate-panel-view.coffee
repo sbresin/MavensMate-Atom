@@ -90,7 +90,8 @@ class MavensMatePanelView extends View
       if command not in util.panelExemptCommands() and not params.skipPanel # some commands are not piped to the panel
         params.promiseId = promiseId
         me.update command, params
-      me.updateErrorsBtn()
+      if command in util.compileCommands()
+        me.updateErrorsBtn()
       return
 
     # handler for finished operations
