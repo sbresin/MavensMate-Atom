@@ -28,7 +28,7 @@ class MavensMateErrorsView extends ScrollView
     super
 
   @content: ->
-    @div class: 'mavensmate mavensmate-output tool-panel mavensmate-view', =>
+    @div class: 'mavensmate mavensmate-output tool-panel mavensmate-view native-key-bindings pane-item',  tabindex: -1, =>
       @div class: 'panel-header', =>
         @div class: 'container-fluid', =>
           @div class: 'row', style: 'padding:10px 0px', =>
