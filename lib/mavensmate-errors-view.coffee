@@ -4,6 +4,7 @@ emitter               = require('./mavensmate-emitter').pubsub
 util                  = require './mavensmate-util'
 pluralize             = require 'pluralize'
 fs                    = require 'fs'
+shell                 = require 'shell'
 
 
 module.exports =
@@ -76,10 +77,10 @@ class MavensMateErrorsView extends ScrollView
       if command in ['clean_project', 'compile_project']
         @running['all'][promiseId] = params
       else
-        filesRunning = (util.baseName(filePath) for filePath in params.payload.files ? [])
-        for runningFile in filesRunning
-          @running[runningFile] ?= {}
-          @running[runningFile][promiseId] = params      
+        if params.payload.files?
+          for runningFile in params.payload.files
+            @running[runningFile] ?= {}
+            @running[runningFile][promiseId] = params      
 
   removeFinishedFiles: (params, promiseId) ->
     command = params.args.operation
@@ -87,69 +88,60 @@ class MavensMateErrorsView extends ScrollView
       if command in ['clean_project', 'compile_project'] and @running['all'][promiseId]?
         delete @running['all'][promiseId]
       else
-        filesRunning = (util.baseName(filePath) for filePath in params.payload.files ? [])
-        for runningFile in filesRunning
-          if @running[runningFile][promiseId]?
-            delete @running[runningFile][promiseId]
+        if params.payload.files?
+          for runningFile in params.payload.files
+            if @running[runningFile][promiseId]?
+              delete @running[runningFile][promiseId]
 
-  countFilesRunning: ->
-    runningFiles = 0
+  areFilesRunning: ->
     for runningFile, promises of @running
       if promises?
-        runningFiles += Object.keys(promises).length
-    return runningFiles          
+        if Object.keys(promises).length > 0
+          return true
+    return false
+
+  isFileRunning: (filePath)->   
+    filePromises = @running['all']
+    if filePromises? and Object.keys(filePromises).length > 0
+      return true
+    filePromises = @running[filePath]
+    if filePromises?
+
+      return Object.keys(filePromises).length > 0
+    return false
+    
 
   refreshErrors: ->
-    filesRunning = @countFilesRunning()
+    filesRunning = @areFilesRunning()
     numberOfErrors = util.numberOfCompileErrors()
-
+    
     @viewErrorsTableBody.html('')
-
     if atom.project.errors?
-      for fileName, errors of atom.project.errors
+      for filePath, errors of atom.project.errors
+        
+        fileRunning = @isFileRunning(filePath)
         for error in errors
           errorItem = new MavensMateErrorsViewItem(error)
+          if fileRunning == true
+            errorItem.addClass('warning')
+          else
+            errorItem.addClass('danger')
           @viewErrorsTableBody.prepend errorItem
-
     @viewErrorsLabel.html(numberOfErrors + ' ' + pluralize('error', numberOfErrors))
 
-    if filesRunning == 0
-      @viewErrorsIcon.removeClass 'fa-spin'
-      # if numberOfErrors == 0
-      #   @btnViewErrors.addClass 'btn-default'
-      #   @btnViewErrors.removeClass 'btn-error'
-      #   @btnViewErrors.removeClass 'btn-warning'
-      # else
-      #   @btnViewErrors.removeClass 'btn-default'
-      #   @btnViewErrors.addClass 'btn-error'
-      #   @btnViewErrors.removeClass 'btn-warning'        
+    if filesRunning == false
+      @viewErrorsIcon.removeClass 'fa-spin'      
     else
-      @viewErrorsIcon.addClass 'fa-spin'
-      # @btnViewErrors.removeClass 'btn-default'
-      # @btnViewErrors.removeClass 'btn-error'
-      # @btnViewErrors.addClass 'btn-warning' 
+      @viewErrorsIcon.addClass 'fa-spin'      
 
 class MavensMateErrorsViewItem extends View
   constructor: (error) ->
     super
 
     @errorDetails.html(error.problem)
-    if error.lineNumber? and error.filePath?
-      @goToErrorLabel.html("#{error.fileName}: Line: #{error.lineNumber}")
-      if fs.existsSync(error.filePath)
-        @btnGoToError.click ->
-          atom.workspace?.open(error.filePath).then (errorEditor) ->
-            errorEditor.setCursorBufferPosition([error.lineNumber-1, error.columnNumber-1], autoscroll: true)
-      else
-        @goToErrorLabel.html("Can't GoTo #{error.fileName}: Line: #{error.lineNumber}")
-        @goToIcon.removeClass('fa-bug')
-        @goToIcon.addClass('fa-frown-o')
-        @btnGoToError.attr('disabled','disabled')
-    else
-      @goToErrorLabel.html("MavensMate not sure what happened")
-      @goToIcon.removeClass('fa-bug')
-      @goToIcon.addClass('fa-meh-o')
-      @btnGoToError.attr('disabled','disabled')
+    @subscribeGoToButtonToError(error)
+
+    # @btnGoogleError.click ->
 
   @content: ->
     @tr =>
@@ -167,3 +159,21 @@ class MavensMateErrorsViewItem extends View
         @button class: 'btn btn-sm btn-default btn-errorItem', outlet: 'btnSalesforceError', =>            
           @span 'Search Salesforce', style: 'display:inline-block;padding-left:5px;'
           @i class: 'fa fa-cloud'
+
+  subscribeGoToButtonToError: (error) ->
+    if error.lineNumber? and error.filePath?
+      @goToErrorLabel.html("#{error.fileName}: Line: #{error.lineNumber}")
+      if fs.existsSync(error.filePath)
+        @btnGoToError.click ->
+          atom.workspace?.open(error.filePath).then (errorEditor) ->
+            errorEditor.setCursorBufferPosition([error.lineNumber-1, error.columnNumber-1], autoscroll: true)
+      else
+        @goToErrorLabel.html("Can't GoTo #{error.fileName}: Line: #{error.lineNumber}")
+        @goToIcon.removeClass('fa-bug')
+        @goToIcon.addClass('fa-frown-o')
+        @btnGoToError.attr('disabled','disabled')
+    else
+      @goToErrorLabel.html("MavensMate not sure what happened")
+      @goToIcon.removeClass('fa-bug')
+      @goToIcon.addClass('fa-meh-o')
+      @btnGoToError.attr('disabled','disabled')
