@@ -141,7 +141,18 @@ class MavensMateErrorsViewItem extends View
     @errorDetails.html(error.problem)
     @subscribeGoToButtonToError(error)
 
-    # @btnGoogleError.click ->
+    endsWithSymbolRegex = /([^:]*):\s[^\s]*$/
+    match = endsWithSymbolRegex.exec(error.problem)
+    if match? and match.length > 1
+      error.query = match[1]
+    else
+      error.query = error.problem
+
+    @btnGoogleError.click ->
+      shell.openExternal "https://www.google.com/search?q=salesforce #{error.query}"
+
+    @btnSalesforceError.click ->
+      shell.openExternal "https://success.salesforce.com/search?keywords=#{error.query}"
 
   @content: ->
     @tr =>
