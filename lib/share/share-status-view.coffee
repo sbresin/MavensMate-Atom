@@ -7,10 +7,14 @@ class ShareStatusView extends View
 
   @content: ->
     @div class: 'mavensmate-share firepad overlay from-bottom native-key-bindings', =>
-      @i class: 'fa fa-share-alt-square', style: 'padding-right: 7px'
+      @i class: 'fa fa-refresh fa-spin', style: 'margin-right: 7px'
       @span outlet: 'shareMessage', class: 'message'
-      @input outlet: 'shareUrl', style: 'width:65%'
-      # @div id: 'userlist'
+      @button class: 'btn btn-success btn-sm', outlet: 'btnCopySessionId', =>
+        @i class: 'fa fa-copy', style: 'margin-right:5px'
+        @span 'Copy Session Identifier'
+      @button class: 'btn btn-error btn-sm', outlet: 'btnStopSharing', =>
+        @i class: 'fa fa-times', style: 'margin-right:5px'
+        @span 'Stop Sharing'
 
   constructor: (hash, ref, editor, options) ->
     super
@@ -20,10 +24,15 @@ class ShareStatusView extends View
     console.log options
     @hash = hash
 
-    @shareUrl.val @hash
-    @shareMessage.html 'This file is being shared: '
+    @shareMessage.html 'This file is being shared'
 
-    # console.log FirepadUserList
+    thiz = @
+    @btnCopySessionId.click ->
+      atom.clipboard.write thiz.hash
+
+    @btnStopSharing.click ->
+      atom.workspaceView.trigger 'mavensmate:unshare-session'
+
     userList = FirepadUserList.fromDiv(ref.child('users'),
               document.body, 'userId', 'displayName');
 

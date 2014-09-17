@@ -78,11 +78,14 @@ class MavensMateShareView extends View
         return
 
   destroy: ->
+    if @ref?
+      @ref.remove()
     if @pad?
       @pad.dispose()
     @unsubscribe()
     @detach()
 
   unshare: ->
+    @ref.remove()
     @pad.dispose()
     @view.detach()

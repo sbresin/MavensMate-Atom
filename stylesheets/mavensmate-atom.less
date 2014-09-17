@@ -64,6 +64,7 @@ div.highlight.mavensmate-health-check-item > div.region {
   margin-left: -250px !important;
   left: 50% !important;
   width: 500px !important;
+  padding:5px 10px;
 }
 
 .mavensmate-share.overlay {
@@ -71,9 +72,34 @@ div.highlight.mavensmate-health-check-item > div.region {
   background-color: @text-color-info;
   bottom: 0px !important;
   top: auto !important;
-  margin-left: -350px !important;
+  margin-left: -298px !important;
   left: 50% !important;
-  width: 700px !important;
+  width: 596px !important;
+/*  -webkit-animation:backgroundColorTransition 5s infinite;
+*/  padding:5px 10px;
+}
+
+.mavensmate-share.overlay i {
+  font-size:13px;
+}
+
+.mavensmate-share.overlay button {
+  margin-left:10px;
+  font-size:13px;
+}
+
+.mavensmate-share.overlay span.message {
+  padding-top:0px;
+  font-size:13px;
+  user-select: all !important;
+  -webkit-user-select: all !important;
+}
+
+@-webkit-keyframes backgroundColorTransition /* Firefox */
+{
+  0%   {background:@text-color-info;}
+  50%  {background:#4c478b;}
+  100%   {background:@text-color-info;}
 }
 
 .line-number:before {
@@ -242,12 +268,12 @@ svg.busy circle.circle3 {
   }
 
   .block.padded.mavensmate-panel {
-    -webkit-touch-callout: none;
+    /*-webkit-touch-callout: none;
     -webkit-user-select: none;
     -khtml-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
-    user-select: none;
+    user-select: none;*/
   }
 
   h3 {
