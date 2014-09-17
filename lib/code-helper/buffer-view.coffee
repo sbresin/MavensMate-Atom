@@ -57,13 +57,13 @@ class BufferView extends View
 
   # should show all markers on the buffer
   showMarkers: ->
-    console.log 'showing markers!'
-    console.log @itemViews
+    # console.log 'showing markers!'
+    # console.log @itemViews
   
   # should hide all markers on the buffer
   hideMarkers: ->
-    console.log 'hiding markers!'
-    console.log @itemViews
+    # console.log 'hiding markers!'
+    # console.log @itemViews
 
   # Internal: register handlers for editor buffer events
   handleBufferEvents: =>
@@ -99,20 +99,20 @@ class BufferView extends View
       regexString = regexString.replace(/\/.{0,3}$/, '')
       re = new RegExp(regexString, "gi")
       
-      console.log 'SCANNING FOR: '+re
+      # console.log 'SCANNING FOR: '+re
       
       thiz.editor.getBuffer().scan re, (bufferMatch) ->
-        console.log 'found match: '
-        console.log bufferMatch
-        console.log bufferMatch.range
+        # console.log 'found match: '
+        # console.log bufferMatch
+        # console.log bufferMatch.range
         if not thiz.itemViewsDict[bufferMatch.range]?
-          console.log 'MATCH DOES NOT EXIST CURRENTLY ---------------->'
+          # console.log 'MATCH DOES NOT EXIST CURRENTLY ---------------->'
           bufferMatch.metadata = metadata
-          console.log bufferMatch
+          # console.log bufferMatch
 
           itemView = new BufferItemView thiz, bufferMatch
-          console.log 'created item view ~~~~~~~~~>'
-          console.log itemView
+          # console.log 'created item view ~~~~~~~~~>'
+          # console.log itemView
           # editor.decorateMarker marker, type: 'line', class: 'line-stackframe'
           # editor.decorateMarker marker, type: 'gutter', class: 'gutter-stackframe'
           thiz.itemViews.push itemView
@@ -127,7 +127,7 @@ class BufferView extends View
 
   toggleTooltipWithCursorPosition: ->
     @violationTooltip = @createViolationTooltip()
-    console.log @violationTooltip
+    # console.log @violationTooltip
     @violationTooltip.show()
     # cursorPosition = @editor.getCursor().getScreenPosition()
 
@@ -140,7 +140,7 @@ class BufferView extends View
     #   @violationTooltip?.hide()
 
   createViolationTooltip: ->
-    console.log 'creating tooltip bitch!'
+    # console.log 'creating tooltip bitch!'
     options =
       violation: @violation
       container: @lintView
