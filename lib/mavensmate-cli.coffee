@@ -1,5 +1,5 @@
 path    = require 'path'
-{exec}  = require 'child_process'
+{exec, spawn}  = require 'child_process'
 daemon  = require 'daemon'
 glob    = require 'glob'
 Q       = require 'q'
@@ -44,9 +44,8 @@ class MavensMateCommandLineInterface
 
     cfg = atom.config.getSettings()['MavensMate-Atom']
 
-    #console.log cfg
-
-    cmd = null
+    opts = [] # any command line options
+    cmd = null # command to run
 
     operation = if args.operation then args.operation else payload.command
 
@@ -55,28 +54,32 @@ class MavensMateCommandLineInterface
         mm_location = path.join(atom.packages.resolvePackagePath('MavensMate-Atom'),cfg.mm_mm_py_location)
       else
         mm_location = cfg.mm_mm_py_location
-      cmd = cfg.mm_python_location+' "'+mm_location+'" '+operation
+      cmd = cfg.mm_python_location
+      opts.push mm_location
     else
       if cfg.mm_path == 'default'
         mm_path = path.join(atom.packages.resolvePackagePath('MavensMate-Atom'),'mm')
       else
         mm_path = cfg.mm_path
 
-      cmd = '"'+mm_path+'" '+operation
+      cmd = mm_path
+
+    opts.push operation
 
     # ui operations
     if 'ui' of args && args['ui']
+      opts.push '--ui'
+
       if operation in util.modalCommands()
-        cmd = cmd + ' --ui -uid='+promiseId
+        opts.push '-uid='+promiseId
       else
-        cmd = cmd + ' --ui -uid='+args.pane.id
+        opts.push '-uid='+args.pane.id
 
     # offline operations
     if 'offline' of args && args['offline']
-      cmd = cmd + ' --offline'
+      opts.push '--offline'
 
-    # set client name argument
-    cmd = cmd + ' -c=ATOM'
+    opts.push '-c=ATOM'
 
     if payload?
       payload.settings = cfg
@@ -86,41 +89,66 @@ class MavensMateCommandLineInterface
     # payload may include ajax_args from UI ajax requests
     if payload.ajax_args?
       for arg in payload.ajax_args
-        cmd = cmd + ' '+arg
+        opts.push arg
 
-    # add piped JSON payload
-    cmd = "echo '" + JSON.stringify(payload) + "'| " + cmd
+    stdin = JSON.stringify payload
 
-    console.log cmd
+    @execute cmd, opts, stdin, deferred, promiseId
 
-    @execute cmd, deferred, promiseId
-
-    tracker.start promiseId, deferred.promise    #todo: ???
+    # add to promise tracker, emit an event so the panel knows when to do its thing
+    tracker.start promiseId, deferred.promise
     emitter.emit 'mavensmatePanelNotifyStart', params, promiseId
 
     deferred.promise
 
   # Execute the command, resolve the promise
-  execute: (cmd, deferred, promiseId) ->
+  execute: (cmd, opts, stdin, deferred, promiseId) ->
     try
+      console.log cmd
+      console.log opts
+      console.log stdin
+
       project = atom.project
 
       cwd = if atom.project? and project.path? then project.path else null
       options = { cwd : cwd }
 
-      exec cmd, options, (exception, stdout) ->
-        console.log 'COMMAND RESULT -->'
-        if exception?
-          console.log 'EXCEPTION: '+exception
-        if stdout?
-          console.log 'STDOUT: \n'+stdout
+      childMmProcess = spawn(cmd, opts, cwd: cwd)
 
-        jsonSTDOUT = JSON.parse stdout
+      childMmProcess.stdin.write(stdin)
+      childMmProcess.stdin.end()
+
+      stdout = ''
+      stderr = ''
+
+      childMmProcess.stdout.on "data", (data) ->
+        # data.setEncoding 'utf8' ?
+        # console.log "spawnSTDOUT:", data
+        stdout += data
+
+      childMmProcess.stderr.on "data", (data) ->
+        # console.log "spawnSTDERR:", data
+        stderr += data
+      
+      childMmProcess.on "close", (code) ->
+        # console.log "Child process closed"
+        return
+
+      childMmProcess.on "disconnect", (code) ->
+        # console.log "Child process disconnected"
+        return
+
+      childMmProcess.on "exit", (code) ->
+        # console.log "Child exited with code " + code       
+        jsonToParse = if stdout == '' then stderr else stdout
+        jsonOutput = JSON.parse jsonToParse
         if promiseId?
-          jsonSTDOUT.promiseId = promiseId
-          deferred.resolve jsonSTDOUT
+          jsonOutput.promiseId = promiseId
+          deferred.resolve jsonOutput
         else
-          deferred.resolve jsonSTDOUT
+          deferred.resolve jsonOutput
+        return
+
     catch err
       console.error 'MavensMate: ',err
       deferred.reject new Error(err)
