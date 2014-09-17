@@ -477,27 +477,34 @@ class MavensMatePanelViewItem extends View
         obj.message = "Success"
         obj.indicator = 'success'
       else
-        errors = result.Messages
-        obj.indicator = 'danger'
+        if result.Messages?
+          errors = result.Messages
+          obj.indicator = 'danger'
 
-        message = 'Compile Project Failed'
-        for error in errors
-          error.returnedPath = error.fileName
-          error.fileName = util.baseName(error.returnedPath)
-          treePath = './' + error.returnedPath.replace('unpackaged', 'src')
-          error.filePath = atom.project.resolve(treePath)
-          if error.lineNumber? and error.columnNumber?
-            errorMessage = "#{error.fileName}: #{error.problem} (Line: #{error.lineNumber}, Column: #{error.columnNumber})"
-          else 
-            lineColumnRegEx = /line\s(\d+)\scolumn\s(\d+)/
-            match = lineColumnRegEx.exec(error.problem)
-            error.lineNumber = match[0]
-            error.columnNumber = match[1]
-            errorMessage = "#{error.fileName}: #{error.problem}"
-          message += '<br/>' + errorMessage
+          message = 'Compile Project Failed'
+          for error in errors
+            error.returnedPath = error.fileName
+            error.fileName = util.baseName(error.returnedPath)
+            treePath = './' + error.returnedPath.replace('unpackaged', 'src')
+            error.filePath = atom.project.resolve(treePath)
+            if error.lineNumber? and error.columnNumber?
+              errorMessage = "#{error.fileName}: #{error.problem} (Line: #{error.lineNumber}, Column: #{error.columnNumber})"
+            else 
+              lineColumnRegEx = /line\s(\d+)\scolumn\s(\d+)/
+              match = lineColumnRegEx.exec(error.problem)
+              if match? and match.length > 2
+                error.lineNumber = match[1]
+                error.columnNumber = match[2]
+              errorMessage = "#{error.fileName}: #{error.problem}"
+            message += '<br/>' + errorMessage
 
-          atom.project.errors[error.filePath] ?= []
-          atom.project.errors[error.filePath].push(error)
+            atom.project.errors[error.filePath] ?= []
+            atom.project.errors[error.filePath].push(error)
+        else
+          message = 'Compile Project Failed To Compile'
+          message += '<br/>' + result.body
+          obj.stackTrace = result.stack_trace
+          obj.isException = result.stack_trace?
         obj.message = message
         obj.indicator = 'danger'
     return obj
