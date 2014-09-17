@@ -24,14 +24,18 @@ class MavensMateErrorsView extends ScrollView
     super
 
   @content: ->
-    @div class: 'mavensmate mavensmate-output tool-panel', =>
+    @div class: 'mavensmate mavensmate-output tool-panel mavensmate-view', =>
       @div class: 'panel-header', =>
         @div class: 'container-fluid', =>
-          @div class: 'row', outlet: 'viewErrorsRow', style: 'padding:10px 0px', =>
+          @div class: 'row', style: 'padding:10px 0px', =>
             @div class: 'col-md-6', =>              
-              @h3 outlet: 'myHeader', class: 'clearfix', =>
-                @i class: 'fa fa-bug', outlet: 'viewErrorsIcon'
-                @span '0 errors', outlet: 'viewErrorsLabel', style: 'display:inline-block;padding-left:5px;'
+              @h3 'Compile Errors', outlet: 'myHeader', class: 'clearfix'                              
+      @div class: 'panel-body', =>
+        @div class: 'container-fluid', =>
+          @div class: 'row', =>
+            @div class: 'mavensmate-notice', outlet: 'viewErrorsStatus', =>
+              @i class: 'fa fa-bug', outlet: 'viewErrorsIcon'
+              @span '0 errors', outlet: 'viewErrorsLabel', style: 'display:inline-block;padding-left:5px;'
           @div class: 'row', =>
             @div class: 'col-md-12', =>
               @table class: 'table table-striped', =>
