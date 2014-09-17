@@ -20,10 +20,8 @@ class MavensMateErrorsView extends ScrollView
         errorsView.refreshErrors()
 
     emitter.on 'mavensMateCompileFinished', (params, promiseId) ->
-      command = util.getCommandName params
-      if command in util.compileCommands()
-        errorsView.removeFinishedFiles(params, promiseId)
-        errorsView.refreshErrors()
+      errorsView.removeFinishedFiles(params, promiseId)
+      errorsView.refreshErrors()
 
   initialize: ({@uri}={}) ->
     super
