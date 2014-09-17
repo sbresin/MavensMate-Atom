@@ -36,13 +36,19 @@ class MavensMateErrorsView extends ScrollView
       @div class: 'panel-body', =>
         @div class: 'container-fluid', =>
           @div class: 'row', =>
-            @div class: 'mavensmate-notice', outlet: 'viewErrorsStatus', =>
-              @i class: 'fa fa-bug', outlet: 'viewErrorsIcon'
-              @span '0 errors', outlet: 'viewErrorsLabel', style: 'display:inline-block;padding-left:5px;'
-          @div class: 'row', =>
             @div class: 'col-md-12', =>
-              @table class: 'table table-striped', =>
-                @tbody outlet: 'viewErrorsTableBody'
+              @table class: 'table table-striped table-bordered', =>
+                @thead =>
+                  @tr =>
+                    @td 'Detail'
+                    @td 'Go To Error'
+                    @td 'Search', colspan: 2
+                @tbody outlet: 'viewErrorsTableBody', =>
+                @tfoot =>
+                  @tr =>
+                    @td colspan: 4, =>
+                      @i class: 'fa fa-bug', outlet: 'viewErrorsIcon'
+                      @span '0 errors', outlet: 'viewErrorsLabel', style: 'display:inline-block;padding-left:5px;'
 
   focus: ->
     super
