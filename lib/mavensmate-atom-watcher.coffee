@@ -10,7 +10,7 @@ class MavensMateAtomWatcher
     @startWatching()
 
   startWatching: ->
-    Repeat(@watchFontSize).every(1000, 'ms').start.now()
+    Repeat(@watchFontSize).every(100, 'ms').start.now()
 
   # watches editor font size, emits event when it changes so that mavensmate views can update accordingly
   watchFontSize: ->
