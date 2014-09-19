@@ -22,16 +22,15 @@ emitter                             = require('./mavensmate-emitter').pubsub
 MavensMateCodeAssistProviders       = require './mavensmate-code-assist-providers'
 commands                            = require './commands.json'
 {exec}                              = require 'child_process'
+ErrorsView                          = require './mavensmate-errors-view'
 atom.mavensmate = {}
 window.jQuery = $
 
 require '../scripts/bootstrap'
 
-ErrorsView = null
 errorsView = null
 
-createErrorsView = (params) ->
-  ErrorsView ?= require './mavensmate-errors-view'
+createErrorsView = (params) ->  
   errorsView = new ErrorsView(params)
 
 errorsDeserializer =
@@ -111,8 +110,9 @@ module.exports =
 
       @onProjectPathChanged()
 
+      createErrorsView(util.uris.errorsView)
       atom.workspace.registerOpener (uri) ->
-        createErrorsView({uri}) if uri is util.uris.errorsView
+        errorsView if uri is util.uris.errorsView
 
       atom.workspaceView.command 'mavensmate:view-errors', =>
         atom.workspaceView.open(util.uris.errorsView)
