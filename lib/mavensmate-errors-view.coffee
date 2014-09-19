@@ -177,6 +177,8 @@ class MavensMateErrorsViewItem extends View
       if fs.existsSync(error.filePath)
         @btnGoToError.click ->
           atom.workspace?.open(error.filePath).then (errorEditor) ->
+            if error.columnNumber == -1
+              error.columnNumber = 1
             errorEditor.setCursorBufferPosition([error.lineNumber-1, error.columnNumber-1], autoscroll: true)
       else
         @goToErrorLabel.html("Can't GoTo #{error.fileName}: Line: #{error.lineNumber}")

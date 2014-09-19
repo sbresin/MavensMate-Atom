@@ -186,7 +186,8 @@ module.exports =
           isException: result.stackTrace?
 
     getCompileCommandOutput: ( params, result) ->
-      # console.log 'getCompileCommandOutput'
+      console.log 'getCompileCommandOutput'
+      console.log JSON.stringify(result)
       obj =
         message: null
         indicator: null
@@ -250,12 +251,13 @@ module.exports =
           errors = result.DeployDetails.componentFailures
           message = 'Compile Failed'
           for error in errors
-            if filesCompiled[error.name]?
-              error.fileName = filesCompiled[error.name].fileNameBase
-              error.filePath = filesCompiled[error.name].filePath
-            else            
-              error.fileName = error.name
-              error.filePath = error.name
+            errorName = error.fileName || error.fullName || error.name
+            if filesCompiled[errorName]?
+              error.fileName = filesCompiled[errorName].fileNameBase
+              error.filePath = filesCompiled[errorName].filePath
+            else         
+              error.fileName = errorName
+              error.filePath = errorName
             if error.lineNumber
               errorMessage = "#{error.fileName}: #{error.problem} (Line: #{error.lineNumber})"
             else
