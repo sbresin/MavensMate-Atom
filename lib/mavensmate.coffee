@@ -6,7 +6,7 @@ MavensMateEventEmitter              = require('./mavensmate-emitter').pubsub
 MavensMateLocalServer               = require './mavensmate-local-server'
 MavensMateCommandLineInterface      = require('./mavensmate-cli').mm
 MavensMateProjectListView           = require './mavensmate-project-list-view'
-MavensMateErrorView                 = require './mavensmate-error-view'
+MavensMateErrorMarkers              = require './mavensmate-error-markers'
 MavensMateCheckpointHandler         = require './mavensmate-checkpoint-handler'
 MavensMatePanelView                 = require('./panel/panel-view').panel
 MavensMateStatusBarView             = require './mavensmate-status-bar-view'
@@ -26,6 +26,20 @@ atom.mavensmate = {}
 window.jQuery = $
 
 require '../scripts/bootstrap'
+
+ErrorsView = null
+errorsView = null
+
+createErrorsView = (params) ->
+  ErrorsView ?= require './mavensmate-errors-view'
+  errorsView = new ErrorsView(params)
+
+errorsDeserializer =
+  name: 'MavensMateErrorsView'
+  version: 1
+  deserialize: (state) ->
+    createErrorsView(state) if state.constructor is Object
+atom.deserializers.add(errorsDeserializer)
 
 MavensMateAtomWatcher = require('./mavensmate-atom-watcher').watcher
 MavensMateTabView = null
@@ -97,6 +111,12 @@ module.exports =
 
       @onProjectPathChanged()
 
+      atom.workspace.registerOpener (uri) ->
+        createErrorsView({uri}) if uri is util.uris.errorsView
+
+      atom.workspaceView.command 'mavensmate:view-errors', =>
+        atom.workspaceView.open(util.uris.errorsView)
+
     onProjectPathChanged: ->
       if util.isMavensMateProject() and not atom.workspaceView.mavensMateProjectInitialized
         atom.workspaceView.mavensMateProjectInitialized = true
@@ -115,7 +135,7 @@ module.exports =
       atom.project.checkpointCount = 0
       if atom.project.path
         try
-          data = fs.readFileSync atom.project.path + '/config/.overlays'
+          data = fs.readFileSync path.join(atom.project.path, 'config','.overlays')
           overlays = JSON.parse data
           atom.project.checkpointCount = overlays.length
         catch error
@@ -220,8 +240,8 @@ module.exports =
       # attach MavensMate views/handlers to each present and future editor views
       atom.workspaceView.eachEditorView (editorView) =>        
         @handleBufferEvents editorView
+        editorView.errorMarkers = new MavensMateErrorMarkers(editorView)
         # TODO: shouldn't we scope this to MavensMate projects only?
-        editorView.errorView = new MavensMateErrorView(editorView) # displays gutter marks, etc. on compile errors
         editorView.checkpointHandler = new MavensMateCheckpointHandler(editorView, @mm, @mmResponseHandler) # creates/deletes/displays checkpoints in gutter
         editorView.shareView = new MavensMateShareView() # contextify npm package is incompatible right now
         editorView.joinView = new MavensMateJoinView(@mm, @mmResponseHandler) 

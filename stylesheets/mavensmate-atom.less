@@ -118,14 +118,16 @@ div.highlight.mavensmate-health-check-item > div.region {
 
 .mm-compile-error-gutter {
   visibility: visible !important;
-  color: white;
-  background-color: red;
+  color: @syntax-text-color; 
+  background: @syntax-color-removed url('atom://MavensMate-Atom/assets/img/error-icon.png') no-repeat;
+  background-size: 16px;
+  background-position: 2px 2px;
 }
 
 .mm-compile-error-line {
   visibility: visible !important;
-  background-color: #f233a6;
-  color: white;
+  color: @syntax-text-color;
+  background-color: @syntax-color-removed;
 }
 
 .mavensmate-output {
@@ -304,6 +306,20 @@ svg.busy circle.circle3 {
     }
   }
 
+  .config > button.btn {
+    display: inline-block;
+    padding-left: 5px;
+    margin-right: 5px;
+
+    &:focus {
+      outline:0;
+    }
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+  
   .btn:focus {
     outline:0;
   }
@@ -367,6 +383,38 @@ svg.busy circle.circle3 {
 
   table.body {
     background: #161719;
+  }
+
+  .table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
+    border-top: 1px solid darken(@syntax-background-color, 20%);
+  }
+
+  .table-striped > tbody > tr:nth-child(odd) > td, .table-striped > tbody > tr:nth-child(odd) > th {
+    background-color: lighten(@syntax-background-color, 10%);    
+  }
+
+  .table-striped > tbody > tr:nth-child(even) > td, .table-striped > tbody > tr:nth-child(even) > th {
+    background-color: lighten(@syntax-background-color, 5%);    
+  }
+
+  tr.active {
+    border-left:5px solid #f8e63c;
+  }
+
+  tr.success {
+    border-left:5px solid @text-color-success;
+  }
+
+  tr.warning {
+    border-left:5px solid @text-color-warning;
+  }
+
+  tr.danger {
+    border-left:5px solid @text-color-error;
+  }
+
+  .btn-errorItem i {
+    margin-left: 10px;
   }
 
   progress.pending::-webkit-progress-value

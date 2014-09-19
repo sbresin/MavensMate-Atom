@@ -1,10 +1,14 @@
-{$, $$, $$$, EditorView, View} = require 'atom'
+{$, $$, $$$, EditorView, View}  = require 'atom'
 fs                              = require 'fs'
+path                            = require 'path' # npm install path
 
 module.exports =
   # setting object to configure MavensMate for future SFDC updates
   sfdcSettings:
     maxCheckpoints: 5
+
+  uris:
+    errorsView: 'mavensmate://errorsView'
 
   # returns true if autocomplete-plus is installed
   isAutocompletePlusInstalled: ->
@@ -34,6 +38,9 @@ module.exports =
   # e.g. /workspace/MyApexClass.cls -> MyApexClass.cls
   baseName: (filePath) ->
     filePath.split(/[\\/]/).pop()
+
+  withoutExtension: (filePath) ->
+    filePath.split(/[.]/).shift()
 
   extension: (filePath) ->
     '.' + filePath.split(/[.]/).pop()
@@ -79,6 +86,23 @@ module.exports =
       'get_apex_class_completions'
     ]
 
+  compileCommands: ->
+    [
+      'compile',
+      'compile_project',
+      'clean_project',
+      'refresh'
+    ]
+
+  numberOfCompileErrors: (fileName) ->
+    numberOfErrors = 0;
+    if fileName?
+      numberOfErrors = atom.project.errors[fileName].length
+    else
+      for fileName, errors of atom.project.errors
+        numberOfErrors += errors.length
+    return numberOfErrors
+
   # returns the name of the command
   # useful because the command can reside in args or payload
   getCommandName: (params) ->
@@ -88,11 +112,14 @@ module.exports =
       params.payload.command
 
   isMavensMateProject: ->
-    settingsPath = atom.project.path + '/config/.settings'
-    oldSettingsPath = atom.project.path + '/config/settings.yaml'
+    if atom.project? and atom.project.path?
+      settingsPath = path.join(atom.project.path, 'config','.settings')
+      oldSettingsPath = path.join(atom.project.path ,'config','settings.yaml')
 
-
-    return fs.existsSync(settingsPath) or fs.existsSync(oldSettingsPath)
+      return fs.existsSync(settingsPath) or fs.existsSync(oldSettingsPath)
+    else 
+      console.log('atom.project does not exist')
+      return false
 
   isMetadata: (filePath) ->    
     apex_file_extensions = atom.config.getSettings()['MavensMate-Atom'].mm_apex_file_extensions

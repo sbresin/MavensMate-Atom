@@ -5,7 +5,10 @@ emitter             = require('../mavensmate-emitter').pubsub
 logFetcher          = require('../mavensmate-log-fetcher').fetcher
 util                = require '../mavensmate-util'
 moment              = require 'moment'
+pluralize           = require 'pluralize'
+
 MavensMatePanelViewItem = require './panel-view-item'
+
 
 # The status panel that shows the result of command execution, etc.
 class MavensMatePanelView extends View
@@ -49,6 +52,9 @@ class MavensMatePanelView extends View
               @h3 'MavensMate Salesforce1 IDE for Atom.io', outlet: 'myHeader', class: 'clearfix', =>
             @div class: 'col-md-6', =>
               @span class: 'config', style: 'float:right', =>
+                @button class: 'btn btn-sm btn-default btn-view-errors', outlet: 'btnViewErrors', =>
+                  @i class: 'fa fa-bug', outlet: 'viewErrorsIcon'
+                  @span '0 errors', outlet: 'viewErrorsLabel', style: 'display:inline-block;padding-left:5px;'
                 @button class: 'btn btn-sm btn-default btn-fetch-logs', outlet: 'btnFetchLogs', =>
                   @i class: 'fa fa-refresh', outlet: 'fetchLogsIcon'
                   @span 'Fetch Logs', outlet: 'fetchLogsLabel', style: 'display:inline-block;padding-left:5px;'
@@ -77,6 +83,9 @@ class MavensMatePanelView extends View
         me.fetchLogsLabel.html 'Fetch Logs'
         logFetcher.stop()
 
+    @btnViewErrors.click ->
+      atom.workspaceView.open(util.uris.errorsView)
+
     # toggle log fetcher
     @btnTogglePanel.click ->
       if me.collapsed
@@ -94,6 +103,8 @@ class MavensMatePanelView extends View
       if command not in util.panelExemptCommands() and not params.skipPanel # some commands are not piped to the panel
         params.promiseId = promiseId
         me.update command, params
+      if command in util.compileCommands()
+        me.updateErrorsBtn()
       return
 
     # handler for finished operations
@@ -102,6 +113,12 @@ class MavensMatePanelView extends View
     emitter.on 'mavensmatePanelNotifyFinish', (params, result, promiseId) ->
       promisePanelViewItem = me.panelItems[promiseId]
       promisePanelViewItem.update me, params, result
+      
+      if promisePanelViewItem.command in util.compileCommands()
+        emitter.emit 'mavensMateCompileFinished', params, promiseId
+
+    emitter.on 'mavensMateCompileFinished', (params, promiseId) ->
+      me.updateErrorsBtn()
 
     @handleEvents()
   
@@ -142,6 +159,45 @@ class MavensMatePanelView extends View
     $('.panel-item').remove()
     @unsubscribe()
     @detach()
+
+  # Counts the number of panels running the commands
+  #
+  countPanels: (commands) ->
+    panelCount = 0
+    console.log @panelItems
+    console.log commands
+    for promiseId, panelViewItem of @panelItems    
+      if panelViewItem.command in commands and panelViewItem.running
+        panelCount++
+    return panelCount
+
+  # Update the error button based off of the number
+  #           of errors and if a compile is occurring
+  # Returns nothing, but that shouldn't be held against it.
+  updateErrorsBtn: ->
+    console.log '-----> updateErrorsBtn'
+    panelsCompiling = @countPanels(util.compileCommands())
+
+    numberOfErrors = util.numberOfCompileErrors()
+    console.log("We have #{numberOfErrors} errors")
+    console.log("And #{panelsCompiling} panels compiling")
+    @viewErrorsLabel.html(numberOfErrors + ' ' + pluralize('error', numberOfErrors))
+
+    if panelsCompiling == 0
+      @viewErrorsIcon.removeClass 'fa-spin'
+      if numberOfErrors == 0
+        @btnViewErrors.addClass 'btn-default'
+        @btnViewErrors.removeClass 'btn-error'
+        @btnViewErrors.removeClass 'btn-warning'
+      else
+        @btnViewErrors.removeClass 'btn-default'
+        @btnViewErrors.addClass 'btn-error'
+        @btnViewErrors.removeClass 'btn-warning'        
+    else
+      @viewErrorsIcon.addClass 'fa-spin'
+      @btnViewErrors.removeClass 'btn-default'
+      @btnViewErrors.removeClass 'btn-error'
+      @btnViewErrors.addClass 'btn-warning'
 
   # Toggle the visibilty of the mavensmate output view.
   #

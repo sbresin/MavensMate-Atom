@@ -12,18 +12,20 @@ module.exports =
 
     constructor: (command, params) ->
       super
-      
+      @command = command
+      @running = true
+
       # set panel font-size to that of the editor
       fontSize = jQuery("div.editor-contents").css('font-size')
       @terminal.context.style.fontSize = fontSize
       
       # get the message
-      message = @.panelCommandMessage params, command, util.isUiCommand params
+      message = @.panelCommandMessage params, util.isUiCommand params
 
       # scope this panel by the promiseId
       @promiseId = params.promiseId
       @item.attr 'id', @promiseId
-      
+
       # write the message to the terminal
       @terminal.html message
       
@@ -40,10 +42,9 @@ module.exports =
     initialize: ->
 
     update: (panel, params, result) ->
-      me = @
-      command = util.getCommandName(params)
-      if command not in util.panelExemptCommands()
-        panelOutput = @getPanelOutput command, params, result
+      me = @      
+      if @command not in util.panelExemptCommands()
+        panelOutput = @getPanelOutput params, result
         # console.log 'panel output ---->'
         # console.log panelOutput
 
@@ -55,54 +56,46 @@ module.exports =
 
         # update terminal
         me.terminal.append '<br/>> '+ '<span id="message-'+@promiseId+'">'+panelOutput.message+'</span>'
+        me.running = false
       return
 
     # returns the command message to be displayed in the panel
-    panelCommandMessage: (params, command, isUi=false) ->
+    panelCommandMessage: (params, isUi=false) ->
       # console.log params
-
-      # todo: move objects to global?
-      uiMessages =
-        new_project : 'Opening new project panel'
-        edit_project : 'Opening edit project panel'
-
-      messages =
-        new_project : 'Creating new project'
-        compile_project: 'Compiling project'
-        index_metadata: 'Indexing metadata'
-        compile: ->
-          if params.payload.files? and params.payload.files.length is 1
-            'Compiling '+params.payload.files[0].split(/[\\/]/).pop() # extract base name
-          else
-            'Compiling selected metadata'
-        delete: ->
-          if params.payload.files? and params.payload.files.length is 1
-            'Deleting ' + params.payload.files[0].split(/[\\/]/).pop() # extract base name
-          else
-            'Deleting selected metadata'
-        refresh: ->
-          if params.payload.files? and params.payload.files.length is 1
-            'Refreshing ' + params.payload.files[0].split(/[\\/]/).pop() # extract base name
-          else
-            'Refreshing selected metadata'
-
       if isUi
-        msg = uiMessages[command]
+        switch @command
+          when 'new_project'
+            msg = 'Opening new project panel'
+          when 'edit_project'
+            msg = 'Opening edit project panel'
+          else 
+            msg = 'mm ' + @command
       else
-        msg = messages[command]
-
-      # console.log 'msgggggg'
-      # console.log msg
-      # console.log Object.prototype.toString.call msg
-
-      if msg?
-        if Object.prototype.toString.call(msg) is '[object Function]'
-          msg = msg() + '...'
-        else
-          msg = msg + '...'
-      else
-        msg = 'mm '+command
-
+        switch @command
+          when 'new_project'
+            msg =  'Creating new project'
+          when 'compile_project'
+            msg = 'Compiling project'
+          when 'index_metadata'
+            msg = 'Indexing metadata'
+          when 'compile'
+            if params.payload.files? and params.payload.files.length is 1
+              msg = 'Compiling '+params.payload.files[0].split(/[\\/]/).pop() # extract base name
+            else
+              msg = 'Compiling selected metadata'
+          when 'delete'
+            if params.payload.files? and params.payload.files.length is 1
+              msg = 'Deleting ' + params.payload.files[0].split(/[\\/]/).pop() # extract base name
+            else
+              msg = 'Deleting selected metadata'
+          when 'refresh'
+            if params.payload.files? and params.payload.files.length is 1
+              msg = 'Refreshing ' + params.payload.files[0].split(/[\\/]/).pop() # extract base name
+            else
+              msg = 'Refreshing selected metadata'
+          else
+            msg = 'mm ' + @command
+      console.log msg
       header = '['+moment().format('MMMM Do YYYY, h:mm:ss a')+']<br/>'
       return header + '> ' + msg
 
@@ -114,35 +107,43 @@ module.exports =
     #   stackTrace: 'foo bar bat'
     #   isException: true
     #
-    getPanelOutput: (command, params, result) ->
+    getPanelOutput: (params, result) ->
       # console.log '~~~~~~~~~~~'
       # console.log command
       # console.log params
       # console.log result
       obj = null
       if params.args? and params.args.ui
-        obj = @getUiCommandOutput command, params, result
+        obj = @getUiCommandOutput params, result
       else
         try
-          switch command
+          switch @command
             when 'delete'
-              obj = @getDeleteCommandOutput command, params, result
+              obj = @getDeleteCommandOutput params, result
             when 'compile'
-              obj = @getCompileCommandOutput command, params, result
+              obj = @getCompileCommandOutput params, result
             when 'compile_project'
-              obj = @getCompileProjectCommandOutput command, params, result
+              obj = @getCompileProjectCommandOutput params, result
             when 'run_all_tests', 'test_async'
-              obj = @getRunAsyncTestsCommandOutput command, params, result
+              obj = @getRunAsyncTestsCommandOutput params, result
             when 'new_quick_trace_flag'
-              obj = @getNewQuickTraceFlagCommandOutput command, params, result
+              obj = @getNewQuickTraceFlagCommandOutput params, result
+            when 'clean_project'
+              obj = @getGenericOutput params, result
+              atom.project.errors = {}
+            when 'refresh'
+              obj = @getGenericOutput params, result
+              filesRefreshed = (util.baseName(filePath) for filePath in params.payload.files ? [])
+              for refreshedFile in filesRefreshed
+                atom.project.errors[refreshedFile] = []
             else
-              obj = @getGenericOutput command, params, result
+              obj = @getGenericOutput params, result
         catch
-          obj = @getGenericOutput command, params, result
+          obj = @getGenericOutput params, result
 
       return obj
 
-    getDeleteCommandOutput: (command, params, result) ->
+    getDeleteCommandOutput: (params, result) ->
       if result.success
         obj = indicator: "success"
         if params.payload.files? and params.payload.files.length is 1
@@ -151,9 +152,9 @@ module.exports =
           obj.message = "Deleted selected metadata"
         return obj
       else
-        @getErrorOutput command, params, result
+        @getErrorOutput  params, result
 
-    getUiCommandOutput: (command, params, result) ->
+    getUiCommandOutput: ( params, result) ->
       # console.log 'parsing ui'
       if result.success
         obj =
@@ -161,16 +162,16 @@ module.exports =
           indicator: 'success'
         return obj
       else
-        return @getErrorOutput command, params, result
+        return @getErrorOutput  params, result
 
-    getErrorOutput: (command, params, result) ->
+    getErrorOutput: ( params, result) ->
       output =
         message: result.body
         indicator: 'danger'
         stackTrace: result.stackTrace
         isException: result.stackTrace?
 
-    getGenericOutput: (command, params, result) ->
+    getGenericOutput: ( params, result) ->
       if result.body? and result.success?
         output =
           message: result.body
@@ -184,7 +185,7 @@ module.exports =
           stackTrace: result.stackTrace
           isException: result.stackTrace?
 
-    getCompileCommandOutput: (command, params, result) ->
+    getCompileCommandOutput: ( params, result) ->
       # console.log 'getCompileCommandOutput'
       obj =
         message: null
@@ -192,10 +193,30 @@ module.exports =
         stackTrace: null
         isException: false
 
-      filesCompiled = (util.baseName(filePath) for filePath in params.payload.files ? [])
-      # console.log filesCompiled
-      for compiledFile in filesCompiled
-        atom.project.errors[compiledFile] = []
+      filesCompiled = {}
+
+      for filePath in params.payload.files
+        fileNameBase = util.baseName(filePath)
+        fileNameWithoutExtension = util.withoutExtension(fileNameBase)
+        compiledFile = {}
+        compiledFile.filePath = filePath
+        compiledFile.fileNameWithoutExtension = fileNameWithoutExtension
+        compiledFile.fileNameBase = fileNameBase
+        filesCompiled[fileNameWithoutExtension] = compiledFile
+
+        atom.project.errors[filePath] = []
+      for filePath, errors of atom.project.errors
+        fileNameBase = util.baseName(filePath)
+        fileNameWithoutExtension = util.withoutExtension(fileNameBase)
+
+        if not filesCompiled[fileNameWithoutExtension]?
+          compiledFile = {}
+          compiledFile.filePath = filePath
+          compiledFile.fileNameWithoutExtension = fileNameWithoutExtension
+          compiledFile.fileNameBase = fileNameBase
+          filesCompiled[fileNameWithoutExtension] = compiledFile
+
+      errorsByFilePath = {}  
 
       if result.State? # tooling
         if result.state is 'Error' and result.ErrorMsg?
@@ -208,39 +229,47 @@ module.exports =
           errors = result.CompilerErrors
           message = 'Compile Failed'
           for error in errors
-            errorFileName = error.name + ".cls"
+            if filesCompiled[error.name]?
+              error.fileName = filesCompiled[error.name].fileNameBase
+              error.filePath = filesCompiled[error.name].filePath
+            else            
+              error.fileName = error.name
+              error.filePath = error.name
             if error.line?
-              errorMessage = "#{errorFileName}: #{error.problem[0]} (Line: #{error.line[0]})"
+              errorMessage = "#{error.fileName}: #{error.problem[0]} (Line: #{error.line[0]})"
               error.lineNumber = error.line[0]
             else
-              errorMessage = "#{errorFileName}: #{error.problem}"
+              errorMessage = "#{error.fileName}: #{error.problem}"
             message += '<br/>' + errorMessage
 
-            atom.project.errors[errorFileName] ?= []
-            atom.project.errors[errorFileName].push(error)
+            errorsByFilePath[error.filePath] ?= []
+            errorsByFilePath[error.filePath].push(error)
           obj.message = message
-          obj.indicator = 'danger'
-          emitter.emit 'mavensmateCompileErrorBufferNotify', command, params, result
+          obj.indicator = 'danger'        
         else if result.State is 'Failed' and result.DeployDetails?
           errors = result.DeployDetails.componentFailures
           message = 'Compile Failed'
           for error in errors
-            errorFileName = error.fileName + ".cls"
+            if filesCompiled[error.name]?
+              error.fileName = filesCompiled[error.name].fileNameBase
+              error.filePath = filesCompiled[error.name].filePath
+            else            
+              error.fileName = error.name
+              error.filePath = error.name
             if error.lineNumber
-              errorMessage = "#{errorFileName}: #{error.problem} (Line: #{error.lineNumber})"
+              errorMessage = "#{error.fileName}: #{error.problem} (Line: #{error.lineNumber})"
             else
-              errorMessage = "#{errorFileName}: #{error.problem}"
+              errorMessage = "#{error.fileName}: #{error.problem}"
             message += '<br/>' + errorMessage
+  
+            errorsByFilePath[error.filePath] ?= []
+            errorsByFilePath[error.filePath].push(error)
 
-            atom.project.errors[errorFileName] ?= []
-            atom.project.errors[errorFileName].push(error)
           obj.message = message
           obj.indicator = 'danger'
-          emitter.emit 'mavensmateCompileErrorBufferNotify', command, params, result 
         else if result.State is 'Completed' and not result.ErrorMsg
           obj.indicator = 'success'
           obj.message = 'Success'
-          emitter.emit 'mavensmateCompileSuccessBufferNotify', params
         else
           #pass
       else if result.actions?
@@ -249,13 +278,18 @@ module.exports =
         obj.indicator = 'warning'
       # else # metadata api
       #   #todo
-
+      for filePath, errors of errorsByFilePath
+        fileNameBase = util.baseName(filePath)
+        fileNameWithoutExtension = util.withoutExtension(fileNameBase)
+        if atom.project.errors[fileNameWithoutExtension]?
+          delete atom.project.errors[fileNameWithoutExtension]
+        atom.project.errors[filePath] = errors
       if !obj.message?
         throw 'unable to parse'
 
       return obj
 
-    getCompileProjectCommandOutput: (command, params, result) ->
+    getCompileProjectCommandOutput: ( params, result) ->
       obj =
         message: null
         indicator: null
@@ -270,26 +304,40 @@ module.exports =
           obj.indicator = 'success'
           emitter.emit 'mavensmateCompileSuccessBufferNotify', params
         else
-          errors = result.Messages
-          obj.indicator = 'danger'
+          if result.Messages?
+            errors = result.Messages
+            obj.indicator = 'danger'
 
-          message = 'Compile Project Failed'
-          for error in errors
-            errorFileName = util.baseName(error.fileName)
-            errorMessage = "#{errorFileName}: #{error.problem} (Line: #{error.lineNumber}, Column: #{error.columnNumber})"
-            message += '<br/>' + errorMessage
+            message = 'Compile Project Failed'
+            for error in errors
+              error.returnedPath = error.fileName
+              error.fileName = util.baseName(error.returnedPath)
+              treePath = './' + error.returnedPath.replace('unpackaged', 'src')
+              error.filePath = atom.project.resolve(treePath)
+              if error.lineNumber? and error.columnNumber?
+                errorMessage = "#{error.fileName}: #{error.problem} (Line: #{error.lineNumber}, Column: #{error.columnNumber})"
+              else 
+                lineColumnRegEx = /line\s(\d+)\scolumn\s(\d+)/
+                match = lineColumnRegEx.exec(error.problem)
+                if match? and match.length > 2
+                  error.lineNumber = match[1]
+                  error.columnNumber = match[2]
+                errorMessage = "#{error.fileName}: #{error.problem}"
+              message += '<br/>' + errorMessage
 
-            atom.project.errors[errorFileName] ?= []
-            atom.project.errors[errorFileName].push(error)
-          # console.log("Emitting mavensmateCompileErrorBufferNotify")
-          # console.log(atom.project.errors)
-          emitter.emit 'mavensmateCompileErrorBufferNotify', command, params, result
+              atom.project.errors[error.filePath] ?= []
+              atom.project.errors[error.filePath].push(error)
+          else
+            message = 'Compile Project Failed To Compile'
+            message += '<br/>' + result.body
+            obj.stackTrace = result.stack_trace
+            obj.isException = result.stack_trace?
 
           obj.message = message
           obj.indicator = 'danger'
       return obj
 
-    getRunAsyncTestsCommandOutput: (command, params, result) ->
+    getRunAsyncTestsCommandOutput: ( params, result) ->
       obj =
         message: null
         indicator: 'warning'
@@ -319,7 +367,7 @@ module.exports =
 
       return obj
 
-    getNewQuickTraceFlagCommandOutput: (command, params, result) ->
+    getNewQuickTraceFlagCommandOutput: ( params, result) ->
       obj =
         message: null
         indicator: 'warning'
