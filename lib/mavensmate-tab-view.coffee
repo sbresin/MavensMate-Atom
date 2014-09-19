@@ -53,11 +53,7 @@ module.exports =
     addCloseListener: ->
       thiz = @
       document.addEventListener 'mavensmateCloseIframe', (evt) -> 
-        # modalId = 'modal-'+evt.detail
-        # $('#'+modalId).modal('hide')
-        console.log evt
-        # thiz.destroy()
-        atom.workspace.getActivePaneItem().destroy()
+        atom.workspaceView.trigger('core:close')
 
 
 

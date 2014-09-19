@@ -37,8 +37,8 @@ class ViolationTooltip extends AnnotationTooltip
 
   init: (type, element, options) ->
     super(type, element, options)
-    console.log 'got some options!'
-    console.log options
+    # console.log 'got some options!'
+    # console.log options
     @violation = options.violation
     @metadata = options.violation.metadata
 

@@ -10,7 +10,8 @@
   },
   "license": "MIT",
   "engines": {
-    "atom": ">0.50.0"
+    "atom": ">0.50.0",
+    "node":"*"
   },
   "dependencies": {
     "glob": ">=3.2.9",
@@ -37,7 +38,11 @@
     "color":"0.7.1",
     "open":"0.0.5",
     "repeat":"0.0.6",
-    "pluralize":"1.0.1"
+    "pluralize": "1.0.1",
+    "firebase": "1.0.21",
+    "lodash":"2.4.1",
+    "color":"0.7.1",
+    "tmp":"0.0.24"
   },
   "devDependencies": {
     "temp": "latest"
