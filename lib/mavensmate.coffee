@@ -313,8 +313,8 @@ module.exports =
             modalView = new MavensMateModalView result.promiseId, result.body, params.args.operation #attach app view pane
             modalView.appendTo document.body
 
-      MavensMateEventEmitter.emit 'mavensmatePromiseCompleted', result.promiseId
-      MavensMateEventEmitter.emit 'mavensmatePanelNotifyFinish', params, result, result.promiseId
+      MavensMateEventEmitter.emit 'mavensmate:promise-completed', result.promiseId
+      MavensMateEventEmitter.emit 'mavensmate:panel-notify-finish', params, result, result.promiseId
 
     handleBufferEvents: (editorView) ->
       buffer = editorView.editor.getBuffer()

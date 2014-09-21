@@ -59,7 +59,7 @@ module.exports =
       promiseId = req.query.id
       if tracker.isPromiseComplete(promiseId)
         res.send tracker.pop(promiseId).result # pops promise from tracker and returns result
-        emitter.emit 'mavensmatePromiseCompleted', promiseId
+        emitter.emit 'mavensmate:promise-completed', promiseId
       else
         res.send { 'status' : 'pending', 'id' : promiseId }
 
@@ -70,8 +70,8 @@ module.exports =
       mm.run(params).then (result) ->
         res.send result
         tracker.pop(result.promiseId).result # pops promise from tracker and returns result
-        emitter.emit 'mavensmatePromiseCompleted', result.promiseId
-        emitter.emit 'mavensmatePanelNotifyFinish', params, result, result.promiseId
+        emitter.emit 'mavensmate:promise-completed', result.promiseId
+        emitter.emit 'mavensmate:panel-notify-finish', params, result, result.promiseId
 
     synchronousGetRequestHandler: (req, res) ->
       mm = req.app.get('mm')
@@ -80,8 +80,8 @@ module.exports =
       mm.run(params).then (result) ->
         res.send result
         tracker.pop(result.promiseId).result # pops promise from tracker and returns result
-        emitter.emit 'mavensmatePromiseCompleted', result.promiseId
-        emitter.emit 'mavensmatePanelNotifyFinish', params, result, result.promiseId
+        emitter.emit 'mavensmate:promise-completed', result.promiseId
+        emitter.emit 'mavensmate:panel-notify-finish', params, result, result.promiseId
 
     asynchronousPostRequestHandler: (req, res) ->
       tracker = req.app.get('tracker')
@@ -91,8 +91,8 @@ module.exports =
         payload:req.body
         promiseId:promiseId
       mm.run(params).then (result) ->
-        emitter.emit 'mavensmatePromiseCompleted', result.promiseId
-        emitter.emit 'mavensmatePanelNotifyFinish', params, result, result.promiseId
+        emitter.emit 'mavensmate:promise-completed', result.promiseId
+        emitter.emit 'mavensmate:panel-notify-finish', params, result, result.promiseId
       res.send { 'status' : 'pending', 'id' : promiseId }
 
     asynchronousGetRequestHandler: (req, res) ->
@@ -103,8 +103,8 @@ module.exports =
         payload:req.query
         promiseId:promiseId
       mm.run(params).then (result) ->
-        emitter.emit 'mavensmatePromiseCompleted', result.promiseId
-        emitter.emit 'mavensmatePanelNotifyFinish', params, result, result.promiseId
+        emitter.emit 'mavensmate:promise-completed', result.promiseId
+        emitter.emit 'mavensmate:panel-notify-finish', params, result, result.promiseId
       res.send { 'status' : 'pending', 'id' : promiseId }
 
     options: (req, res) ->

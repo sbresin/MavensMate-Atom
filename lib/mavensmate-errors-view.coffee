@@ -14,13 +14,13 @@ class MavensMateErrorsView extends ScrollView
     errorsView = @
     @running = {}
     @running['all'] = {}
-    emitter.on 'mavensmatePanelNotifyStart', (params, promiseId) ->
+    emitter.on 'mavensmate:panel-notify-start', (params, promiseId) ->
       command = util.getCommandName params
       if command in util.compileCommands()
         errorsView.addRunningFiles(params, promiseId)
         errorsView.refreshErrors()
 
-    emitter.on 'mavensMateCompileFinished', (params, promiseId) ->
+    emitter.on 'mavensmate:compile-finished', (params, promiseId) ->
       errorsView.removeFinishedFiles(params, promiseId)
       errorsView.refreshErrors()
 

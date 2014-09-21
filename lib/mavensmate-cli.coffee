@@ -97,7 +97,7 @@ class MavensMateCommandLineInterface
 
     # add to promise tracker, emit an event so the panel knows when to do its thing
     tracker.start promiseId, deferred.promise
-    emitter.emit 'mavensmatePanelNotifyStart', params, promiseId
+    emitter.emit 'mavensmate:panel-notify-start', params, promiseId
 
     deferred.promise
 

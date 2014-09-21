@@ -20,7 +20,7 @@ class PromiseTracker
   #
   # returns promise id  
   enqueuePromise: () ->
-    emitter.emit 'mavensmatePromiseEnqueued'
+    emitter.emit 'mavensmate:promise-enqueued'
 
     promiseId = uuid.v1()
     promise = {
@@ -31,7 +31,7 @@ class PromiseTracker
     promiseId  
 
   start: (promiseId, promise) ->
-    emitter.emit 'mavensmatePromiseStarted', promiseId, promise
+    emitter.emit 'mavensmate:promise-started', promiseId, promise
     @tracked[promiseId].work = promise.then @completePromise
 
   # utility method for determining whether the promiseId pass is finished

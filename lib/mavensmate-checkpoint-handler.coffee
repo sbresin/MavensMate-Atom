@@ -19,11 +19,11 @@ module.exports =
 
     initialize: ->
       # when save/fetch starts clear markers out
-      emitter.on 'mavensmatePanelNotifyStart', (params, promiseId) =>
+      emitter.on 'mavensmate:panel-notify-start', (params, promiseId) =>
         @clearMarkers() if params.args? and (params.args.operation is 'compile' or params.args.operation is 'index_apex_overlays')
 
       # when save/fetch finishes refresh checkpoints to ensure they are in sync with the server
-      emitter.on 'mavensmatePanelNotifyFinish', (params, result) =>
+      emitter.on 'mavensmate:panel-notify-finish', (params, result) =>
         @refreshCheckpoints() if params.args.operation is 'compile'
         @refreshMarkers()     if params.args.operation is 'index_apex_overlays'
 

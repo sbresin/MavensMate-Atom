@@ -98,7 +98,7 @@ class MavensMatePanelView extends View
       jQuery('div.mavensmate pre.terminal').css('font-size', newFontSize)
 
     # event handler which creates a panelViewItem corresponding to the command promise requested
-    emitter.on 'mavensmatePanelNotifyStart', (params, promiseId) ->
+    emitter.on 'mavensmate:panel-notify-start', (params, promiseId) ->
       command = util.getCommandName params
       if command not in util.panelExemptCommands() and not params.skipPanel # some commands are not piped to the panel
         params.promiseId = promiseId
