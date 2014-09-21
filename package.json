@@ -44,7 +44,8 @@
     "color":"0.7.1",
     "tmp":"0.0.24",
     "faye":"0.8.11",
-    "watchr":"2.4.11"
+    "watchr":"2.4.11",
+    "typechecker":"2.0.8"
   },
   "devDependencies": {
     "temp": "latest"

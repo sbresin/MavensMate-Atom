@@ -1,4 +1,5 @@
 {$, View} = require 'atom'
+typeChecker = require 'typechecker'
 
 module.exports =
 
@@ -15,7 +16,11 @@ class PanelViewItemResponse extends View
   initialize: (params) ->
     console.log 'what? params??'
     console.log params
-    @message.html '> '+params.message
+
+    if typeChecker.isObject params.message
+      @message.append params.message
+    else
+      @message.html '> '+params.message
     me = @
     @btnMore.click ->
       me.moreDiv.toggle()
