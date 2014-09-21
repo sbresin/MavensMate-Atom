@@ -45,11 +45,11 @@
           },
           {
             'label': 'Run Async Apex Tests For This Class',
-            'command': 'mavensmate:run-async-unit-tests'
+            'command': 'mavensmate:test_async'
           },
           {
             'label': 'Run All Tests (beta)',
-            'command': 'mavensmate:run-all-tests-async'
+            'command': 'mavensmate:run-all-tests'
           },
           {
             'label': 'Show Apex Code Coverage For This Apex Class',
