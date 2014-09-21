@@ -169,6 +169,20 @@ class CompileParser extends CommandParser
 
     return @obj
 
+class CleanProjectParser extends CommandParser
+
+  parse: ->
+    atom.project.errors = {} 
+    super 
+
+class RefreshMetadataParser extends CommandParser
+
+  parse: ->
+    filesRefreshed = (util.baseName(filePath) for filePath in @params.payload.files ? [])
+    for refreshedFile in filesRefreshed
+      atom.project.errors[refreshedFile] = []
+    super
+
 class CompileProjectParser extends CommandParser
 
   parse: ->
@@ -301,7 +315,9 @@ parsers = {
   RunTestsParser: RunTestsParser,
   TestAsyncParser: RunTestsParser,
   StartLoggingParser: StartLoggingParser,
-  GetOrgWideTestCoverageParser: GetOrgWideTestCoverageParser
+  GetOrgWideTestCoverageParser: GetOrgWideTestCoverageParser,
+  RefreshMetadataParser: RefreshMetadataParser,
+  CleanProjectParser: CleanProjectParser
 }
 
 getCommandParser = (command, params) ->
