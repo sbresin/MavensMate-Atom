@@ -2,6 +2,7 @@
 _           = require 'underscore-plus'
 util        = require '../mavensmate-util'
 pluralize   = require 'pluralize'
+emitter     = require('../mavensmate-emitter').pubsub
 
 class CommandParser
   
