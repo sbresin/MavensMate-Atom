@@ -5,9 +5,9 @@
       {
         'label': 'Project'
         'submenu': [
-          { 'label': 'Open Project', 'command': 'mavensmate:open-project' }
-          { 'label': 'New Project', 'command': 'mavensmate:new-project' }
-          { 'label': 'Edit Project', 'command': 'mavensmate:edit-project' }
+          { 'label': 'Open Project...', 'command': 'mavensmate:open-project' }
+          { 'label': 'New Project...', 'command': 'mavensmate:new-project' }
+          { 'label': 'Edit Project...', 'command': 'mavensmate:edit-project' }
           { 'label': 'Compile Project', 'command': 'mavensmate:compile-project' }
           { 'label': 'Clean Project', 'command': 'mavensmate:clean-project' }
         ]
@@ -15,10 +15,10 @@
       {
         'label': 'Metadata'
         'submenu': [
-          { 'label': 'New Apex Class', 'command': 'mavensmate:new-apex-class' }
-          { 'label': 'New Apex Trigger', 'command': 'mavensmate:new-apex-trigger' }
-          { 'label': 'New VisualForce Page', 'command': 'mavensmate:new-visualforce-page' }
-          { 'label': 'New Visualforce Component', 'command': 'mavensmate:new-visualforce-component' }
+          { 'label': 'New Apex Class...', 'command': 'mavensmate:new-apex-class' }
+          { 'label': 'New Apex Trigger...', 'command': 'mavensmate:new-apex-trigger' }
+          { 'label': 'New VisualForce Page...', 'command': 'mavensmate:new-visualforce-page' }
+          { 'label': 'New Visualforce Component...', 'command': 'mavensmate:new-visualforce-component' }
           { 'type' : 'separator' }
           # { 'label': 'List Fields For Object... (beta)', 'command': 'mavensmate:run-tests' }
           { 'label': 'Update Project Metadata Index (.org_metadata)', 'command': 'mavensmate:index-metadata' }
@@ -27,13 +27,10 @@
       {
         'label': 'Debugging'
         'submenu': [
-          { 'label': 'New Debug Log...', 'command': 'mavensmate:run-unit-tests' }
-          { 'label': 'New Quick Log', 'command': 'mavensmate:new-quick-log' }
+          { 'label': 'Setup Logging For User...', 'command': 'mavensmate:run-unit-tests' }
+          { 'label': 'Start Logging', 'command': 'mavensmate:new-quick-log' }
           { 'label': 'Fetch Logs', 'command': 'mavensmate:fetch-logs' }
-          { 'label': 'Scrub Log', 'command': 'mavensmate:run-unit-tests' }
-          { 'label': 'Delete Trace Flags For This User', 'command': 'mavensmate:run-unit-tests' }
-          { 'type' : 'separator' }
-          { 'label': 'Fetch Checkpoints', 'command': 'mavensmate:refresh-checkpoints' }
+          { 'label': 'Stop Logging', 'command': 'mavensmate:run-unit-tests' }
         ]
       }
       {
