@@ -86,7 +86,13 @@ class MavensMatePanelView extends View
 
     @btnClearPanel.click ->
       me.clear()
- 
+
+    atom.workspaceView.command 'mavensmate:toggle-panel', ->
+      if me.collapsed
+        me.expand()
+      else
+        me.collapse() 
+    
     # updates panel view font size(s) based on editor font-size updates (see mavensmate-atom-watcher.coffee)
     emitter.on 'mavensmate:font-size-changed', (newFontSize) ->
       jQuery('div.mavensmate pre.terminal').css('font-size', newFontSize)
