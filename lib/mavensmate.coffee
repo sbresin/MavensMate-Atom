@@ -129,8 +129,15 @@ module.exports =
     initializeProject: ->
       @panel.toggle()
 
-      # @subscribe atom.workspace.eachEditor (editor) =>
-      #   @handleEvents(editor)
+      # hide .overlays from fuzzyfinder (cmd+t) file search
+      fuzzyFinderIgnoredNamesSetting = atom.config.get('fuzzy-finder.ignoredNames')
+      if fuzzyFinderIgnoredNamesSetting?
+        if fuzzyFinderIgnoredNamesSetting == []
+          atom.config.pushAtKeyPath("fuzzy-finder.ignoredNames", "**/config/.symbols/*.json")
+        else if fuzzyFinderIgnoredNamesSetting.length > 0 and '**/config/.symbols/*.json' not in fuzzyFinderIgnoredNamesSetting
+          atom.config.pushAtKeyPath("fuzzy-finder.ignoredNames", "**/config/.symbols/*.json")
+      else
+        atom.config.pushAtKeyPath("fuzzy-finder.ignoredNames", "**/config/.symbols/*.json")
 
       atom.project.errors = {}
       atom.project.checkpointCount = 0
