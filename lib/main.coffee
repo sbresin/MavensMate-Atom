@@ -22,6 +22,8 @@ module.exports =
     mm_http_proxy : '',
     mm_https_proxy : '',
     mm_play_sounds: true,
+    mm_panel_height: 200,
+    mm_close_panel_on_successful_operation: true,
     mm_template_location: 'remote',
     mm_template_source: 'joeferraro/MavensMate-Templates/master',
     mm_default_subscription: [

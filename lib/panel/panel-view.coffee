@@ -16,6 +16,10 @@ class MavensMatePanelView extends View
   fetchingLogs: false
   panelItems: []
   collapsed: true
+  panelViewHeight: null
+
+  constructor: () ->
+    super
 
   resizeStarted: =>
     $(document).on('mousemove', @resizePanelHandler)
@@ -29,8 +33,10 @@ class MavensMatePanelView extends View
     return @resizeStopped() unless evt.which is 1
     height = jQuery("body").height() - evt.pageY - 10
     @setPanelViewHeight(height, animate = false)
+    @panelViewHeight = height
+    atom.config.set('MavensMate-Atom.mm_panel_height', height)
 
-  setPanelViewHeight: (height, animate = true) =>
+  setPanelViewHeight: (height, animate = true, setPanelHeight = true) =>
     if animate
       jQuery(@).animate({height:height}, 'fast')  
     else
@@ -60,7 +66,7 @@ class MavensMatePanelView extends View
                 @button class: 'btn btn-sm btn-default', outlet: 'btnClearPanel', style: 'margin-left:3px', =>
                   @i class: 'fa fa-ban', outlet: ''
                 @button class: 'btn btn-sm btn-default btn-toggle-panel', outlet: 'btnTogglePanel', style: 'margin-left:3px', =>
-                  @i class: 'fa fa-toggle-up', outlet: 'btnToggleIcon'
+                  @i class: 'fa fa-toggle-down', outlet: 'btnToggleIcon'
       @div class: 'block padded mavensmate-panel', =>
         @div class: 'message', outlet: 'myOutput'
 
@@ -120,8 +126,13 @@ class MavensMatePanelView extends View
         # todo: in order to hide panel when the command completes, we need a way of knowing whether
         #       the command was ultimately successful (collapse panel) or a failure (keep panel open)
         #       bc the responses do not always contain a success property, for example, this is current difficult to do
-        if me.countPanels() == 0 and promisePanelViewItem.closePanelOnFinish
-          me.collapse()
+        console.log me
+        closePanelOnSuccess = atom.config.get('MavensMate-Atom.mm_close_panel_on_successful_operation')
+        if closePanelOnSuccess
+          if me.countPanels() == 0 and promisePanelViewItem.closePanelOnFinish
+            setTimeout(
+              -> me.collapse(),
+            1000)
 
     emitter.on 'mavensmate:compile-finished', (params, promiseId) ->
       me.updateErrorsBtn()
@@ -129,13 +140,13 @@ class MavensMatePanelView extends View
     @handleEvents()
   
   collapse: () ->
-    @setPanelViewHeight(40)
+    @setPanelViewHeight(40, true, false)
     @btnToggleIcon.removeClass 'fa-toggle-down'
     @btnToggleIcon.addClass 'fa-toggle-up'
     @collapsed = true
 
   expand: () ->
-    @setPanelViewHeight(200)  
+    @setPanelViewHeight(@panelViewHeight)  
     @btnToggleIcon.removeClass 'fa-toggle-up'
     @btnToggleIcon.addClass 'fa-toggle-down'
     @collapsed = false
@@ -145,9 +156,10 @@ class MavensMatePanelView extends View
     @panelItems = []
 
   afterAttach: (onDom) ->
-    # @setPanelViewHeight(200)
-    # @setPanelViewHeight(40)
-    @collapse()
+    # when attached to dom, set height based on user setting
+    @panelViewHeight = atom.config.get('MavensMate-Atom.mm_panel_height')
+    @expand()
+
 
   # Update the mavensmate output view contents.
   #

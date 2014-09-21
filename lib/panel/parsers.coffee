@@ -242,14 +242,12 @@ class RunTestsParser extends CommandParser
 class StartLoggingParser extends CommandParser
 
   parse: ->
-    @obj.indicator = 'warning'
-
     if @result.success is false
       @obj.indicator = 'danger'
       @obj.isException = true
       @obj.stackTrace = @result.stack_trace
     else
-      @obj.indicator = 'success'
+      @obj.indicator = 'info'
 
     @obj.message = @result.body
     return @obj
@@ -261,6 +259,7 @@ parsers = {
   CompileParser: CompileParser,
   CompileProjectParser: CompileProjectParser,
   RunTestsParser: RunTestsParser,
+  TestAsyncParser: RunTestsParser,
   StartLoggingParser: StartLoggingParser,
   GetOrgWideTestCoverageParser: GetOrgWideTestCoverageParser
 }
