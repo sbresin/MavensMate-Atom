@@ -43,6 +43,7 @@
     "lodash":"2.4.1",
     "color":"0.7.1",
     "tmp":"0.0.24"
+    "faye":"0.8.11",
   },
   "devDependencies": {
     "temp": "latest"

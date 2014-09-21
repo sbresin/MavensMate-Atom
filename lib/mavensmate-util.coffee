@@ -1,6 +1,7 @@
-{$, $$, $$$, EditorView, View}  = require 'atom'
-fs                              = require 'fs'
-path                            = require 'path' # npm install path
+fs      = require 'fs'
+path    = require 'path' # npm install path
+_       = require 'underscore-plus'
+_.str   = require 'underscore.string'
 
 module.exports =
   # setting object to configure MavensMate for future SFDC updates
@@ -21,6 +22,19 @@ module.exports =
   # returns the fully resolved file path given a path relative to the root of the project
   filePathFromTreePath: (treePath) ->
     atom.project.resolve('./' + treePath)
+
+  # takes a file path and returns it as a string or object (synchronously)
+  fileBodyAsString: (path, parseAsJson = false) ->
+    fileBody = fs.readFileSync path
+    if parseAsJson
+      return JSON.parse fileBody
+    else
+      return fileBody
+
+  # takes a url and attempts to return the base salesforce url
+  baseSalesforceUrl: (url) ->
+    # e.g., https://na14.salesforce.com/services/Soap/u/30.0/00Dd0000000cRQK
+    return _.str.strLeftBack(url, '/services/')
 
   # returns the active file path
   activeFile: ->

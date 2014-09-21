@@ -14,6 +14,7 @@ MavensMateShareView                 = require './share/share-view'
 MavensMateJoinView                  = require './share/join-view'
 MavensMateAppView                   = require './mavensmate-app-view'
 MavensMateModalView                 = require './mavensmate-modal-view'
+StreamingClient                     = require './mavensmate-streaming-client'
 CodeHelperMetadata                  = require './code-helper/metadata'
 CodeHelperBufferView                = require './code-helper/buffer-view'
 tracker                             = require('./mavensmate-promise-tracker').tracker

@@ -4,37 +4,16 @@ Repeat = require 'repeat'
 
 class MavensMateLogFetcher
   
-  repeater:null
-  fetching:false
-
-  start: ->
-    # todo: make interval configurable
-    # todo: new_quick_log before starting the fetcher
-    #Repeat(@goFetch).every(5000, 'ms').start.now();
-    thiz = @
-    thiz.fetching = true
+  goFetch: (logId) ->
     params =
       skipPanel: true
       args:
-        operation: 'new_quick_log'
-    MmCli.run(params)
-      .then (result) ->
-        thiz.repeater = Repeat(thiz.goFetch).every(5000, 'ms').until(-> !thiz.fetching).start.now()
-      .catch (error) ->
-        console.log 'failed to start log fetcher!!!'
-        console.log error
-    
-  stop: ->
-    @fetching = false
-
-  goFetch: ->
-    params =
-      skipPanel: true
-      args:
-        operation: 'fetch_logs'
+        operation: 'download_log'
+      payload:
+        log_id: logId
     MmCli.run(params)
     .then (result) ->
-      if result.logs? and result.logs.length > 0
+      if result.success and result.log?
         fetchedView = new MavensMateLogFetchedView(result)
         fetchedView.show()
     .catch (error) ->
@@ -51,16 +30,14 @@ class MavensMateLogFetchedView extends View
   constructor: (@result) ->
     super
     console.log 'constructing view --->'
-    if @result.logs? and @result.logs.length > 0
-      @log = @result.logs[0]
-    else
-      @openLog.hide()
+    @log = @result.log
+    #@openLog.hide()
 
   initialize: ->
     # when open log button is clicked, log is opened in atom and flash alert is hidden
     thiz = @
     @openLog.click ->
-      atom.workspaceView.open(thiz.log)
+      atom.workspaceView.open(thiz.log.path)
       .then (result) ->
         thiz.destroy()  
 
