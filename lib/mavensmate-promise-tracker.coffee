@@ -38,9 +38,6 @@ class PromiseTracker
   #
   # returns true/false
   isPromiseComplete: (promiseId) ->
-    console.log 'checking whether promise is complete => '+promiseId
-    console.log @tracked
-    console.log @tracked[promiseId]
     @tracked[promiseId].complete
 
   # returns the promise requested
@@ -48,17 +45,15 @@ class PromiseTracker
     if pop
       p = _.clone(@tracked[promiseId]);
       delete @tracked[promiseId]
+      # if Object.keys(@tracked).length is 0
+      #   emitter.emit 'mavensmate:promise-queue-empty'
       return p
     else
       @tracked[promiseId]
     
   completePromise: (result) ->
-    console.log 'completing promise!'
-    console.log result
-    console.log tracker
     tracker.tracked[result.promiseId].result = result
     tracker.tracked[result.promiseId].complete = true
-    #emitter.emit 'mavensmatePromiseCompleted', result.promiseId
 
 tracker = new PromiseTracker()
 exports.tracker = tracker
