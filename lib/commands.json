@@ -44,10 +44,10 @@
               "buttons": ["Yes", "No"]
             }            
         },
-        "run-all-tests-async": {
+        "run-all-tests": {
             "operation": "run_all_tests"
         },
-        "run-async-unit-tests": {
+        "run-tests": {
             "operation": "test_async",
             "payloadClasses": "activeBaseName"
         },
@@ -110,8 +110,8 @@
             "operation": "project_health_check",
             "ui": true
         },
-        "new-quick-log": {
-            "operation": "new_quick_trace_flag"
+        "start-logging": {
+            "operation": "start_logging"
         },
         "fetch-logs": {
             "operation": "fetch_logs"
