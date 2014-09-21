@@ -2,7 +2,6 @@
 Convert = null
 {Subscriber,Emitter} = require 'emissary'
 emitter             = require('../mavensmate-emitter').pubsub
-logFetcher          = require('../mavensmate-log-fetcher').fetcher
 util                = require '../mavensmate-util'
 moment              = require 'moment'
 pluralize           = require 'pluralize'
@@ -29,11 +28,14 @@ class MavensMatePanelView extends View
   resizePanelHandler: (evt) =>
     return @resizeStopped() unless evt.which is 1
     height = jQuery("body").height() - evt.pageY - 10
-    @setPanelViewHeight(height)
+    @setPanelViewHeight(height, animate = false)
 
-  setPanelViewHeight: (height) =>
-    @height(height)
-    jQuery('.mavensmate-output .message').css('max-height',height-54+'px')  
+  setPanelViewHeight: (height, animate = true) =>
+    if animate
+      jQuery(@).animate({height:height}, 'fast')  
+    else
+      @height(height)
+    jQuery('.mavensmate-output .message').css('max-height',height-54+'px')
 
   handleEvents: ->
     @on 'mousedown', '.entry', (e) =>
@@ -55,10 +57,9 @@ class MavensMatePanelView extends View
                 @button class: 'btn btn-sm btn-default btn-view-errors', outlet: 'btnViewErrors', =>
                   @i class: 'fa fa-bug', outlet: 'viewErrorsIcon'
                   @span '0 errors', outlet: 'viewErrorsLabel', style: 'display:inline-block;padding-left:5px;'
-                @button class: 'btn btn-sm btn-default btn-fetch-logs', outlet: 'btnFetchLogs', =>
-                  @i class: 'fa fa-refresh', outlet: 'fetchLogsIcon'
-                  @span 'Fetch Logs', outlet: 'fetchLogsLabel', style: 'display:inline-block;padding-left:5px;'
-                @button class: 'btn btn-sm btn-default btn-toggle-panel', outlet: 'btnTogglePanel', style: 'margin-left:5px', =>
+                @button class: 'btn btn-sm btn-default', outlet: 'btnClearPanel', style: 'margin-left:3px', =>
+                  @i class: 'fa fa-ban', outlet: ''
+                @button class: 'btn btn-sm btn-default btn-toggle-panel', outlet: 'btnTogglePanel', style: 'margin-left:3px', =>
                   @i class: 'fa fa-toggle-up', outlet: 'btnToggleIcon'
       @div class: 'block padded mavensmate-panel', =>
         @div class: 'message', outlet: 'myOutput'
@@ -66,22 +67,6 @@ class MavensMatePanelView extends View
   # Internal: Initialize the mavensmate output view and event handlers.
   initialize: ->
     me = @ # this
-
-    # toggle log fetcher
-    @btnFetchLogs.click ->
-      me.fetchingLogs = !me.fetchingLogs
-      if me.fetchingLogs
-        me.btnFetchLogs.removeClass 'btn-default'
-        me.btnFetchLogs.addClass 'btn-success'
-        me.fetchLogsIcon.addClass 'fa-spin'
-        me.fetchLogsLabel.html 'Fetching Logs'
-        logFetcher.start()
-      else
-        me.btnFetchLogs.removeClass 'btn-success'
-        me.btnFetchLogs.addClass 'btn-default'
-        me.fetchLogsIcon.removeClass 'fa-spin'
-        me.fetchLogsLabel.html 'Fetch Logs'
-        logFetcher.stop()
 
     @btnViewErrors.click ->
       atom.workspaceView.open(util.uris.errorsView)
@@ -92,6 +77,9 @@ class MavensMatePanelView extends View
         me.expand()
       else
         me.collapse() 
+
+    @btnClearPanel.click ->
+      me.clear()
  
     # updates panel view font size(s) based on editor font-size updates (see mavensmate-atom-watcher.coffee)
     emitter.on 'mavensmate:font-size-changed', (newFontSize) ->
@@ -110,14 +98,32 @@ class MavensMatePanelView extends View
     # handler for finished operations
     # writes status to panel item
     # displays colored indicator based on outcome
-    emitter.on 'mavensmatePanelNotifyFinish', (params, result, promiseId) ->
-      promisePanelViewItem = me.panelItems[promiseId]
-      promisePanelViewItem.update me, params, result
-      
-      if promisePanelViewItem.command in util.compileCommands()
-        emitter.emit 'mavensMateCompileFinished', params, promiseId
+    emitter.on 'mavensmate:panel-notify-finish', (params, result, promiseId) ->
+      # we do a double check here to ensure we're not doing anything with panel exempt commands
+      # todo: ensure exempt or skippanel commands are not handled here
+      if params.args.operation? and params.args.operation not in util.panelExemptCommands() and not params.skipPanel # some commands are not piped to the panel
+        console.log 'panel view picked up an event!'
+        console.log params
+        console.log result
 
-    emitter.on 'mavensMateCompileFinished', (params, promiseId) ->
+        promisePanelViewItem = me.panelItems[promiseId]
+        promisePanelViewItem.update me, params, result
+        
+        if promisePanelViewItem.command in util.compileCommands()
+          emitter.emit 'mavensmate:compile-finished', params, promiseId
+
+        console.log '~~~~~~~~~~~~~'
+        console.log promisePanelViewItem
+        # console.log 'running panels!'
+        # console.log me.countPanels()
+        # console.log result
+        # todo: in order to hide panel when the command completes, we need a way of knowing whether
+        #       the command was ultimately successful (collapse panel) or a failure (keep panel open)
+        #       bc the responses do not always contain a success property, for example, this is current difficult to do
+        if me.countPanels() == 0 and promisePanelViewItem.closePanelOnFinish
+          me.collapse()
+
+    emitter.on 'mavensmate:compile-finished', (params, promiseId) ->
       me.updateErrorsBtn()
 
     @handleEvents()
@@ -133,6 +139,10 @@ class MavensMatePanelView extends View
     @btnToggleIcon.removeClass 'fa-toggle-up'
     @btnToggleIcon.addClass 'fa-toggle-down'
     @collapsed = false
+
+  clear: () ->
+    $('.panel-item').remove()
+    @panelItems = []
 
   afterAttach: (onDom) ->
     # @setPanelViewHeight(200)
@@ -160,15 +170,20 @@ class MavensMatePanelView extends View
     @unsubscribe()
     @detach()
 
-  # Counts the number of panels running the commands
+  # Counts the number of panels running an (optional) list of commands
   #
-  countPanels: (commands) ->
+  countPanels: (commands = []) ->
     panelCount = 0
     console.log @panelItems
     console.log commands
-    for promiseId, panelViewItem of @panelItems    
-      if panelViewItem.command in commands and panelViewItem.running
-        panelCount++
+    if commands.length == 0
+      for promiseId, panelViewItem of @panelItems    
+        if panelViewItem.running
+          panelCount++
+    else
+      for promiseId, panelViewItem of @panelItems    
+        if panelViewItem.command in commands and panelViewItem.running
+          panelCount++
     return panelCount
 
   # Update the error button based off of the number
