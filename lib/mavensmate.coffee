@@ -14,6 +14,7 @@ MavensMateShareView                 = require './share/share-view'
 MavensMateJoinView                  = require './share/join-view'
 MavensMateAppView                   = require './mavensmate-app-view'
 MavensMateModalView                 = require './mavensmate-modal-view'
+FileSystemWatcher                   = require './watchers/fs-watcher'
 StreamingClient                     = require './mavensmate-streaming-client'
 CodeHelperMetadata                  = require './code-helper/metadata'
 CodeHelperBufferView                = require './code-helper/buffer-view'
@@ -41,7 +42,7 @@ errorsDeserializer =
     createErrorsView(state) if state.constructor is Object
 atom.deserializers.add(errorsDeserializer)
 
-MavensMateAtomWatcher = require('./mavensmate-atom-watcher').watcher
+MavensMateAtomWatcher = require('./watchers/atom-watcher').watcher
 MavensMateTabView = null
 
 tabViewUri = 'mavensmate://tabView'
@@ -149,8 +150,16 @@ module.exports =
         catch error
           console.log error
 
-      ##COMMANDS TODO: move
+        sessionPath = path.join(atom.project.path,'config','.session')
 
+        if fs.existsSync(sessionPath)
+          # instantiates atom.project.session with cached session information
+          session = util.fileBodyAsString(sessionPath, true)
+          atom.project.session = session
+          emitter.emit 'mavensmate:session-updated', session
+
+      projectFsWatcher = new FileSystemWatcher(atom.project.path)
+      streamingClient = new StreamingClient()
 
       atom.workspaceView.command "mavensmate:toggle-output", =>
         @panel.toggle()
