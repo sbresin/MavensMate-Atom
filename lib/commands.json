@@ -124,6 +124,9 @@
         },
         "refresh-apex-symbols": {
             "operation": "index_apex"
+        },
+        "get-org-test-coverage": {
+            "operation": "get_org_wide_test_coverage"
         }
     }
 }

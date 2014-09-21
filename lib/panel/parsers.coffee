@@ -36,6 +36,13 @@ class CommandParser
       stackTrace: @result.stackTrace
       isException: @result.stackTrace?
 
+class GetOrgWideTestCoverageParser extends CommandParser
+
+  parse: ->
+    @obj.indicator = 'info'
+    @obj.message = "Total Apex Unit Test Coverage: #{@result.PercentCovered}%"
+    return @obj
+
 class DeleteParser extends CommandParser
 
   parse: ->
@@ -254,7 +261,8 @@ parsers = {
   CompileParser: CompileParser,
   CompileProjectParser: CompileProjectParser,
   RunTestsParser: RunTestsParser,
-  StartLoggingParser: StartLoggingParser  
+  StartLoggingParser: StartLoggingParser,
+  GetOrgWideTestCoverageParser: GetOrgWideTestCoverageParser
 }
 
 getCommandParser = (command, params) ->
@@ -265,6 +273,7 @@ getCommandParser = (command, params) ->
     parserClassName = _.camelize(command)
     parserClassName = _.capitalize(parserClassName)
     parserClassName += 'Parser'
+    console.log parserClassName
     if parserClassName not of parsers
       return CommandParser
     else
@@ -274,8 +283,8 @@ module.exports =
   
   parse: (command, params, result) ->
     Parser = getCommandParser(command, params)
-    # console.log 'parser is: '
-    # console.log Parser
+    console.log 'parser is: '
+    console.log Parser
     parser = new Parser(command, params, result)
     return parser.parse()
 
