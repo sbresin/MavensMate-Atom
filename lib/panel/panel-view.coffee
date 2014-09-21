@@ -134,12 +134,11 @@ class MavensMatePanelView extends View
         #       bc the responses do not always contain a success property, for example, this is current difficult to do
         console.log me
         closePanelOnSuccess = atom.config.get('MavensMate-Atom.mm_close_panel_on_successful_operation')
-        if closePanelOnSuccess
-          if promisePanelViewItem.closePanelOnFinish
-            closePanelDelay = atom.config.get('MavensMate-Atom.mm_close_panel_delay')
-            setTimeout(
-              -> me.collapseIfNoRunning(),
-            closePanelDelay)
+        if closePanelOnSuccess and promisePanelViewItem.closePanelOnFinish          
+          closePanelDelay = atom.config.get('MavensMate-Atom.mm_close_panel_delay')
+          setTimeout(
+            -> me.collapseIfNoRunning(),
+          closePanelDelay)
 
     emitter.on 'mavensmate:compile-finished', (params, promiseId) ->
       me.updateErrorsBtn()
