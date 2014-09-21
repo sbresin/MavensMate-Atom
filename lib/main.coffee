@@ -24,6 +24,7 @@ module.exports =
     mm_play_sounds: true,
     mm_panel_height: 200,
     mm_close_panel_on_successful_operation: true,
+    mm_close_panel_delay: 1000,
     mm_template_location: 'remote',
     mm_template_source: 'joeferraro/MavensMate-Templates/master',
     mm_default_subscription: [

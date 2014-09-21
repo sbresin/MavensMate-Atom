@@ -136,9 +136,10 @@ class MavensMatePanelView extends View
         closePanelOnSuccess = atom.config.get('MavensMate-Atom.mm_close_panel_on_successful_operation')
         if closePanelOnSuccess
           if me.countPanels() == 0 and promisePanelViewItem.closePanelOnFinish
+            closePanelDelay = atom.config.get('MavensMate-Atom.mm_close_panel_delay')
             setTimeout(
               -> me.collapse(),
-            1000)
+            closePanelDelay)
 
     emitter.on 'mavensmate:compile-finished', (params, promiseId) ->
       me.updateErrorsBtn()
