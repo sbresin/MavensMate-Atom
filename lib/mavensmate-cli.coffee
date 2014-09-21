@@ -14,31 +14,13 @@ class MavensMateCommandLineInterface
   constructor: () ->
     @promiseTracker = tracker
 
-  # Run the specified mm command
-  #
-  # params =
-  #   args:
-  #     foo: 'bar'
-  #     bat: 'boom'
-  #   payload:
-  #     something: reallycool
-  #   promiseId: 'some promise id'
-  #
-  # Returns promise.
-  run: (params) ->
-    deferred = Q.defer()
-
+  getCommand:(params) ->
     args = params.args or {}
     payload = params.payload
     promiseId = params.promiseId
 
     if not promiseId?
       promiseId = tracker.enqueuePromise()
-
-    # console.log 'executing command'
-    # console.log args
-    # console.log payload
-    # console.log promiseId
 
     # return unless atom.project.path? TODO: ensure mavensmate project
 
@@ -93,7 +75,25 @@ class MavensMateCommandLineInterface
 
     stdin = JSON.stringify payload
 
-    @execute cmd, opts, stdin, deferred, promiseId
+    [cmd, opts, stdin, promiseId]
+
+  # Run the specified mm command
+  #
+  # params =
+  #   args:
+  #     foo: 'bar'
+  #     bat: 'boom'
+  #   payload:
+  #     something: reallycool
+  #   promiseId: 'some promise id'
+  #
+  # Returns promise.
+  run: (params) ->
+    deferred = Q.defer()
+
+    [cmd, opts, stdin, promiseId] = @getCommand(params)
+
+    @executeAsync cmd, opts, stdin, deferred, promiseId
 
     # add to promise tracker, emit an event so the panel knows when to do its thing
     tracker.start promiseId, deferred.promise
@@ -102,11 +102,11 @@ class MavensMateCommandLineInterface
     deferred.promise
 
   # Execute the command, resolve the promise
-  execute: (cmd, opts, stdin, deferred, promiseId) ->
+  executeAsync: (cmd, opts, stdin, deferred, promiseId) ->
     try
-      console.log cmd
-      console.log opts
-      console.log stdin
+      # console.log cmd
+      # console.log opts
+      # console.log stdin
 
       project = atom.project
 
@@ -140,6 +140,9 @@ class MavensMateCommandLineInterface
 
       childMmProcess.on "exit", (code) ->
         # console.log "Child exited with code " + code       
+        console.log stderr
+        console.log stdout
+        
         jsonToParse = if stdout == '' then stderr else stdout
         jsonOutput = JSON.parse jsonToParse
         if promiseId?
