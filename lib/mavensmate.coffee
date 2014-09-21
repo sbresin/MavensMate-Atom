@@ -161,6 +161,7 @@ module.exports =
       projectFsWatcher = new FileSystemWatcher(atom.project.path)
       streamingClient = new StreamingClient()
 
+      ##COMMANDS TODO: move
       atom.workspaceView.command "mavensmate:toggle-output", =>
         @panel.toggle()
 
