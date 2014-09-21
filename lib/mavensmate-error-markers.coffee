@@ -37,7 +37,7 @@ class MavensMateErrorMarkers
       lines_to_highlight = (error['lineNumber'] for error in errors when error['lineNumber']?)
       for line in lines_to_highlight
           @markRange(line-1, line-1, 'mm-compile-error-gutter', 'gutter')
-          @markRange(line-1, line-1, 'mm-compile-error-line', 'line')
+          @markRange(line-1, line-1, 'mm-compile-error-line', 'highlight')
 
   markRange: (startRow, endRow, klass, type) ->
     # todo: range = editor.getBuffer().rangeForRow(34)?
