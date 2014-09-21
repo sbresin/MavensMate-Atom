@@ -97,7 +97,10 @@ module.exports =
       'new_apex_overlay',
       'delete_apex_overlay',
       'index_apex_overlays',
-      'get_apex_class_completions'
+      'get_apex_class_completions',
+      'update_subscription',
+      'get_indexed_metadata',
+      'edit_project'
     ]
 
   compileCommands: ->
