@@ -1,11 +1,13 @@
-_     = require 'underscore-plus'
-util  = require '../mavensmate-util'
+{View} = require 'atom'
+_           = require 'underscore-plus'
+util        = require '../mavensmate-util'
+pluralize   = require 'pluralize'
 
 class CommandParser
   
   obj:
     message: null
-    indicator: null
+    indicator: 'warning'
     stackTrace: null
     result: null
     isException: false
@@ -212,30 +214,67 @@ class CompileProjectParser extends CommandParser
 
 class RunTestsParser extends CommandParser
 
+  class TestResultView extends View
+    
+    @content: (params) ->
+      @div =>
+        @span params.message
+        @div outlet: 'results', class: 'mavensmate-test-result'
+          
+    addTestResults: (result) ->
+      html = ''
+      for testResult in result
+        passCounter = 0
+        failedCounter = 0
+        for test in testResult.detailed_results
+          if test.Outcome == "Fail"
+            failedCounter++
+          else
+            passCounter++
+        
+        clsName = 'Pass'
+        if failedCounter > 0
+          clsName = 'Fail'
+
+        html += '<p class="class-name">'+testResult.ApexClass.Name
+        html += ' | <span class="'+clsName+'">'+testResult.ExtendedStatus+' '+pluralize('test', testResult.detailed_results.length)+ ' passed</span>'
+        html += '</p>'
+        for detail in testResult.detailed_results
+          html += '<p class="method-name"><span class="result '+detail.Outcome+'">['+detail.Outcome+']</span> '+detail.MethodName+'</p>'
+          if detail.Outcome == 'Fail'
+            html += '<p class="stack">'
+            html += detail.Message
+            html += '<br/>'
+            html += detail.StackTrace
+            html += '</p>'
+      
+      @results.append html
+
   commandAliases: ['test_async']
 
   parse: ->
-    @obj.indicator = 'warning'
     passCounter = 0
     failedCounter = 0
 
-    for apexClass in @result
-      for test in apexClass.detailed_results
-        if test.Outcome == "Fail"
-          failedCounter++
-          @obj.message = "#{failedCounter} failed test method"
-          @obj.message += 's' if failedCounter > 1
-          @obj.stackTrace += "#{test.ApexClass.Name}.#{test.MethodName}:\n#{test.StackTrace}\n\n"
-        else
-          passCounter++
+    message = 'Results:\n'
+      
+    # console.log parserViews
+    testResultView = new TestResultView(message:'> Results:')
+    testResultView.addTestResults(@result)
+    console.log testResultView
+    # # console.log markdown
+    # htmlMessage = converter.makeHtml(markdown)
+    @obj.indicator = 'info'
+    # @obj.message = message + htmlMessage
+    @obj.message = testResultView
 
-
-    if failedCounter == 0
-      @obj.message = "Run all tests complete. #{passCounter} test" + (if passCounter > 1 then "s " else " ") + "passed."
-      @obj.indicator = 'success'
-    else
-      @obj.indicator = 'danger'
-      @obj.isException = true
+    # totalTests = passCounter + failedCounter
+    # if failedCounter == 0
+    #   @obj.message = "Run tests. #{passCounter} tests " + (if passCounter > 1 then "s " else " ") + "passed."
+    #   @obj.indicator = 'success'
+    # else
+    #   @obj.indicator = 'danger'
+    #   @obj.isException = true
 
     return @obj
 
