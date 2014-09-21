@@ -1,4 +1,5 @@
-emitter = require("../lib/mavensmate-emitter").pubsub
+emitter = require('../mavensmate-emitter').pubsub
+
 Repeat = require 'repeat'
 
 # use this class to register watchers for atom-specific attributes (font size, settings, etc)
