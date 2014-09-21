@@ -135,10 +135,10 @@ class MavensMatePanelView extends View
         console.log me
         closePanelOnSuccess = atom.config.get('MavensMate-Atom.mm_close_panel_on_successful_operation')
         if closePanelOnSuccess
-          if me.countPanels() == 0 and promisePanelViewItem.closePanelOnFinish
+          if promisePanelViewItem.closePanelOnFinish
             closePanelDelay = atom.config.get('MavensMate-Atom.mm_close_panel_delay')
             setTimeout(
-              -> me.collapse(),
+              -> me.collapseIfNoRunning(),
             closePanelDelay)
 
     emitter.on 'mavensmate:compile-finished', (params, promiseId) ->
@@ -146,11 +146,16 @@ class MavensMatePanelView extends View
 
     @handleEvents()
   
+  collapseIfNoRunning: () ->
+    if @countPanels() == 0
+      @collapse()
+
   collapse: () ->
-    @setPanelViewHeight(40, true, false)
-    @btnToggleIcon.removeClass 'fa-toggle-down'
-    @btnToggleIcon.addClass 'fa-toggle-up'
-    @collapsed = true
+    if not @collapsed
+      @setPanelViewHeight(40, true, false)
+      @btnToggleIcon.removeClass 'fa-toggle-down'
+      @btnToggleIcon.addClass 'fa-toggle-up'
+      @collapsed = true
 
   expand: () ->
     @setPanelViewHeight(@panelViewHeight)  
