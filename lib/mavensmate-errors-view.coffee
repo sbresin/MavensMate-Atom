@@ -69,7 +69,7 @@ class MavensMateErrorsView extends ScrollView
     @uri
 
   isEqual: (other) ->
-    other instanceof ErrorsView
+    other instanceof MavensMateErrorsView
 
   addRunningFiles: (params, promiseId) ->
     command = params.args.operation
