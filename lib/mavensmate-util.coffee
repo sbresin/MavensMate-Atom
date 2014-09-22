@@ -100,7 +100,8 @@ module.exports =
       'get_apex_class_completions',
       'update_subscription',
       'get_indexed_metadata',
-      'edit_project'
+      'edit_project',
+      'list_metadata'
     ]
 
   compileCommands: ->
