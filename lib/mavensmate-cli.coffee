@@ -31,7 +31,7 @@ class MavensMateCommandLineInterface
 
     operation = if args.operation then args.operation else payload.command
 
-    if cfg.mm_developer_mode
+    if util.useMMPython()
       if cfg.mm_mm_py_location == 'mm/mm.py'
         mm_location = path.join(atom.packages.resolvePackagePath('MavensMate-Atom'),cfg.mm_mm_py_location)
       else
@@ -39,11 +39,8 @@ class MavensMateCommandLineInterface
       cmd = cfg.mm_python_location
       opts.push mm_location
     else
-      if cfg.mm_path == 'default'
-        mm_path = path.join(atom.packages.resolvePackagePath('MavensMate-Atom'),'mm')
-      else
-        mm_path = cfg.mm_path
-
+      mm_path = "#{util.mmHome()}/mm"
+      mm_path += ".exe" if util.isWindows()
       cmd = mm_path
 
     opts.push operation

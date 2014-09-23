@@ -23,6 +23,7 @@ util                                = require './mavensmate-util'
 emitter                             = require('./mavensmate-emitter').pubsub
 MavensMateCodeAssistProviders       = require './mavensmate-code-assist-providers'
 commands                            = require './commands.json'
+MMInstaller                         = require './mavensmate-installer'
 {exec}                              = require 'child_process'
 ErrorsView                          = require './mavensmate-errors-view'
 atom.mavensmate = {}
@@ -77,6 +78,10 @@ module.exports =
       atom.workspaceView.mavensMateProjectInitialized ?= false
       console.log 'initing mavensmate.coffee'
       #@promiseTracker = new MavensMatePromiseTracker()
+
+      # download latest version of release if needed
+      @mm_installer = new MMInstaller()
+      @mm_installer.install()
 
       # instantiate mm tool
       @mm = MavensMateCommandLineInterface
