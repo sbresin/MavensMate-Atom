@@ -161,7 +161,7 @@ module.exports =
     # downloads the target url then hands off to callback
     _download: (url, callback) =>
       # RC-TODO: change to use temp directory
-      downloadPath = path.join temp.mkDirSync(), 'mm.zip'
+      downloadPath = path.join temp.mkdirSync(), 'mm.zip'
       downloadStream = fs.createWriteStream downloadPath
       r = request(url).pipe(downloadStream)
       r.on 'error', (err) ->
