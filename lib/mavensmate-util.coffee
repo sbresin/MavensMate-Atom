@@ -144,6 +144,15 @@ module.exports =
         'new_metadata'
       ]
 
+    # ui commands that use a modal (others use an atom pane)
+    @compileCommands: ->
+      [
+        'compile',
+        'compile_project',
+        'clean_project',
+        'refresh'
+      ]
+
     @numberOfCompileErrors: (fileName) ->
       numberOfErrors = 0;
       if fileName?
