@@ -87,12 +87,6 @@ class MavensMatePanelView extends View
     @btnClearPanel.click ->
       me.clear()
 
-    atom.workspaceView.command 'mavensmate:toggle-panel', ->
-      if me.collapsed
-        me.expand()
-      else
-        me.collapse() 
-    
     # updates panel view font size(s) based on editor font-size updates (see mavensmate-atom-watcher.coffee)
     emitter.on 'mavensmate:font-size-changed', (newFontSize) ->
       jQuery('div.mavensmate pre.terminal').css('font-size', newFontSize)
@@ -168,6 +162,12 @@ class MavensMatePanelView extends View
 
   afterAttach: (onDom) ->
     # when attached to dom, set height based on user setting
+    me = @
+    atom.workspaceView.command 'mavensmate:toggle-panel', ->
+      if me.collapsed
+        me.expand()
+      else
+        me.collapse() 
     @panelViewHeight = atom.config.get('MavensMate-Atom.mm_panel_height')
     @expand()
 
