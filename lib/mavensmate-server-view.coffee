@@ -31,9 +31,6 @@ module.exports =
     @deserialize: (state) ->
       new MavensMateServerView(state)
 
-    serialize: ->
-      deserializer: 'MavensMateServerView'
-
     # Internal: Initialize mavensmate output view DOM contents.
     @content: ->
       @div class: 'mavensmate', =>
