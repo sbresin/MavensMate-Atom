@@ -126,7 +126,7 @@ class MavensMateCommandLineInterface
       childMmProcess.stderr.on "data", (data) ->
         # console.log "spawnSTDERR:", data
         stderr += data
-      
+
       childMmProcess.on "close", (code) ->
         # console.log "Child process closed"
         return
@@ -136,11 +136,12 @@ class MavensMateCommandLineInterface
         return
 
       childMmProcess.on "exit", (code) ->
-        # console.log "Child exited with code " + code       
+        # console.log "Child exited with code " + code
         console.log stderr
         console.log stdout
-        
+
         jsonToParse = if stdout == '' then stderr else stdout
+        return if jsonToParse == ''
         jsonOutput = JSON.parse jsonToParse
         if promiseId?
           jsonOutput.promiseId = promiseId
