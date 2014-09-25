@@ -1,4 +1,6 @@
 path = require 'path'
+util = require './mavensmate-util'
+_ = require 'underscore-plus'
 {$, $$$, ScrollView} = require 'atom'
 
 module.exports =
@@ -6,7 +8,7 @@ module.exports =
 
     constructor: (@params) ->
       super
-     
+      @command = util.getCommandName params
       @filePath = @params.result.body
       @promiseId = @params.result.promiseId
       
@@ -34,7 +36,7 @@ module.exports =
         uri: @uri
 
     getTitle: ->
-      'MavensMate UI'
+      _.undasherize @command.replace('_','-')
 
     getIconName: ->
       'browser'
