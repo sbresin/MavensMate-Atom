@@ -127,6 +127,11 @@
         },
         "get-org-test-coverage": {
             "operation": "get_org_wide_test_coverage"
+        },
+        "visualforce-live-preview": {
+            "operation": "open_sfdc_url",
+            "payloadFiles": "active",
+            "payloadType": "preview"
         }
     }
 }

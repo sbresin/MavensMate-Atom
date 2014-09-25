@@ -306,6 +306,19 @@ class StartLoggingParser extends CommandParser
     @obj.message = @result.body
     return @obj
 
+class OpenSfdcUrlParser extends CommandParser
+
+  parse: ->
+    if @result.success is true
+      console.debug atom.workspace.getActiveEditor()
+      console.debug atom.workspace.getActiveEditor().getBuffer()
+      params = @result
+      params.split = 'right'
+      params.editorView = atom.workspace.getActiveEditor()
+      params.buffer = params.editorView.getBuffer()
+      atom.workspaceView.open('mavensmate://serverView', params)
+    super
+
 parsers = { 
   CommandParser: CommandParser,
   DeleteParser: DeleteParser,
@@ -317,7 +330,8 @@ parsers = {
   StartLoggingParser: StartLoggingParser,
   GetOrgWideTestCoverageParser: GetOrgWideTestCoverageParser,
   RefreshMetadataParser: RefreshMetadataParser,
-  CleanProjectParser: CleanProjectParser
+  CleanProjectParser: CleanProjectParser,
+  OpenSfdcUrlParser: OpenSfdcUrlParser
 }
 
 getCommandParser = (command, params) ->

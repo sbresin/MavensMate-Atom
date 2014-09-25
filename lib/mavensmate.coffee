@@ -46,11 +46,18 @@ atom.deserializers.add(errorsDeserializer)
 
 MavensMateAtomWatcher = require('./watchers/atom-watcher').watcher
 MavensMateTabView = null
+MavensMateServerView = null
 
 tabViewUri = 'mavensmate://tabView'
 createTabView = (params) ->
   MavensMateTabView ?= require './mavensmate-tab-view'
   tabView = new MavensMateTabView(params)
+
+serverViewUri = 'mavensmate://serverView'
+createServerView = (params) ->
+  MavensMateServerView ?= require './mavensmate-server-view'
+  serverView = new MavensMateServerView(params)
+
 
 module.exports =
 
@@ -73,8 +80,13 @@ module.exports =
     #
     # Returns nothing.
     init: -> 
+      # opens MavensMate UI in an Atom tab
       atom.workspace.registerOpener (uri, params) ->
         createTabView(params) if uri is tabViewUri
+
+      # opens Salesforce.com URL in an Atom tab
+      atom.workspace.registerOpener (uri, params) ->
+        createServerView(params) if uri is serverViewUri
 
       atom.workspaceView.mavensMateProjectInitialized ?= false
       console.log 'initing mavensmate.coffee'
@@ -229,7 +241,10 @@ module.exports =
                     payload.classes = [util.activeFileBaseName().split('.')[0]]
             if 'payloadMetadata' of command
               payload.metadata_type = command.payloadMetadata
-            console.log(payload)
+            if 'payloadType' of command
+              payload.type = command.payloadType
+            console.log 'command payload: '
+            console.log payload
             if Object.keys(payload).length != 0
               params.payload = payload
             console.log(params.payload)
