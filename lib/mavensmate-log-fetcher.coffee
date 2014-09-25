@@ -44,11 +44,20 @@ class MavensMateLogFetchedView extends View
   show: ->
     atom.workspaceView.getActivePane().activeView.append(this)
     thiz = @
-    # todo: don't hide when mouse is over?
-    setTimeout (->
-      thiz.destroy()
+    
+    # ensures log notification stays open if mouse is over it
+    # otherwise disappears after 5 seconds
+    hideTimer = null
+    thiz.bind "mouseleave", ->
+      hideTimer = setTimeout(->
+        thiz.destroy()
+        return
+      , 5000)
       return
-    ), 5000
+
+    thiz.bind "mouseenter", ->
+      clearTimeout hideTimer  if hideTimer isnt null
+      return
 
   destroy: ->
     @unsubscribe()
