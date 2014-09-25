@@ -310,15 +310,12 @@ class OpenSfdcUrlParser extends CommandParser
 
   parse: ->
     if @result.success is true
-      console.debug atom.workspace.getActiveEditor()
-      console.debug atom.workspace.getActiveEditor().getBuffer()
-      params = @result
-      params.split = 'right'
-      params.editorView = atom.workspace.getActiveEditor()
-      params.buffer = params.editorView.getBuffer()
-      atom.workspaceView.open('mavensmate://serverView', params)
+      me = @
+      setTimeout(->
+        util.openUrlInAtom(me.result)
+      , 100)
     super
-
+      
 parsers = { 
   CommandParser: CommandParser,
   DeleteParser: DeleteParser,

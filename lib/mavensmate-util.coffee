@@ -72,6 +72,12 @@ module.exports =
           selectedFilePaths.push(filePath)
       return selectedFilePaths
 
+    @openUrlInAtom: (params, split = 'right') ->
+      params.split = split
+      params.editorView = atom.workspace.getActiveEditor()
+      params.buffer = params.editorView.getBuffer()
+      atom.workspaceView.open('mavensmate://serverView', params)
+
     # returns true if autocomplete-plus is installed
     @isAutocompletePlusInstalled: ->
       atom.packages.getAvailablePackageNames().indexOf('autocomplete-plus') > -1
