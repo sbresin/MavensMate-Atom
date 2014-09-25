@@ -148,7 +148,7 @@ module.exports =
 
       # todo: need to handle the different ways users set mm_path
       # mark as executable on *nix
-      p = path.join(util.mmHome(),mm)
+      p = path.join(util.mmHome(),'mm')
       pathStat = fs.lstatSync(p)
       if pathStat.isFile()
         fs.chmodSync(p, '0100') unless util.isWindows()
