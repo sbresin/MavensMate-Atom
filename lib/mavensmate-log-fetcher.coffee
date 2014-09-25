@@ -47,7 +47,11 @@ class MavensMateLogFetchedView extends View
     
     # ensures log notification stays open if mouse is over it
     # otherwise disappears after 5 seconds
-    hideTimer = null
+    hideTimer = setTimeout(->
+      thiz.destroy()
+      return
+    , 5000)
+    
     thiz.bind "mouseleave", ->
       hideTimer = setTimeout(->
         thiz.destroy()
