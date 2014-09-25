@@ -141,7 +141,9 @@ class MavensMateCommandLineInterface
         console.log stdout
 
         jsonToParse = if stdout == '' then stderr else stdout
-        return if jsonToParse == ''
+        # return if jsonToParse == ''
+        console.debug 'jsonToParse is: '
+        console.debug jsonToParse
         jsonOutput = JSON.parse jsonToParse
         if promiseId?
           jsonOutput.promiseId = promiseId
