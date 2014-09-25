@@ -45,7 +45,7 @@ module.exports =
         uri: @uri
 
     getTitle: ->
-      'MavensMate UI'
+      @page
 
     getIconName: ->
       'browser'
