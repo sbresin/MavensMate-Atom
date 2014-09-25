@@ -2,6 +2,7 @@
 fs    = require 'fs'
 path  = require 'path'
 {Subscriber,Emitter}                = require 'emissary'
+MavensMateConfig                    = require('./mavensmate-config').config
 MavensMateEventEmitter              = require('./mavensmate-emitter').pubsub
 MavensMateLocalServer               = require './mavensmate-local-server'
 MavensMateCommandLineInterface      = require('./mavensmate-cli').mm

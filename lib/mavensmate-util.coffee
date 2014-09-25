@@ -3,6 +3,7 @@ _.str   = require 'underscore.string'
 fs      = require 'fs'
 os      = require 'os'
 path    = require 'path'
+config  = require('./mavensmate-config').config
 
 module.exports =
 
@@ -55,7 +56,7 @@ module.exports =
 
     # get the currently installed mm version
     @getMMVersion: ->
-      atom.config.get 'MavensMate-Atom.mm_installed_version'
+      config.get 'mm_installed_version'
 
     # filters the selected items against metadata extensions
     @getSelectedFiles: ->
@@ -227,7 +228,7 @@ module.exports =
 
     # set the currently installed version mm version
     @setMMVersion: (version) ->
-      atom.config.set 'MavensMate-Atom.mm_installed_version', version
+      config.set 'mm_installed_version', version
 
     # setting object to configure MavensMate for future SFDC updates
     @sfdcSettings:

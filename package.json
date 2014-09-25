@@ -49,6 +49,7 @@
     "faye":"0.8.11",
     "watchr":"2.4.11",
     "typechecker":"2.0.8"
+    "semver":"3.0.1"
   },
   "devDependencies": {
     "temp": "latest"
