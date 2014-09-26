@@ -223,7 +223,8 @@ module.exports =
         'get_active_session',
         'new_apex_overlay',
         'delete_apex_overlay',
-        'index_apex_overlays'
+        'index_apex_overlays',
+        'new_metadata'
       ]
 
     # returns platform flag (windows|osx|linux[default])
