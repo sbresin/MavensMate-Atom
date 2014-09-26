@@ -4,6 +4,7 @@ Firebase            = require 'firebase'
 Firepad             = require '../../scripts/firepad-lib'
 ShareStatusView     = require './share-status-view'
 uuid                = require 'node-uuid'
+util                = require '../mavensmate-util'
 
 module.exports =
 class MavensMateShareView extends View
@@ -47,8 +48,9 @@ class MavensMateShareView extends View
     # shareId = @miniEditor.getText()
     
     # @hash = Crypto.createHash('sha256').update(shareId).digest('base64');
-    
+    extension = util.extension(util.activeFile())
     @hash = uuid.v1()
+    @hash = @hash+'-'+extension.replace('.','')
     console.log 'hash is -->'
     console.log @hash
     @detach()
@@ -56,7 +58,7 @@ class MavensMateShareView extends View
 
     editor = atom.workspace.getActiveEditor()
     @ref.once 'value', (snapshot) =>
-      console.log 'got a value!'
+      console.log 'got Firebase ref -->'
       console.log snapshot
       options = {sv_: Firebase.ServerValue.TIMESTAMP}
       if !snapshot.val() && editor.getText() != ''
