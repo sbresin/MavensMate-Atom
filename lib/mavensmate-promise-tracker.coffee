@@ -1,5 +1,5 @@
+_           = require 'underscore-plus'
 uuid        = require 'node-uuid'
-_           = require 'cloneextend'
 emitter     = require('./mavensmate-emitter').pubsub
 
 class PromiseTracker
@@ -19,16 +19,27 @@ class PromiseTracker
   # initiates base promise, assigns id
   #
   # returns promise id  
-  enqueuePromise: () ->
+  enqueuePromise: (operation) ->
     emitter.emit 'mavensmate:promise-enqueued'
 
     promiseId = uuid.v1()
     promise = {
       id: promiseId,
       complete: false,
+      operation: operation
     }
     @tracked[promiseId] = promise
     promiseId  
+
+  hasPendingOperation: (operation) ->
+    console.debug 'is there a pending operation for: '+operation
+    me = @
+    _.each _.keys(me.tracked), (promiseId) ->
+      tracked = me.tracked[promiseId]
+      console.debug 'TRACKED: '+tracked
+      if tracked.operation == operation
+        return true
+    return false
 
   start: (promiseId, promise) ->
     emitter.emit 'mavensmate:promise-started', promiseId, promise
