@@ -65,7 +65,7 @@ class ViolationTooltip extends AnnotationTooltip
     @content().find('button.btn-primary').unbind('click');
     thiz = @
     @content().find('button.btn-primary').click ->
-      open thiz.openUrl thiz.metadata.url
+      thiz.openUrl thiz.metadata.url
     
   openUrl: (url) ->
     open url
