@@ -26,6 +26,7 @@ module.exports =
     mm_close_panel_on_successful_operation: true,
     mm_close_panel_delay: 1000,
     mm_template_location: 'remote',
+    mm_compile_check_conflicts: true,
     mm_template_source: 'joeferraro/MavensMate-Templates/master',
     mm_default_subscription: [
       'ApexClass',
