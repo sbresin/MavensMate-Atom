@@ -19,8 +19,10 @@ class MavensMateCommandLineInterface
     payload = params.payload
     promiseId = params.promiseId
 
+    operation = if args.operation then args.operation else payload.command
+
     if not promiseId?
-      promiseId = tracker.enqueuePromise()
+      promiseId = tracker.enqueuePromise(operation)
 
     # return unless atom.project.path? TODO: ensure mavensmate project
 
@@ -28,8 +30,6 @@ class MavensMateCommandLineInterface
 
     opts = [] # any command line options
     cmd = null # command to run
-
-    operation = if args.operation then args.operation else payload.command
 
     if util.useMMPython()
       if cfg.mm_mm_py_location == 'mm/mm.py'
@@ -39,7 +39,7 @@ class MavensMateCommandLineInterface
       cmd = cfg.mm_python_location
       opts.push mm_location
     else
-      mm_path = "#{util.mmHome()}/mm"
+      mm_path = path.join "#{util.mmHome()}","mm"
       mm_path += ".exe" if util.isWindows()
       cmd = mm_path
 
@@ -136,15 +136,17 @@ class MavensMateCommandLineInterface
         return
 
       childMmProcess.on "exit", (code) ->
-        # console.log "Child exited with code " + code
-        console.log stderr
-        console.log stdout
+        console.debug "mm exiting..."
+        console.debug "command args: #{opts}"
+        console.debug "exit code: #{code}"
+        console.debug "stderr: #{stderr}"
+        console.debug "stdout: #{stdout}"
 
-        jsonToParse = if stdout == '' then stderr else stdout
+        mmOutput = if stdout == '' then stderr else stdout
         # return if jsonToParse == ''
-        console.debug 'jsonToParse is: '
-        console.debug jsonToParse
-        jsonOutput = JSON.parse jsonToParse
+        # console.debug 'mm output: '
+        # console.debug mmOutput
+        jsonOutput = JSON.parse mmOutput
         if promiseId?
           jsonOutput.promiseId = promiseId
           deferred.resolve jsonOutput
