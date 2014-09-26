@@ -71,6 +71,7 @@ module.exports =
     panel: null # mavensmate status panel
     localHttpServer: null # express.js server that handles UI interaction
     mm: null # mm cli singleton
+    lastCheckpointSync: null # we store this to ensure we're only syncing checkpoints every 90 seconds
 
     constructor: ->
       console.log 'New instance of MavensMate plugin...'
@@ -281,7 +282,7 @@ module.exports =
         @handleBufferEvents editorView
         editorView.errorMarkers = new MavensMateErrorMarkers(editorView)
         # TODO: shouldn't we scope this to MavensMate projects only?
-        editorView.checkpointHandler = new MavensMateCheckpointHandler(editorView, @mm, @mmResponseHandler) # creates/deletes/displays checkpoints in gutter
+        editorView.checkpointHandler = new MavensMateCheckpointHandler(@, editorView, @mm, @mmResponseHandler) # creates/deletes/displays checkpoints in gutter
         editorView.shareView = new MavensMateShareView() # contextify npm package is incompatible right now
         editorView.joinView = new MavensMateJoinView(@mm, @mmResponseHandler) 
 
