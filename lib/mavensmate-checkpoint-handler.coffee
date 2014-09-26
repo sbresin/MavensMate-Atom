@@ -10,7 +10,7 @@ window.jQuery = $
 module.exports =
   class MavensMateCheckpointHandler
 
-    constructor: (@mavensmate, @editorView, @mm, @responseHandler) ->
+    constructor: (@editorView, @mm, @responseHandler) ->
       { @editor, @gutter } = @editorView
       # @mm = mm
       # @responseHandler = rh
@@ -95,24 +95,23 @@ module.exports =
     refreshCheckpoints: =>
       now = moment()
       
-      secondsSinceLastSync = now.diff(@mavensmate.lastCheckpointSync, 'seconds')
+      secondsSinceLastSync = now.diff(atom.mavensmate.lastCheckpointSync, 'seconds')
       
       console.debug 'last checkpoint sync: '
-      console.debug @mavensmate.lastCheckpointSync
+      console.debug atom.mavensmate.lastCheckpointSync
       console.debug 'seconds since last sync'
       console.debug secondsSinceLastSync
 
-      me = @
-      if @lastSync == null or secondsSinceLastSync >= 90
+      if atom.mavensmate.lastCheckpointSync == undefined or secondsSinceLastSync >= 90
         console.debug 'SYNCING CHECKPOINTS =====>'
         params =
           args:
             operation: 'index_apex_overlays'
             pane: atom.workspace.getActivePane()
         @mm.run(params).then (result) =>
-          me.refreshMarkers()
-          me.mavensmate.lastCheckpointSync = moment()
-          me.responseHandler params, result
+          @refreshMarkers()
+          @responseHandler params, result
+          atom.mavensmate.lastCheckpointSync = moment()
 
     toggleCheckpoint: (marker, decoration) ->
       payload = {}
