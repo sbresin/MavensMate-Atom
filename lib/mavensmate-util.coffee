@@ -224,7 +224,8 @@ module.exports =
         'new_apex_overlay',
         'delete_apex_overlay',
         'index_apex_overlays',
-        'new_metadata'
+        'new_metadata',
+        'unit_test'
       ]
 
     # returns platform flag (windows|osx|linux[default])
