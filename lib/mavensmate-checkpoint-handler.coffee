@@ -104,6 +104,7 @@ module.exports =
 
       if atom.mavensmate.lastCheckpointSync == undefined or secondsSinceLastSync >= 90
         console.debug 'SYNCING CHECKPOINTS =====>'
+        atom.mavensmate.lastCheckpointSync = moment()
         params =
           args:
             operation: 'index_apex_overlays'
@@ -111,7 +112,6 @@ module.exports =
         @mm.run(params).then (result) =>
           @refreshMarkers()
           @responseHandler params, result
-          atom.mavensmate.lastCheckpointSync = moment()
 
     toggleCheckpoint: (marker, decoration) ->
       payload = {}
