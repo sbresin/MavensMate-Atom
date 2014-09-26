@@ -2,11 +2,15 @@
 util    = require './mavensmate-util'
 emitter = require('./mavensmate-emitter').pubsub
 fs      = require 'fs'
+path    = require 'path'
+moment  = require 'moment'
 
 window.jQuery = $
 
 module.exports =
   class MavensMateCheckpointHandler
+
+    lastSync: null
 
     constructor: (@editorView, @mm, @responseHandler) ->
       { @editor, @gutter } = @editorView
@@ -38,7 +42,7 @@ module.exports =
       @clearMarkers()
 
       if atom.project.path and @currentFile?
-        fs.readFile atom.project.path + '/config/.overlays', (error, data) =>
+        fs.readFile path.join(atom.project.path, 'config', '.overlays'), (error, data) =>
           if error
             console.log error
           else
@@ -91,13 +95,25 @@ module.exports =
           @toggleCheckpoint marked.marker, marked.decoration
 
     refreshCheckpoints: =>
-      params =
-        args:
-          operation: 'index_apex_overlays'
-          pane: atom.workspace.getActivePane()
-      @mm.run(params).then (result) =>
-        @refreshMarkers()
-        @responseHandler params, result
+      now = moment()
+      
+      secondsSinceLastSync = now.diff(@lastSync, 'seconds')
+      
+      console.debug 'last checkpoint sync: '
+      console.debug @lastSync
+      console.debug 'seconds since last sync'
+      console.debug secondsSinceLastSync
+
+      if @lastSync == null or secondsSinceLastSync >= 90
+        console.debug 'SYNCING CHECKPOINTS =====>'
+        params =
+          args:
+            operation: 'index_apex_overlays'
+            pane: atom.workspace.getActivePane()
+        @mm.run(params).then (result) =>
+          @refreshMarkers()
+          @responseHandler params, result
+          @lastSync = moment()
 
     toggleCheckpoint: (marker, decoration) ->
       payload = {}
