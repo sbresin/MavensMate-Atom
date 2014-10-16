@@ -39,13 +39,14 @@ class MavensMateCommandLineInterface
       cmd = cfg.mm_python_location
       opts.push mm_location
     else
-      if not util.isStandardMmConfiguration()
-        mm_path = path.join "#{util.mmHome()}","mm","mm"
+      if util.isStandardMmConfiguration()
+        mm_path = path.join(util.mmHome(),'mm','mm')
       else
         mm_path = util.mmHome()
 
       # mm_path = path.join "#{util.mmHome()}","mm"
       mm_path += ".exe" if util.isWindows()
+      console.debug mm_path
       cmd = mm_path
 
     opts.push operation

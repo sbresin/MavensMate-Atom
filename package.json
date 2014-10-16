@@ -33,7 +33,6 @@
     "underscore-plus": "1.x",
     "underscore.string": "2.3.x",
     "loophole": "1.0.0",
-    "adm-zip": "^0.4.4",
     "request": "^2.44.0",
     "tar": "^1.0.1",
     "moment": "2.8.3",
@@ -49,7 +48,8 @@
     "faye":"0.8.11",
     "watchr":"2.4.11",
     "typechecker":"2.0.8",
-    "semver":"3.0.1"
+    "semver":"3.0.1",
+    "unzip":"latest"
   },
   "devDependencies": {
     "temp": "latest"

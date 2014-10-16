@@ -1,4 +1,3 @@
-AdmZip  = require 'adm-zip'
 fs      = require 'fs'
 path    = require 'path'
 Q       = require 'q'
@@ -9,6 +8,8 @@ util    = require './mavensmate-util'
 semver  = require 'semver'
 config  = require('./mavensmate-config').config
 moment  = require 'moment'
+{allowUnsafeEval, allowUnsafeNewFunction} = require 'loophole'
+unzip = allowUnsafeNewFunction -> allowUnsafeEval -> require 'unzip'
 
 module.exports = 
 
@@ -24,6 +25,8 @@ module.exports =
     # install params
     _targetVersion: null
     _force: null
+
+    _betaUser: false
 
     # promise
     _deferred: null
@@ -45,7 +48,10 @@ module.exports =
     constructor: (opts = {}) ->
       
       # set defaults
-      opts.targetVersion ||= @constructor.V_LATEST
+      if atom.config.get('MavensMate-Atom.mm_beta_user')
+        opts.targetVersion ||= @constructor.V_PRE_RELEASE
+      else
+        opts.targetVersion ||= @constructor.V_LATEST
       opts.force ||= false
 
       @_targetVersion = opts.targetVersion
@@ -82,7 +88,7 @@ module.exports =
       if error
         @_errorHandler "Error getting releases data, error: #{error}"
         return
-        
+       
       releaseData = @_findRelease releasesData, @_targetVersion
 
       # bail if we couldn't find the desired release
@@ -137,12 +143,41 @@ module.exports =
 
       # assuming if it's not a tar ball it's a zip
       else
-        zip = new AdmZip downloadPath
-        zip.extractAllTo extractPath, true # overwrite
-        @_extractHandler null, downloadPath
+        # zip = new AdmZip downloadPath
+        # zip.extractAllTo extractPath, true # overwrite
+        # @_extractHandler null, downloadPath
+        thiz = @
+
+        fs.createReadStream(downloadPath)
+          .pipe(unzip.Extract({ path: extractPath }))
+          .on "error", (error) =>
+            thiz._extractHandler error, downloadPath
+          .on "close", () =>
+            thiz._extractHandler null, downloadPath
+
+        # thiz = @
+        # unzipper = new DecompressZip(downloadPath)
+        # unzipper.on "error", (err) ->
+        #   console.log "Caught an error"
+        #   console.log err
+        #   thiz._extractHandler err, downloadPath
+
+        # unzipper.on "extract", (log) ->
+        #   console.log "Finished extracting"
+        #   thiz._extractHandler null, downloadPath
+
+        # unzipper.extract
+        #   path: extractPath
+        #   filter: (file) ->
+        #     file.type isnt "SymbolicLink"
+
 
     # clean up download, and report errors and success
     _extractHandler: (error, downloadPath) =>
+      console.debug 'extract handler -->'
+      console.log error
+      console.log downloadPath
+
       # clean up download as long as we're not using the spec version
       if downloadPath and downloadPath.indexOf('spec') == -1
         fs.unlink downloadPath 
@@ -157,7 +192,7 @@ module.exports =
       p = path.join(util.mmHome(),'mm', 'mm')
       pathStat = fs.lstatSync(p)
       if pathStat.isFile()
-        fs.chmodSync(p, '0100') unless util.isWindows()
+        fs.chmodSync(p, '755') unless util.isWindows()
 
       # update current version and report success 
       util.setMMVersion @_versionToInstall
