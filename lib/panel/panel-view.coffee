@@ -110,9 +110,9 @@ class MavensMatePanelView extends View
       console.log result
       # we do a double check here to ensure we're not doing anything with panel exempt commands
       # todo: ensure exempt or skippanel commands are not handled here
-      if params.payload.command?
+      if params.payload? and params.payload.command?
         operation = params.payload.command
-      else if params.args.operation?
+      else if params.args? and params.args.operation?
         operation = params.args.operation
 
       console.log 'operation is -=-[-=-=-=-=->'
