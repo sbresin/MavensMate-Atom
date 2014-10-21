@@ -1,4 +1,3 @@
-AdmZip  = require 'adm-zip'
 fs      = require 'fs'
 path    = require 'path'
 Q       = require 'q'
@@ -6,6 +5,11 @@ request = require 'request'
 tar     = require 'tar'
 temp    = require 'temp'
 util    = require './mavensmate-util'
+semver  = require 'semver'
+config  = require('./mavensmate-config').config
+moment  = require 'moment'
+{allowUnsafeEval, allowUnsafeNewFunction} = require 'loophole'
+unzip = allowUnsafeNewFunction -> allowUnsafeEval -> require 'unzip'
 
 module.exports = 
 
@@ -22,8 +26,10 @@ module.exports =
     _targetVersion: null
     _force: null
 
+    _betaUser: false
+
     # promise
-    _defferred: null
+    _deferred: null
 
     # result:
     _result: {} 
@@ -42,7 +48,10 @@ module.exports =
     constructor: (opts = {}) ->
       
       # set defaults
-      opts.targetVersion ||= @constructor.V_LATEST
+      if atom.config.get('MavensMate-Atom.mm_beta_user')
+        opts.targetVersion ||= @constructor.V_PRE_RELEASE
+      else
+        opts.targetVersion ||= @constructor.V_LATEST
       opts.force ||= false
 
       @_targetVersion = opts.targetVersion
@@ -50,18 +59,24 @@ module.exports =
       console.debug "constructor launched, targetVersion: #{@_targetVersion}, force: #{@_force}"
 
       # initialize return
-      @_result.initialVersion = util.getMMVersion() or null
+      @_result.initialVersion = util.getMMVersion() or null # todo: move to mavensmate.json
       @_result.opts = opts
       @_result.finalVersion = util.getMMVersion() or null
       @_result.newVersionInstalled = false
       
     # starts install process, returns promise
     install: () ->
-      @_defferred = Q.defer()
+      @_deferred = Q.defer()
 
-      @_getReleases @constructor._RELEASES_URL, @_getReleasesHandler
+      if not util.isStandardMmConfiguration()
+        if fs.existsSync(util.mmHome())
+          @_deferred.resolve true
+        else
+          @_errorHandler "Error: invalid custom mm configuration"
+      else
+        @_getReleases @constructor._RELEASES_URL, @_getReleasesHandler
 
-      @_defferred.promise
+      @_deferred.promise
 
     # continues installation after retrieving releases data from github
     # (RC) there are probably better ways to organize this, but still getting
@@ -73,7 +88,7 @@ module.exports =
       if error
         @_errorHandler "Error getting releases data, error: #{error}"
         return
-        
+       
       releaseData = @_findRelease releasesData, @_targetVersion
 
       # bail if we couldn't find the desired release
@@ -86,7 +101,11 @@ module.exports =
       # - force install requested
       # - mm isn't installed yet
       # - version to install is newer than currently installed version
-      @_versionToInstall = @_parseVersion releaseData.name 
+      @_versionToInstall = @_parseVersion releaseData.tag_name 
+      console.debug 'version to install is: '
+      console.debug @_versionToInstall
+      console.debug 'current version is: '
+      console.debug util.getMMVersion()
       if @_force or not util.isMMInstalled() or @_versionCompare(@_versionToInstall, util.getMMVersion()) == 1
         downloadURL = @_findDownloadURL releaseData, util.platform()
         
@@ -112,7 +131,7 @@ module.exports =
 
       # RC-TODO: figure out what happens if package upgrades, need to figure 
       # out whether this install folder works ...
-      extractPath = util.mmPackageHome()
+      extractPath = util.mmHome()
 
       if util.extension(downloadPath) == '.tar.gz'
         fs.createReadStream(downloadPath)
@@ -124,12 +143,41 @@ module.exports =
 
       # assuming if it's not a tar ball it's a zip
       else
-        zip = new AdmZip downloadPath
-        zip.extractAllTo extractPath, true # overwrite
-        @_extractHandler null, downloadPath
+        # zip = new AdmZip downloadPath
+        # zip.extractAllTo extractPath, true # overwrite
+        # @_extractHandler null, downloadPath
+        thiz = @
+
+        fs.createReadStream(downloadPath)
+          .pipe(unzip.Extract({ path: extractPath }))
+          .on "error", (error) =>
+            thiz._extractHandler error, downloadPath
+          .on "close", () =>
+            thiz._extractHandler null, downloadPath
+
+        # thiz = @
+        # unzipper = new DecompressZip(downloadPath)
+        # unzipper.on "error", (err) ->
+        #   console.log "Caught an error"
+        #   console.log err
+        #   thiz._extractHandler err, downloadPath
+
+        # unzipper.on "extract", (log) ->
+        #   console.log "Finished extracting"
+        #   thiz._extractHandler null, downloadPath
+
+        # unzipper.extract
+        #   path: extractPath
+        #   filter: (file) ->
+        #     file.type isnt "SymbolicLink"
+
 
     # clean up download, and report errors and success
     _extractHandler: (error, downloadPath) =>
+      console.debug 'extract handler -->'
+      console.log error
+      console.log downloadPath
+
       # clean up download as long as we're not using the spec version
       if downloadPath and downloadPath.indexOf('spec') == -1
         fs.unlink downloadPath 
@@ -139,8 +187,12 @@ module.exports =
         @_errorHandler "Error extracting mm. Error: #{error}"
         return
 
+      # todo: need to handle the different ways users set mm_path
       # mark as executable on *nix
-      fs.chmodSync("#{util.mmHome()}/mm", '0100') unless util.isWindows()
+      p = path.join(util.mmHome(),'mm', 'mm')
+      pathStat = fs.lstatSync(p)
+      if pathStat.isFile()
+        fs.chmodSync(p, '755') unless util.isWindows()
 
       # update current version and report success 
       util.setMMVersion @_versionToInstall
@@ -151,17 +203,17 @@ module.exports =
       @_result.finalVersion = util.getMMVersion()
       @_result.newVersionInstalled = newVersionInstalled
       console.debug "Installation completed successfully. Result: #{JSON.stringify @_result}"
-      @_defferred.resolve @_result
+      @_deferred.resolve @_result
 
     # logs error to console and rejects the promise
     _errorHandler: (errorMessage) =>
       console.error errorMessage
-      @_defferred.reject new Error(errorMessage)
+      @_deferred.reject new Error(errorMessage)
 
     # downloads the target url then hands off to callback
     _download: (url, callback) =>
       # RC-TODO: change to use temp directory
-      downloadPath = path.join temp.mkDirSync(), 'mm.zip'
+      downloadPath = path.join temp.mkdirSync(), 'mm.zip'
       downloadStream = fs.createWriteStream downloadPath
       r = request(url).pipe(downloadStream)
       r.on 'error', (err) ->
@@ -171,6 +223,23 @@ module.exports =
 
     # get the latest release data from github and pass on to the callback
     _getReleases: (url, callback) ->
+      cachedReleases = config.get('mm_releases')
+
+      # if we have cached releases, check the last time we cached them
+      # if the last time we cached releases is less than 60 minutes, use the cached releases
+      # otherwise, go to the github server
+      # we do this to prevent rate limiting from github
+      if cachedReleases? and cachedReleases.date? and cachedReleases.releases?
+        now = moment()
+        cacheDate = moment(cachedReleases.date)
+        minutesSinceCached = now.diff(cacheDate, 'minutes')
+          
+        console.debug 'minutes since last releases cache: '+minutesSinceCached
+
+        if minutesSinceCached < 60
+          callback null, cachedReleases.releases 
+          return
+
       request { 
         url: url, 
         json: true,
@@ -178,6 +247,10 @@ module.exports =
           'User-Agent': 'request'
         }
       }, (err, resp, body) ->
+        settingValue =
+          date: moment()
+          releases: body
+        config.set('mm_releases', settingValue)
         callback err, body      
 
     # locates asset in release data for specified platform
@@ -198,7 +271,7 @@ module.exports =
       latestVersion = null
       # could probably do this a bit cleaner with a map/filter/sort combo
       for releaseData in releasesData
-        version = @_parseVersion releaseData.name
+        version = @_parseVersion releaseData.tag_name
         # loop for the highest version for latest or pre-release
         if targetRelease == @constructor.V_LATEST or targetRelease == @constructor.V_PRE_RELEASE
           if targetRelease == @constructor.V_PRE_RELEASE or releaseData.prerelease == false
@@ -219,20 +292,9 @@ module.exports =
 
     # returns 1 if left version is greater than right version, 0 if equal
     # -1 if the left version is less than the right version
-    # expects version to be an array, e.g. v0.2.4 => [0,2,4]
     _versionCompare: (leftVersion, rightVersion) ->
-      if leftVersion[0] > rightVersion[0]
-        1
-      else if leftVersion[0] == rightVersion[0] and leftVersion[1] > rightVersion[1]
-        1
-      else if leftVersion[1] == rightVersion[1] and leftVersion[2] > rightVersion[2]
-        1
-      else if leftVersion[2] == rightVersion[2]
-        0
-      else
-        -1
+      semver.compare(leftVersion, rightVersion)
 
-    # parse a release version from the github data into an array 
-    # of major/minor/point versions
+    # parse a release version from the github data
     _parseVersion: (rawVersion) ->
-      rawVersion.replace('v','').split '.'
+      return semver.valid(rawVersion) 
