@@ -14,3 +14,8 @@ Cheers
 -Joe
 
 ![Alt text](/screenshots/1.png?raw=true "MavensMate for Atom")
+
+//"firepad": "1.0.0",
+//"firebase": "~1.0.5",
+//"lodash":"2.4.1",
+//"color":"0.7.1"
