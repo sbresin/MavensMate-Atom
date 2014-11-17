@@ -15,7 +15,7 @@ class MavensMateAtomWatcher
 
   # watches editor font size, emits event when it changes so that mavensmate views can update accordingly
   watchFontSize: ->
-    newFontSize = jQuery("div.item-views > div.editor > div.editor-contents").css("font-size")
+    newFontSize = jQuery("div.item-views > .editor > div.editor-contents").css("font-size")
     if newFontSize != atom.mavensmate.currentFontSize
       atom.mavensmate.currentFontSize = newFontSize
       emitter.emit 'mavensmate:font-size-changed', atom.mavensmate.currentFontSize

@@ -37,9 +37,9 @@ module.exports =
         @iframe outlet: 'iframe', width: '100%', height: '100%', class: 'native-key-bindings', sandbox: 'allow-same-origin allow-top-navigation allow-forms allow-scripts', style: 'border:none;'
 
     serialize: ->
-        deserializer: 'MavensMateServerView'
-        version: 1
-        uri: @uri
+      deserializer: 'MavensMateServerView'
+      version: 1
+      uri: @uri
 
     getTitle: ->
       @page

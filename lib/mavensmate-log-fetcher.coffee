@@ -1,6 +1,7 @@
-{View, EditorView} = require 'atom'
-MmCli = require('./mavensmate-cli').mm
-Repeat = require 'repeat'
+{View, EditorView}      = require 'atom'
+MmCli                   = require('./mavensmate-cli').mm
+Repeat                  = require 'repeat'
+mavensMateAdapter       = require('./mavensmate-core-adapter')
 
 class MavensMateLogFetcher
   
@@ -8,17 +9,18 @@ class MavensMateLogFetcher
     params =
       skipPanel: true
       args:
-        operation: 'download_log'
+        operation: 'download-log'
       payload:
-        log_id: logId
-    MmCli.run(params)
-    .then (result) ->
-      if result.success and result.log?
-        fetchedView = new MavensMateLogFetchedView(result)
-        fetchedView.show()
-    .catch (error) ->
-      console.log 'oh no an error'
-      console.log error
+        logId: logId
+
+    mavensMateAdapter.executeCommand(params)
+      .then (res) ->
+        if res.result
+          fetchedView = new MavensMateLogFetchedView(res.result)
+          fetchedView.show()
+      .catch (error) ->
+        console.log 'oh no an error'
+        console.log error
 
 class MavensMateLogFetchedView extends View
   @content: ->
@@ -27,19 +29,18 @@ class MavensMateLogFetchedView extends View
       @span 'New Debug Log', class: 'message'
       @button 'Open Log', class: 'btn btn-success', style: 'float:right;', outlet: 'openLog'
 
-  constructor: (@result) ->
+  constructor: (path) ->
     super
     console.log 'constructing view --->'
-    @log = @result.log
-    #@openLog.hide()
+    @path = path
 
   initialize: ->
     # when open log button is clicked, log is opened in atom and flash alert is hidden
     thiz = @
     @openLog.click ->
-      atom.workspaceView.open(thiz.log.path)
+      atom.workspaceView.open(thiz.path)
       .then (result) ->
-        thiz.destroy()  
+        thiz.destroy()
 
   show: ->
     atom.workspaceView.getActivePane().activeView.append(this)

@@ -24,13 +24,18 @@ class StreamingClient
   setup: ->
     # todo: set _endpoint & headers instead of instantiating new client if already exists?
     if atom.project.session? 
-      baseUrl = util.baseSalesforceUrl(atom.project.session.server_url)
+      baseUrl = util.baseSalesforceUrl(atom.project.session.instanceUrl)
+      accessToken = atom.project.session.accessToken
+
+      console.log(baseUrl)
+      console.log(accessToken)
+
       @client = new Faye.Client(baseUrl+'/cometd/'+@api_version);
-      @client.setHeader('Authorization', 'Bearer '+atom.project.session.sid);
+      @client.setHeader('Authorization', 'Bearer '+accessToken);
       
       @client.subscribe "/systemTopic/Logging", (message) ->
-        # console.log "\n\n\n\n\nGot a LOG!!!!! "
-        # console.log message
+        console.log "\n\n\n\n\nLog streamed -->"
+        console.log message
         logFetcher.goFetch(message.sobject.Id)
         return
 

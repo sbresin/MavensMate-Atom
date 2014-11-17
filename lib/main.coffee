@@ -37,6 +37,9 @@ module.exports =
       'CustomObject',
       'Profile'
     ],
+    mm_atom_exec_osx: '/usr/local/bin/atom',
+    mm_atom_exec_win: '',
+    mm_atom_exec_linux: '',
     mm_ignore_managed_metadata: true,
     mm_archive_deployments: true,
     mm_use_org_metadata_for_completions: true,

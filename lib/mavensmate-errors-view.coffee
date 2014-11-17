@@ -32,8 +32,8 @@ class MavensMateErrorsView extends ScrollView
       @div class: 'panel-header', =>
         @div class: 'container-fluid', =>
           @div class: 'row', style: 'padding:10px 0px', =>
-            @div class: 'col-md-6', =>              
-              @h3 'Compile Errors', outlet: 'myHeader', class: 'clearfix'                              
+            @div class: 'col-md-6', =>
+              @h3 'Compile Errors', outlet: 'myHeader', class: 'clearfix'
       @div class: 'panel-body', =>
         @div class: 'container-fluid', =>
           @div class: 'row', =>
@@ -44,7 +44,7 @@ class MavensMateErrorsView extends ScrollView
                     @td 'Detail'
                     @td 'Go To Error'
                     @td 'Search', colspan: 2
-                @tbody outlet: 'viewErrorsTableBody', =>
+                @tbody outlet: 'viewErrorsTableBody', ->
                 @tfoot =>
                   @tr =>
                     @td colspan: 4, =>
@@ -77,10 +77,10 @@ class MavensMateErrorsView extends ScrollView
       if command in ['clean_project', 'compile_project']
         @running['all'][promiseId] = params
       else
-        if params.payload.files?
+        if params.payload? and params.payload.files?
           for runningFile in params.payload.files
             @running[runningFile] ?= {}
-            @running[runningFile][promiseId] = params      
+            @running[runningFile][promiseId] = params
 
   removeFinishedFiles: (params, promiseId) ->
     command = params.args.operation
@@ -100,7 +100,7 @@ class MavensMateErrorsView extends ScrollView
           return true
     return false
 
-  isFileRunning: (filePath)->   
+  isFileRunning: (filePath)->
     filePromises = @running['all']
     if filePromises? and Object.keys(filePromises).length > 0
       return true
@@ -130,9 +130,9 @@ class MavensMateErrorsView extends ScrollView
     @viewErrorsLabel.html(numberOfErrors + ' ' + pluralize('error', numberOfErrors))
 
     if filesRunning == false
-      @viewErrorsIcon.removeClass 'fa-spin'      
+      @viewErrorsIcon.removeClass 'fa-spin'
     else
-      @viewErrorsIcon.addClass 'fa-spin'      
+      @viewErrorsIcon.addClass 'fa-spin'
 
 class MavensMateErrorsViewItem extends View
   constructor: (error) ->
@@ -156,18 +156,18 @@ class MavensMateErrorsViewItem extends View
 
   @content: ->
     @tr =>
-      @td =>          
+      @td =>
         @div 'Sample error information', outlet: 'errorDetails'
       @td =>
-        @button class: 'btn btn-sm btn-default btn-errorItem', outlet: 'btnGoToError', =>            
+        @button class: 'btn btn-sm btn-default btn-errorItem', outlet: 'btnGoToError', =>
           @span 'Goto the error', outlet: 'goToErrorLabel', style: 'display:inline-block;padding-left:5px;'
           @i class: 'fa fa-bug', outlet: 'goToIcon'
       @td =>
-        @button class: 'btn btn-sm btn-default btn-errorItem', outlet: 'btnGoogleError', =>            
+        @button class: 'btn btn-sm btn-default btn-errorItem', outlet: 'btnGoogleError', =>
           @span 'Search Google', outlet: 'viewErrorsLabel', style: 'display:inline-block;padding-left:5px;'
           @i class: 'fa fa-search'
       @td =>
-        @button class: 'btn btn-sm btn-default btn-errorItem', outlet: 'btnSalesforceError', =>            
+        @button class: 'btn btn-sm btn-default btn-errorItem', outlet: 'btnSalesforceError', =>
           @span 'Search Salesforce', style: 'display:inline-block;padding-left:5px;'
           @i class: 'fa fa-cloud'
 

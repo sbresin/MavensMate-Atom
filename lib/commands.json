@@ -1,11 +1,11 @@
 {
     "projectCommands" : {
         "compile": {
-            "operation": "compile",
+            "operation": "compile-metadata",
             "payloadFiles": "active"
         },
         "compile-project": {
-            "operation": "compile_project",
+            "operation": "compile-project",
             "confirm": {
                 "message": "Confirm Compile Project",
                 "detailedMessage": "Would you like to compile the project?",
@@ -13,30 +13,22 @@
             }
         },
         "compile-selected-metadata": {
-            "operation": "compile",
+            "operation": "compile-metadata",
             "payloadFiles": "selected"
         },
         "clean-project": {
-            "operation": "clean_project",
+            "operation": "clean-project",
             "confirm": {
               "message": "Confirm Clean Project",
               "detailedMessage": "Are you sure you want to clean this project? All local (non-server) files will be deleted and your project will be refreshed from the server.",
               "buttons": ["Yes", "No"]
             }
         },
-        "reset-metadata-container": {
-            "operation": "reset_metadata_container",
-            "confirm": {
-              "message": "Reset Metadata Container",
-              "detailedMessage": "Are you sure you want to reset the metadata container?",
-              "buttons": ["Yes", "No"]
-            }
-        },
         "index-metadata": {
-            "operation": "index_metadata"
+            "operation": "index-metadata"
         },
         "refresh-selected-metadata": {
-            "operation": "refresh",
+            "operation": "refresh-metadata",
             "payloadFiles": "selected",
             "confirm": {
               "message": "Refresh Selected Metadata",
@@ -45,94 +37,94 @@
             }            
         },
         "run-all-tests": {
-            "operation": "run_all_tests"
+            "operation": "run-tests"
         },
         "run-tests": {
-            "operation": "test_async",
+            "operation": "run-tests",
             "payloadClasses": "activeBaseName"
         },
         "edit-project": {
-            "operation": "edit_project",
+            "operation": "edit-project",
             "ui": true,
+            "url":"project/edit",
             "view" : "tab"
         },
         "upgrade-project": {
-            "operation": "upgrade_project",
-            "ui": true
+            "operation": "upgrade-project",
+            "ui": true,
+            "url":"project/upgrade"
         },
         "new-apex-class": {
-            "operation": "new_metadata",
+            "operation": "new-metadata",
             "ui": true,
+            "url":"metadata/new?type=ApexClass",
             "payloadMetadata": "ApexClass"
         },
         "new-apex-trigger": {
-            "operation": "new_metadata",
+            "operation": "new-metadata",
             "ui": true,
+            "url":"metadata/new?type=ApexTrigger",
             "payloadMetadata": "ApexTrigger"
         },
         "new-visualforce-page": {
-            "operation": "new_metadata",
+            "operation": "new-metadata",
             "ui": true,
+            "url":"metadata/new?type=ApexPage",
             "payloadMetadata": "ApexPage"
         },
         "new-visualforce-component": {
-            "operation": "new_metadata",
+            "operation": "new-metadata",
             "ui": true,
+            "url":"metadata/new?type=ApexComponent",
             "payloadMetadata": "ApexComponent"
         },
         "run-apex-unit-tests": {
-            "operation": "unit_test",
+            "operation": "test",
             "ui": true,
+            "url":"test/new",
             "view": "tab"
         },
         "deploy-to-server": {
             "operation": "deploy",
+            "url":"deploy/new",
             "ui": true
         },
         "execute-apex": {
-            "operation": "execute_apex",
+            "operation": "execute-apex",
             "ui": true,
             "view" : "tab"
         },
         "new-project-from-existing-directory": {
-            "operation": "new_project_from_existing_directory",
+            "operation": "new-project-from-existing-directory",
             "ui": true
         },
         "new-trace-flag": {
-            "operation": "debug_log",
-            "ui": true
-        },
-        "connect-to-github": {
-            "operation": "github",
-            "ui": true
-        },
-        "project-health-check": {
-            "operation": "project_health_check",
+            "operation": "new-trace-flag",
             "ui": true
         },
         "start-logging": {
-            "operation": "start_logging"
+            "operation": "start-logging"
         },
         "stop-logging": {
-            "operation": "stop_logging"
+            "operation": "stop-logging"
         },
         "fetch-logs": {
-            "operation": "fetch_logs"
+            "operation": "fetch-logs"
         },
         "fetch-checkpoints": {
-            "operation": "fetch_checkpoints"
+            "operation": "fetch-checkpoints"
         },
         "refresh-checkpoints": {
-            "operation": "index_apex_overlays"
+            "operation": "index-overlays"
         },
         "refresh-apex-symbols": {
-            "operation": "index_apex"
+            "operation": "index-apex"
         },
         "get-org-test-coverage": {
-            "operation": "get_org_wide_test_coverage"
+            "operation": "get-coverage"
         },
         "visualforce-live-preview": {
-            "operation": "open_sfdc_url",
+            "operation": "open-sfdc-url",
             "payloadFiles": "active",
             "payloadType": "preview"
         }

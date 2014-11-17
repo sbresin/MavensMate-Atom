@@ -71,31 +71,31 @@ module.exports =
       # console.log params
       if isUi
         switch @command
-          when 'new_project'
+          when 'new-project'
             msg = 'Opening new project panel'
-          when 'edit_project'
+          when 'edit-project'
             msg = 'Opening edit project panel'
           else 
             msg = 'mm ' + @command
       else
         switch @command
-          when 'new_project'
+          when 'new-project'
             msg =  'Creating new project'
-          when 'compile_project'
+          when 'compile-project'
             msg = 'Compiling project'
-          when 'index_metadata'
+          when 'index-metadata'
             msg = 'Indexing metadata'
-          when 'compile'
+          when 'compile-metadata'
             if params.payload.files? and params.payload.files.length is 1
               msg = 'Compiling '+params.payload.files[0].split(/[\\/]/).pop() # extract base name
             else
               msg = 'Compiling selected metadata'
-          when 'delete'
+          when 'delete-metadata'
             if params.payload.files? and params.payload.files.length is 1
               msg = 'Deleting ' + params.payload.files[0].split(/[\\/]/).pop() # extract base name
             else
               msg = 'Deleting selected metadata'
-          when 'refresh'
+          when 'refresh-metadata'
             if params.payload.files? and params.payload.files.length is 1
               msg = 'Refreshing ' + params.payload.files[0].split(/[\\/]/).pop() # extract base name
             else

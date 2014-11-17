@@ -1,11 +1,11 @@
 {$, $$, $$$, EditorView, View} = require 'atom'
 fs    = require 'fs'
 path  = require 'path'
-{Subscriber,Emitter}                = require 'emissary'
+{Subscriber,Emitter} = require 'emissary'
+# mavensmate                          = require 'mavensmate'
 MavensMateConfig                    = require('./mavensmate-config').config
 MavensMateEventEmitter              = require('./mavensmate-emitter').pubsub
-MavensMateLocalServer               = require './mavensmate-local-server'
-MavensMateCommandLineInterface      = require('./mavensmate-cli').mm
+MavensMateCoreAdapter               = require('./mavensmate-core-adapter')
 MavensMateProjectListView           = require './mavensmate-project-list-view'
 MavensMateErrorMarkers              = require './mavensmate-error-markers'
 MavensMateCheckpointHandler         = require './mavensmate-checkpoint-handler'
@@ -13,8 +13,6 @@ MavensMatePanelView                 = require('./panel/panel-view').panel
 MavensMateStatusBarView             = require './mavensmate-status-bar-view'
 MavensMateShareView                 = require './share/share-view'
 MavensMateJoinView                  = require './share/join-view'
-MavensMateAppView                   = require './mavensmate-app-view'
-MavensMateModalView                 = require './mavensmate-modal-view'
 FileSystemWatcher                   = require './watchers/fs-watcher'
 StreamingClient                     = require './mavensmate-streaming-client'
 CodeHelperMetadata                  = require './code-helper/metadata'
@@ -24,7 +22,6 @@ util                                = require './mavensmate-util'
 emitter                             = require('./mavensmate-emitter').pubsub
 MavensMateCodeAssistProviders       = require './mavensmate-code-assist-providers'
 commands                            = require './commands.json'
-MMInstaller                         = require './mavensmate-installer'
 {exec}                              = require 'child_process'
 ErrorsView                          = require './mavensmate-errors-view'
 atom.mavensmate = {}
@@ -34,7 +31,7 @@ require '../scripts/bootstrap'
 
 errorsView = null
 
-createErrorsView = (params) ->  
+createErrorsView = (params) ->
   errorsView = new ErrorsView(params)
 
 errorsDeserializer =
@@ -70,7 +67,8 @@ module.exports =
 
     panel: null # mavensmate status panel
     localHttpServer: null # express.js server that handles UI interaction
-    mm: null # mm cli singleton
+    mavensmateAdapter: null
+    serverPort: null
 
     constructor: ->
       console.log 'New instance of MavensMate plugin...'
@@ -79,7 +77,9 @@ module.exports =
     # Activates the package, starts the local server, instantiates the views, etc.
     #
     # Returns nothing.
-    init: -> 
+    init: ->
+      self = @
+
       # opens MavensMate UI in an Atom tab
       atom.workspace.registerOpener (uri, params) ->
         createTabView(params) if uri is tabViewUri
@@ -90,35 +90,25 @@ module.exports =
 
       atom.workspaceView.mavensMateProjectInitialized ?= false
       console.log 'initing mavensmate.coffee'
-      #@promiseTracker = new MavensMatePromiseTracker()
+      #@promiseTracker = new MavensMatePromiseTracker()     
 
-      # download latest version of release if needed
-      @mm_installer = new MMInstaller()
-      @mm_installer.install()
-
-      # instantiate mm tool
-      @mm = MavensMateCommandLineInterface
-
+      # instantiate client interface
+      @mavensmateAdapter = MavensMateCoreAdapter
+      @mavensmateAdapter.initialize()
+      atom.mavensmate.adapter = @mavensmateAdapter
       @projectCommands = commands.projectCommands
 
-      # start the local express.js server, returns a promise, set the server port that was randomly selected
-      console.log 'initing express.js'
-      @localHttpServer = new MavensMateLocalServer()
-      @localHttpServer.start().then (result) =>
-        atom.config.set('MavensMate-Atom.mm_server_port', result)
-
       # instantiate mavensmate panel, show it
-      @panel = MavensMatePanelView    
+      @panel = MavensMatePanelView
 
-      atom.workspaceView.command "mavensmate:new-project", =>
-        params =
-          args:
-            operation: 'new_project'
-            ui: true
-            #pane: atom.workspace.getActivePane().splitLeft()
-            pane: atom.workspace.getActivePane()
-        @mm.run(params).then (result) =>
-          @mmResponseHandler(params, result)
+      atom.workspaceView.command "mavensmate:new-project", ->
+        params = {}
+        params.args = {}
+        params.args.operation = 'new-project'
+        params.args.url = 'project/new'
+        self.mavensmateAdapter.openUI(params)
+        # modalView = new MavensMateModalView 'new-project'
+        # modalView.appendTo document.body
 
       # presents a list of projects in a select list
       atom.workspaceView.command "mavensmate:open-project", =>
@@ -134,7 +124,7 @@ module.exports =
       atom.workspace.registerOpener (uri) ->
         errorsView if uri is util.uris.errorsView
 
-      atom.workspaceView.command 'mavensmate:view-errors', =>
+      atom.workspaceView.command 'mavensmate:view-errors', ->
         atom.workspaceView.open(util.uris.errorsView)
 
     onProjectPathChanged: ->
@@ -147,6 +137,7 @@ module.exports =
 
     initializeProject: ->
       @panel.toggle()
+      self = @
 
       # hide .overlays from fuzzyfinder (cmd+t) file search
       fuzzyFinderIgnoredNamesSetting = atom.config.get('fuzzy-finder.ignoredNames')
@@ -161,6 +152,13 @@ module.exports =
       atom.project.errors = {}
       atom.project.checkpointCount = 0
       if atom.project.path
+        console.log(atom.project.path)
+        self.mavensmateAdapter.client.setProject atom.project.path, (err, response) ->
+          console.log('set the project!')
+          console.log(err)
+          console.log(response)
+          return
+
         try
           data = fs.readFileSync path.join(atom.project.path, 'config','.overlays')
           overlays = JSON.parse data
@@ -192,7 +190,7 @@ module.exports =
           filePaths = [util.activeFile()]
         params =
           args:
-            operation: 'delete'
+            operation: 'delete-metadata'
             pane: atom.workspace.getActivePane()
           payload:
             files: filePaths
@@ -203,15 +201,16 @@ module.exports =
           #     so that we can simulate button clicks properly in the spec
           buttons: ["Cancel", "Delete"]
         if answer == 1 # 1 => Delete
-          @mm.run(params).then (result) =>
-            @mmResponseHandler(params, result)
+          @mavensmateAdapter.executeCommand(params)
+            .then (result) =>
+              @mmResponseHandler(params, result)
 
 
       # attach commands to workspace based on commands.json
       for commandName, command of @projectCommands
         resolvedName = 'mavensmate:' + commandName
 
-        atom.workspaceView.command resolvedName, (options) =>          
+        atom.workspaceView.command resolvedName, (options) =>
           commandName = options.type.split(':').pop()
           command = @projectCommands[commandName]
           if command?
@@ -224,6 +223,8 @@ module.exports =
               params.args.ui = command.ui
             if 'view' of command
               params.args.view = command.view
+            if 'url' of command
+              params.args.url = command.url
             else
               params.args.view = 'modal'
 
@@ -249,15 +250,20 @@ module.exports =
               params.payload = payload
             console.log(params.payload)
 
-            answer = 0
-            if command.confirm?
-              answer = atom.confirm
-                message: command.confirm.message
-                detailedMessage: command.confirm.message
-                buttons: command.confirm.buttons
-            if answer == 0 # Yes
-              @mm.run(params).then (result) =>
-                @mmResponseHandler(params, result)
+            if params.args.ui
+              self.mavensmateAdapter.openUI(params)
+            else
+              answer = 0
+              if command.confirm?
+                answer = atom.confirm
+                  message: command.confirm.message
+                  detailedMessage: command.confirm.message
+                  buttons: command.confirm.buttons
+              if answer == 0 # Yes
+                self.mavensmateAdapter.executeCommand(params)
+                  .then (result) ->
+                    self.mmResponseHandler(params, result)
+
 
 
       # places mavensmate 3 dot icon in the status bar
@@ -277,13 +283,15 @@ module.exports =
         @enableAutocomplete()
 
       # attach MavensMate views/handlers to each present and future editor views
-      atom.workspaceView.eachEditorView (editorView) =>        
+      atom.workspaceView.eachEditorView (editorView) =>
         @handleBufferEvents editorView
         editorView.errorMarkers = new MavensMateErrorMarkers(editorView)
         # TODO: shouldn't we scope this to MavensMate projects only?
-        editorView.checkpointHandler = new MavensMateCheckpointHandler(editorView, @mm, @mmResponseHandler) # creates/deletes/displays checkpoints in gutter
-        editorView.shareView = new MavensMateShareView() # contextify npm package is incompatible right now
-        editorView.joinView = new MavensMateJoinView(@mm, @mmResponseHandler) 
+        # creates/deletes/displays checkpoints in gutter
+        editorView.checkpointHandler = new MavensMateCheckpointHandler(editorView, @mm, @mmResponseHandler)
+        # contextify npm package is incompatible right now
+        editorView.shareView = new MavensMateShareView()
+        editorView.joinView = new MavensMateJoinView(@mm, @mmResponseHandler)
 
       # retrieve code helper metadata, set up code helper buffers
       m = new CodeHelperMetadata()
@@ -293,7 +301,7 @@ module.exports =
         console.log atom.mavensmate.codeHelperMetadata
 
         # attach MavensMate views/handlers to each present and future editor views
-        atom.workspaceView.eachEditorView (editorView) =>        
+        atom.workspaceView.eachEditorView (editorView) ->
           editorView.codeHelperBufferView = new CodeHelperBufferView(editorView)
           console.log editorView.codeHelperBufferView
 
@@ -343,31 +351,24 @@ module.exports =
 
     mmResponseHandler: (params, result) ->
       tracker.pop(result.promiseId).result
-      if params.args.ui
-        if result.success
-          if params.args.view == 'tab'
-            params.result = result
-            atom.workspaceView.open tabViewUri, params
-          else
-            modalView = new MavensMateModalView result.promiseId, result.body, params.args.operation #attach app view pane
-            modalView.appendTo document.body
-
       MavensMateEventEmitter.emit 'mavensmate:promise-completed', result.promiseId
       MavensMateEventEmitter.emit 'mavensmate:panel-notify-finish', params, result, result.promiseId
 
     handleBufferEvents: (editorView) ->
+      self = @
       buffer = editorView.editor.getBuffer()
 
       if buffer.file? and util.isMetadata(buffer.file.getBaseName())
-        @subscribe buffer.on 'saved', =>
+        @subscribe buffer.on 'saved', ->
           params =
             args:
-              operation: 'compile'
+              operation: 'compile-metadata'
               pane: atom.workspace.getActivePane()
               editor: atom.workspace.getActiveEditor()
               editorView: atom.workspaceView.getActiveView()
               buffer: buffer
             payload:
               files: [buffer.file.path]
-          @mm.run(params).then (result) =>
-            @mmResponseHandler(params, result)
+          self.mavensmateAdapter.executeCommand(params)
+            .then (result) ->
+              self.mmResponseHandler(params, result)

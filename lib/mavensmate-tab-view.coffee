@@ -22,18 +22,15 @@ module.exports =
     @deserialize: (state) ->
       new MavensMateTabView(state)
 
-    serialize: ->
-      deserializer: 'MavensMateTabView'
-
     # Internal: Initialize mavensmate output view DOM contents.
     @content: ->
       @div class: 'mavensmate', =>
         @iframe outlet: 'iframe', width: '100%', height: '100%', class: 'native-key-bindings', sandbox: 'allow-same-origin allow-top-navigation allow-forms allow-scripts', style: 'border:none;'
 
     serialize: ->
-        deserializer: 'MavensMateTabView'
-        version: 1
-        uri: @uri
+      deserializer: 'MavensMateTabView'
+      version: 1
+      uri: @uri
 
     getTitle: ->
       _.undasherize @command.replace('_','-')
@@ -54,7 +51,7 @@ module.exports =
     # close tab when close button is clicked in iframe
     addCloseListener: ->
       thiz = @
-      document.addEventListener 'mavensmateCloseIframe', (evt) -> 
+      document.addEventListener 'mavensmateCloseIframe', (evt) ->
         atom.workspaceView.trigger('core:close')
 
 

@@ -143,30 +143,23 @@ module.exports =
     # ui commands that use a modal (others use an atom pane)
     @modalCommands: ->
       [
-        'new_project',
-        'edit_project',
-        'upgrade_project',
-        'unit_test',
+        'new-project',
+        'edit-project',
         'deploy',
-        'execute_apex',
-        'new_project_from_existing_directory',
-        'debug_log',
-        'github',
-        'project_health_check',
-        'new_metadata'
+        'new-metadata'
       ]
 
-    # ui commands that use a modal (others use an atom pane)
+    # compile-related commands
     @compileCommands: ->
       [
-        'compile',
-        'compile_project',
-        'clean_project',
-        'refresh'
+        'compile-metadata',
+        'compile-project',
+        'clean-project',
+        'refresh-metadata'
       ]
 
     @numberOfCompileErrors: (fileName) ->
-      numberOfErrors = 0;
+      numberOfErrors = 0
       if fileName?
         numberOfErrors = atom.project.errors[fileName].length
       else
@@ -223,16 +216,16 @@ module.exports =
     # list of commands that do not have status displayed in the panel
     @panelExemptCommands: ->
       [
-        'get_indexed_metadata',
+        'get-indexed_metadata',
         'deploy',
-        'get_active_session',
-        'new_apex_overlay',
-        'delete_apex_overlay',
-        'index_apex_overlays',
-        'new_metadata',
-        'unit_test',
-        'list_metadata',
-        'edit_project'
+        'session',
+        'new-apex-overlay',
+        'delete-apex-overlay',
+        'index-apex-overlays',
+        'new-metadata',
+        'unit-test',
+        'list-metadata',
+        'edit-project'
       ]
 
     # returns platform flag (windows|osx|linux[default])
