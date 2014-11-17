@@ -1,5 +1,4 @@
 {View, EditorView}      = require 'atom'
-MmCli                   = require('./mavensmate-cli').mm
 Repeat                  = require 'repeat'
 mavensMateAdapter       = require('./mavensmate-core-adapter')
 
