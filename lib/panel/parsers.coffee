@@ -105,79 +105,96 @@ class CompileParser extends CommandParser
 
     errorsByFilePath = {}
 
-    for compileResult in @result.result
-      console.log 'result!'
-      console.log compileResult
+    if _.isArray @result.result
+      for compileResult in @result.result
+        console.log 'result!'
+        console.log compileResult
 
-      if compileResult.State? # tooling
-        if compileResult.State is 'Error' and compileResult.ErrorMsg?
-          @obj.message = compileResult.ErrorMsg
-          @obj.success = false
-        else if compileResult.State is 'Failed' and compileResult.CompilerErrors?
-          if Object.prototype.toString.call compileResult.CompilerErrors is '[object String]'
-            compileResult.CompilerErrors = JSON.parse compileResult.CompilerErrors
+        if compileResult.State? # tooling
+          if compileResult.State is 'Error' and compileResult.ErrorMsg?
+            @obj.message = compileResult.ErrorMsg
+            @obj.success = false
+          else if compileResult.State is 'Failed' and compileResult.CompilerErrors?
+            if Object.prototype.toString.call compileResult.CompilerErrors is '[object String]'
+              compileResult.CompilerErrors = JSON.parse compileResult.CompilerErrors
 
-          errors = compileResult.CompilerErrors
-          message = 'Compile Failed'
-          for error in errors
-            if filesCompiled[error.name]?
-              error.fileName = filesCompiled[error.name].fileNameBase
-              error.filePath = filesCompiled[error.name].filePath
-            else
-              error.fileName = error.name
-              error.filePath = error.name
-            if error.line?
-              errorMessage = "#{error.fileName}: #{error.problem[0]} (Line: #{error.line[0]})"
-              error.lineNumber = error.line[0]
-            else
-              errorMessage = "#{error.fileName}: #{error.problem}"
-            message += '<br/>' + errorMessage
+            errors = compileResult.CompilerErrors
+            message = 'Compile Failed'
+            for error in errors
+              if filesCompiled[error.name]?
+                error.fileName = filesCompiled[error.name].fileNameBase
+                error.filePath = filesCompiled[error.name].filePath
+              else
+                error.fileName = error.name
+                error.filePath = error.name
+              if error.line?
+                errorMessage = "#{error.fileName}: #{error.problem[0]} (Line: #{error.line[0]})"
+                error.lineNumber = error.line[0]
+              else
+                errorMessage = "#{error.fileName}: #{error.problem}"
+              message += '<br/>' + errorMessage
 
-            errorsByFilePath[error.filePath] ?= []
-            errorsByFilePath[error.filePath].push(error)
-          @obj.message = message
-          @obj.indicator = 'danger'
-        else if compileResult.State is 'Failed' and compileResult.DeployDetails?
-          errors = compileResult.DeployDetails.componentFailures
-          message = 'Compile Failed'
-          for error in errors
-            errorName = error.fileName || error.fullName || error.name
-            if filesCompiled[errorName]?
-              error.fileName = filesCompiled[errorName].fileNameBase
-              error.filePath = filesCompiled[errorName].filePath
-            else
-              error.fileName = errorName
-              error.filePath = errorName
-            if error.lineNumber
-              errorMessage = "#{error.fileName}: #{error.problem} (Line: #{error.lineNumber})"
-            else
-              errorMessage = "#{error.fileName}: #{error.problem}"
-            message += '<br/>' + errorMessage
+              errorsByFilePath[error.filePath] ?= []
+              errorsByFilePath[error.filePath].push(error)
+            @obj.message = message
+            @obj.indicator = 'danger'
+          else if compileResult.State is 'Failed' and compileResult.DeployDetails?
+            errors = compileResult.DeployDetails.componentFailures
+            message = 'Compile Failed'
+            for error in errors
+              errorName = error.fileName || error.fullName || error.name
+              if filesCompiled[errorName]?
+                error.fileName = filesCompiled[errorName].fileNameBase
+                error.filePath = filesCompiled[errorName].filePath
+              else
+                error.fileName = errorName
+                error.filePath = errorName
+              if error.lineNumber
+                errorMessage = "#{error.fileName}: #{error.problem} (Line: #{error.lineNumber})"
+              else
+                errorMessage = "#{error.fileName}: #{error.problem}"
+              message += '<br/>' + errorMessage
 
-            errorsByFilePath[error.filePath] ?= []
-            errorsByFilePath[error.filePath].push(error)
+              errorsByFilePath[error.filePath] ?= []
+              errorsByFilePath[error.filePath].push(error)
 
-          @obj.message = message
-          @obj.indicator = 'danger'
-        else if compileResult.State is 'Completed' and not compileResult.ErrorMsg
-          @obj.indicator = 'success'
-          @obj.message = 'Success'
-        else
-          #pass
-      else if compileResult.actions?
-        # need to diff
-        @obj.message = compileResult.body
-        @obj.indicator = 'warning'
-      # else # metadata api
-      #   #todo
-      for filePath, errors of errorsByFilePath
-        fileNameBase = util.baseName(filePath)
-        fileNameWithoutExtension = util.withoutExtension(fileNameBase)
-        if atom.project.errors[fileNameWithoutExtension]?
-          delete atom.project.errors[fileNameWithoutExtension]
-        atom.project.errors[filePath] = errors
-      if !@obj.message?
-        throw new Error 'unable to parse'
+            @obj.message = message
+            @obj.indicator = 'danger'
+          else if compileResult.State is 'Completed' and not compileResult.ErrorMsg
+            @obj.indicator = 'success'
+            @obj.message = 'Success'
+          else
+            #pass
+        else if compileResult.actions?
+          # need to diff
+          @obj.message = compileResult.body
+          @obj.indicator = 'warning'
+        # else if
+        #   #todo
+        for filePath, errors of errorsByFilePath
+          fileNameBase = util.baseName(filePath)
+          fileNameWithoutExtension = util.withoutExtension(fileNameBase)
+          if atom.project.errors[fileNameWithoutExtension]?
+            delete atom.project.errors[fileNameWithoutExtension]
+          atom.project.errors[filePath] = errors
+        if !@obj.message?
+          throw new Error 'unable to parse'
+    else
+      message = ''
+      @obj.success = @result.result.success
+      if not _.isArray(@result.result.details.componentFailures)
+        @result.result.details.componentFailures = [@result.result.details.componentFailures]
+
+      if not @obj.success
+        @obj.indicator = 'danger'
+        message = 'Compile Failed'
+        for failure in @result.result.details.componentFailures
+          message += '<br/>- ' + failure.fullName + ', ' + failure.problem + '(Line: ' + failure.lineNumber + ')'
+      else
+        @obj.indicator = 'success'
+        message = 'Success'
+      @obj.message = message
+    
     return @obj
 
 class CleanProjectParser extends CommandParser

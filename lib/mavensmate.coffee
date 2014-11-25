@@ -8,15 +8,10 @@ MavensMateEventEmitter              = require('./mavensmate-emitter').pubsub
 MavensMateCoreAdapter               = require('./mavensmate-core-adapter')
 MavensMateProjectListView           = require './mavensmate-project-list-view'
 MavensMateErrorMarkers              = require './mavensmate-error-markers'
-# MavensMateCheckpointHandler         = require './mavensmate-checkpoint-handler'
 MavensMatePanelView                 = require('./panel/panel-view').panel
 MavensMateStatusBarView             = require './mavensmate-status-bar-view'
-MavensMateShareView                 = require './share/share-view'
-MavensMateJoinView                  = require './share/join-view'
 FileSystemWatcher                   = require './watchers/fs-watcher'
 StreamingClient                     = require './mavensmate-streaming-client'
-CodeHelperMetadata                  = require './code-helper/metadata'
-CodeHelperBufferView                = require './code-helper/buffer-view'
 tracker                             = require('./mavensmate-promise-tracker').tracker
 util                                = require './mavensmate-util'
 emitter                             = require('./mavensmate-emitter').pubsub
@@ -290,20 +285,6 @@ module.exports =
         # creates/deletes/displays checkpoints in gutter
         # editorView.checkpointHandler = new MavensMateCheckpointHandler(editorView, @mm, @mmResponseHandler)
         
-        # contextify npm package is incompatible right now
-        editorView.shareView = new MavensMateShareView()
-        editorView.joinView = new MavensMateJoinView(@mm, @mmResponseHandler)
-
-      # retrieve code helper metadata, set up code helper buffers
-      m = new CodeHelperMetadata()
-      m.retrieve().then (metadata) ->
-        atom.mavensmate.codeHelperMetadata = metadata
-
-        # attach MavensMate views/handlers to each present and future editor views
-        atom.workspaceView.eachEditorView (editorView) ->
-          editorView.codeHelperBufferView = new CodeHelperBufferView(editorView)
-          console.log editorView.codeHelperBufferView
-
     installAutocompletePlus: ->
       cmd = "#{atom.packages.getApmPath()} install autocomplete-plus"
       exec cmd, @enableAutocomplete
