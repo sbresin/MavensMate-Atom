@@ -248,32 +248,39 @@ class RunTestsParser extends CommandParser
         @div outlet: 'results', class: 'mavensmate-test-result'
           
     addTestResults: (result) ->
+      console.log 'adding result for: '
+      console.log result
       html = ''
-      for testResult in result
-        passCounter = 0
-        failedCounter = 0
-        for test in testResult.detailed_results
-          if test.Outcome == "Fail"
-            failedCounter++
-          else
-            passCounter++
+      
+      passCounter = 0
+      failedCounter = 0
+      
+      for test in result.results
+        if test.Outcome == "Fail"
+          failedCounter++
+        else
+          passCounter++
+
         
         clsName = 'Pass'
         if failedCounter > 0
           clsName = 'Fail'
 
-        html += '<p class="class-name">'+testResult.ApexClass.Name
-        html += ' | <span class="'+clsName+'">'+testResult.ExtendedStatus+' '+pluralize('test', testResult.detailed_results.length)+ ' passed</span>'
-        html += '</p>'
-        for detail in testResult.detailed_results
-          html += '<p class="method-name"><span class="result '+detail.Outcome+'">['+detail.Outcome+']</span> '+detail.MethodName+'</p>'
-          if detail.Outcome == 'Fail'
-            html += '<p class="stack">'
-            html += detail.Message
-            html += '<br/>'
-            html += detail.StackTrace
-            html += '</p>'
+      html += '<p class="class-name">'+result.ApexClass.Name
+      html += ' | <span class="'+clsName+'">'+result.ExtendedStatus+' '+pluralize('test', result.results.length)+ ' passed</span>'
+      html += '</p>'
       
+      for test in result.results
+        html += '<p class="method-name"><span class="result '+test.Outcome+'">['+test.Outcome+']</span> '+test.MethodName+'</p>'
+        if test.Outcome == 'Fail'
+          html += '<p class="stack">'
+          html += test.Message
+          html += '<br/>'
+          html += test.StackTrace
+          html += '</p>'
+      
+      console.log html
+
       @results.append html
 
   commandAliases: ['test_async']
@@ -286,7 +293,9 @@ class RunTestsParser extends CommandParser
       
     # console.log parserViews
     testResultView = new TestResultView(message:'> Results:')
-    testResultView.addTestResults(@result)
+    testKey = Object.keys(@result.result.testResults)[0]
+    testResultsForThisClass = @result.result.testResults[testKey]
+    testResultView.addTestResults(testResultsForThisClass)
     console.log testResultView
     # # console.log markdown
     # htmlMessage = converter.makeHtml(markdown)

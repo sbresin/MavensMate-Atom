@@ -49,11 +49,6 @@
             "url":"project/edit",
             "view" : "tab"
         },
-        "upgrade-project": {
-            "operation": "upgrade-project",
-            "ui": true,
-            "url":"project/upgrade"
-        },
         "new-apex-class": {
             "operation": "new-metadata",
             "ui": true,
@@ -87,7 +82,8 @@
         "deploy-to-server": {
             "operation": "deploy",
             "url":"deploy/new",
-            "ui": true
+            "ui": true,
+            "view": "tab"
         },
         "execute-apex": {
             "operation": "execute-apex",
@@ -98,24 +94,11 @@
             "operation": "new-project-from-existing-directory",
             "ui": true
         },
-        "new-trace-flag": {
-            "operation": "new-trace-flag",
-            "ui": true
-        },
         "start-logging": {
             "operation": "start-logging"
         },
         "stop-logging": {
             "operation": "stop-logging"
-        },
-        "fetch-logs": {
-            "operation": "fetch-logs"
-        },
-        "fetch-checkpoints": {
-            "operation": "fetch-checkpoints"
-        },
-        "refresh-checkpoints": {
-            "operation": "index-overlays"
         },
         "refresh-apex-symbols": {
             "operation": "index-apex"

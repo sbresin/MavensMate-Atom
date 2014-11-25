@@ -24,6 +24,12 @@
         ]
       }
       {
+        'label': 'Deploy'
+        'submenu': [
+          { 'label': 'Deploy to Server(s)...', 'command': 'mavensmate:deploy-to-server' }
+        ]
+      }
+      {
         'label': 'Debugging'
         'submenu': [
           { 'label': 'Start Logging', 'command': 'mavensmate:start-logging' }

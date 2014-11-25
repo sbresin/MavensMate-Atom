@@ -8,7 +8,7 @@ MavensMateEventEmitter              = require('./mavensmate-emitter').pubsub
 MavensMateCoreAdapter               = require('./mavensmate-core-adapter')
 MavensMateProjectListView           = require './mavensmate-project-list-view'
 MavensMateErrorMarkers              = require './mavensmate-error-markers'
-MavensMateCheckpointHandler         = require './mavensmate-checkpoint-handler'
+# MavensMateCheckpointHandler         = require './mavensmate-checkpoint-handler'
 MavensMatePanelView                 = require('./panel/panel-view').panel
 MavensMateStatusBarView             = require './mavensmate-status-bar-view'
 MavensMateShareView                 = require './share/share-view'
@@ -90,7 +90,7 @@ module.exports =
 
       atom.workspaceView.mavensMateProjectInitialized ?= false
       console.log 'initing mavensmate.coffee'
-      #@promiseTracker = new MavensMatePromiseTracker()     
+      #@promiseTracker = new MavensMatePromiseTracker()
 
       # instantiate client interface
       @mavensmateAdapter = MavensMateCoreAdapter
@@ -140,14 +140,14 @@ module.exports =
       self = @
 
       # hide .overlays from fuzzyfinder (cmd+t) file search
-      fuzzyFinderIgnoredNamesSetting = atom.config.get('fuzzy-finder.ignoredNames')
-      if fuzzyFinderIgnoredNamesSetting?
-        if fuzzyFinderIgnoredNamesSetting == []
-          atom.config.pushAtKeyPath("fuzzy-finder.ignoredNames", "**/config/.symbols/*.json")
-        else if fuzzyFinderIgnoredNamesSetting.length > 0 and '**/config/.symbols/*.json' not in fuzzyFinderIgnoredNamesSetting
-          atom.config.pushAtKeyPath("fuzzy-finder.ignoredNames", "**/config/.symbols/*.json")
-      else
-        atom.config.pushAtKeyPath("fuzzy-finder.ignoredNames", "**/config/.symbols/*.json")
+      # fuzzyFinderIgnoredNamesSetting = atom.config.get('fuzzy-finder.ignoredNames')
+      # if fuzzyFinderIgnoredNamesSetting?
+      #   if fuzzyFinderIgnoredNamesSetting == []
+      #     atom.config.pushAtKeyPath("fuzzy-finder.ignoredNames", "**/config/.symbols/*.json")
+      #   else if fuzzyFinderIgnoredNamesSetting.length > 0 and '**/config/.symbols/*.json' not in fuzzyFinderIgnoredNamesSetting
+      #     atom.config.pushAtKeyPath("fuzzy-finder.ignoredNames", "**/config/.symbols/*.json")
+      # else
+      #   atom.config.pushAtKeyPath("fuzzy-finder.ignoredNames", "**/config/.symbols/*.json")
 
       atom.project.errors = {}
       atom.project.checkpointCount = 0
@@ -159,12 +159,12 @@ module.exports =
           console.log(response)
           return
 
-        try
-          data = fs.readFileSync path.join(atom.project.path, 'config','.overlays')
-          overlays = JSON.parse data
-          atom.project.checkpointCount = overlays.length
-        catch error
-          console.log error
+        # try
+        #   data = fs.readFileSync path.join(atom.project.path, 'config','.overlays')
+        #   overlays = JSON.parse data
+        #   atom.project.checkpointCount = overlays.length
+        # catch error
+        #   console.log error
 
         sessionPath = path.join(atom.project.path,'config','.session')
 
@@ -288,7 +288,8 @@ module.exports =
         editorView.errorMarkers = new MavensMateErrorMarkers(editorView)
         # TODO: shouldn't we scope this to MavensMate projects only?
         # creates/deletes/displays checkpoints in gutter
-        editorView.checkpointHandler = new MavensMateCheckpointHandler(editorView, @mm, @mmResponseHandler)
+        # editorView.checkpointHandler = new MavensMateCheckpointHandler(editorView, @mm, @mmResponseHandler)
+        
         # contextify npm package is incompatible right now
         editorView.shareView = new MavensMateShareView()
         editorView.joinView = new MavensMateJoinView(@mm, @mmResponseHandler)
@@ -296,9 +297,7 @@ module.exports =
       # retrieve code helper metadata, set up code helper buffers
       m = new CodeHelperMetadata()
       m.retrieve().then (metadata) ->
-        console.log 'ok!!!! yahhhhhh'
         atom.mavensmate.codeHelperMetadata = metadata
-        console.log atom.mavensmate.codeHelperMetadata
 
         # attach MavensMate views/handlers to each present and future editor views
         atom.workspaceView.eachEditorView (editorView) ->
