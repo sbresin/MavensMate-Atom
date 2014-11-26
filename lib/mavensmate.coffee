@@ -11,7 +11,6 @@ MavensMateErrorMarkers              = require './mavensmate-error-markers'
 MavensMatePanelView                 = require('./panel/panel-view').panel
 MavensMateStatusBarView             = require './mavensmate-status-bar-view'
 FileSystemWatcher                   = require './watchers/fs-watcher'
-StreamingClient                     = require './mavensmate-streaming-client'
 tracker                             = require('./mavensmate-promise-tracker').tracker
 util                                = require './mavensmate-util'
 emitter                             = require('./mavensmate-emitter').pubsub
@@ -170,7 +169,6 @@ module.exports =
           emitter.emit 'mavensmate:session-updated', session
 
       projectFsWatcher = new FileSystemWatcher(atom.project.path)
-      streamingClient = new StreamingClient()
 
       ##COMMANDS TODO: move
       atom.workspaceView.command "mavensmate:toggle-output", =>

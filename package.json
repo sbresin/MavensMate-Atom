@@ -22,7 +22,6 @@
     "daemon": ">=1.1.0",
     "emissary": "1.2.1",
     "express": "4.x",
-    "faye": "0.8.11",
     "firebase": "1.0.21",
     "fuzzaldrin": "~1.0.0",
     "glob": ">=3.2.9",
