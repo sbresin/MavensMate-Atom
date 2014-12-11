@@ -1,8 +1,8 @@
 {
   "name": "MavensMate-Atom",
   "main": "./lib/main",
-  "version": "0.10.0",
-  "description": "Develop Force.com applications inside Atom.io",
+  "version": "0.0.0",
+  "description": "Develop Salesforce1/Force.com applications inside Atom",
   "activationEvents": [],
   "repository": {
     "type": "git",
@@ -56,11 +56,5 @@
   "bugs": {
     "url": "https://github.com/joeferraro/MavensMate-Atom/issues"
   },
-  "homepage": "https://github.com/joeferraro/MavensMate-Atom",
-  "_id": "mavensmate-atom@0.16.2",
-  "dist": {
-    "shasum": "660c7842a1ccd9ac0e93ef93683a28700feb371c"
-  },
-  "_resolved": "/var/folders/m3/kt10_j3j5417w5xvxxywdj080000gp/T/d-114226-369-4w9ygn/package.tgz",
-  "_from": "/var/folders/m3/kt10_j3j5417w5xvxxywdj080000gp/T/d-114226-369-4w9ygn/package.tgz"
+  "homepage": "https://github.com/joeferraro/MavensMate-Atom"
 }
