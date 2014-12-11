@@ -286,8 +286,9 @@ module.exports =
         # editorView.checkpointHandler = new MavensMateCheckpointHandler(editorView, @mm, @mmResponseHandler)
         
     installAutocompletePlus: ->
-      cmd = "#{atom.packages.getApmPath()} install autocomplete-plus"
-      exec cmd, @enableAutocomplete
+      # cmd = "#{atom.packages.getApmPath()} install autocomplete-plus"
+      # exec cmd, @enableAutocomplete
+      
 
     enableAutocomplete: ->
       atom.packages.activatePackage("autocomplete-plus")
