@@ -1,7 +1,7 @@
 {
   "name": "MavensMate-Atom",
   "main": "./lib/main",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Develop Salesforce1/Force.com applications inside Atom",
   "activationEvents": [],
   "repository": {
