@@ -30,6 +30,12 @@
         ]
       }
       {
+        'label': 'Execute Apex'
+        'submenu': [
+          { 'label': 'Execute Apex UI...', 'command': 'mavensmate:execute-apex' }
+        ]
+      }
+      {
         'label': 'Debugging'
         'submenu': [
           { 'label': 'Start Logging', 'command': 'mavensmate:start-logging' }
@@ -42,6 +48,10 @@
           {
             'label': 'Open Apex Test Runner UI...',
             'command': 'mavensmate:run-apex-unit-tests'
+          }
+          {
+            'label': 'Run Tests For This Apex Class',
+            'command': 'mavensmate:run-tests'
           }
         ]
       }

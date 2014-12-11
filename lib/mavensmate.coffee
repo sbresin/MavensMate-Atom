@@ -10,6 +10,7 @@ MavensMateProjectListView           = require './mavensmate-project-list-view'
 MavensMateErrorMarkers              = require './mavensmate-error-markers'
 MavensMatePanelView                 = require('./panel/panel-view').panel
 MavensMateStatusBarView             = require './mavensmate-status-bar-view'
+MavensMateLogFetcher                = require './mavensmate-log-fetcher'
 FileSystemWatcher                   = require './watchers/fs-watcher'
 tracker                             = require('./mavensmate-promise-tracker').tracker
 util                                = require './mavensmate-util'
@@ -151,6 +152,7 @@ module.exports =
           console.log('set the project!')
           console.log(err)
           console.log(response)
+          logFetcher = new MavensMateLogFetcher(self.mavensmateAdapter.client.getProject())
           return
 
         # try
@@ -300,9 +302,17 @@ module.exports =
           @autocomplete.registerProviderForEditorView apexProvider, editorView
           @providers.push apexProvider
 
-          apexContextProvider = new MavensMateCodeAssistProviders.ApexContextProvider(editorView)
-          @autocomplete.registerProviderForEditorView apexContextProvider, editorView
-          @providers.push apexContextProvider
+          vfTagProvider = new MavensMateCodeAssistProviders.VisualforceTagProvider(editorView)
+          @autocomplete.registerProviderForEditorView vfTagProvider, editorView
+          @providers.push vfTagProvider
+
+          vfTagContextProvider = new MavensMateCodeAssistProviders.VisualforceTagContextProvider(editorView)
+          @autocomplete.registerProviderForEditorView vfTagContextProvider, editorView
+          @providers.push vfTagContextProvider
+
+          # apexContextProvider = new MavensMateCodeAssistProviders.ApexContextProvider(editorView)
+          # @autocomplete.registerProviderForEditorView apexContextProvider, editorView
+          # @providers.push apexContextProvider
 
           # sobjectProvider = new MavensMateCodeAssistProviders.SobjectProvider(editorView)
           # @autocomplete.registerProviderForEditorView sobjectProvider, editorView

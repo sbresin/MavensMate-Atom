@@ -69,39 +69,41 @@ module.exports =
     # todo: refactor to something like parsers.coffee
     panelCommandMessage: (params, isUi=false) ->
       # console.log params
-      if isUi
-        switch @command
-          when 'new-project'
-            msg = 'Opening new project panel'
-          when 'edit-project'
-            msg = 'Opening edit project panel'
-          else 
-            msg = 'mm ' + @command
-      else
-        switch @command
-          when 'new-project'
-            msg =  'Creating new project'
-          when 'compile-project'
-            msg = 'Compiling project'
-          when 'index-metadata'
-            msg = 'Indexing metadata'
-          when 'compile-metadata'
-            if params.payload.files? and params.payload.files.length is 1
-              msg = 'Compiling '+params.payload.files[0].split(/[\\/]/).pop() # extract base name
-            else
-              msg = 'Compiling selected metadata'
-          when 'delete-metadata'
-            if params.payload.files? and params.payload.files.length is 1
-              msg = 'Deleting ' + params.payload.files[0].split(/[\\/]/).pop() # extract base name
-            else
-              msg = 'Deleting selected metadata'
-          when 'refresh-metadata'
-            if params.payload.files? and params.payload.files.length is 1
-              msg = 'Refreshing ' + params.payload.files[0].split(/[\\/]/).pop() # extract base name
-            else
-              msg = 'Refreshing selected metadata'
+      
+      switch @command
+        when 'new-project'
+          msg =  'Creating new project'
+        when 'compile-project'
+          msg = 'Compiling project'
+        when 'index-metadata'
+          msg = 'Indexing metadata'
+        when 'compile-metadata'
+          if params.payload.files? and params.payload.files.length is 1
+            msg = 'Compiling '+params.payload.files[0].split(/[\\/]/).pop() # extract base name
           else
-            msg = 'mm ' + @command
+            msg = 'Compiling selected metadata'
+        when 'delete-metadata'
+          if params.payload.files? and params.payload.files.length is 1
+            msg = 'Deleting ' + params.payload.files[0].split(/[\\/]/).pop() # extract base name
+          else
+            msg = 'Deleting selected metadata'
+        when 'refresh-metadata'
+          if params.payload.files? and params.payload.files.length is 1
+            msg = 'Refreshing ' + params.payload.files[0].split(/[\\/]/).pop() # extract base name
+          else
+            msg = 'Refreshing selected metadata'
+        when 'clean-project'
+          msg = 'Cleaning project'
+        when 'run-tests'
+          msg = 'Running Apex unit test(s)'
+        when 'start-logging'
+          msg = 'Creating trace flags for user ids in config/.debug'
+        when 'stop-logging'
+          msg = 'Deleting trace flags you have created for user ids in config/.debug'
+        when 'index-apex'
+          msg = 'Indexing Apex symbols for this project'
+        else
+          msg = 'mm ' + @command
       console.log msg
       header = '['+moment().format('MMMM Do YYYY, h:mm:ss a')+']<br/>'
       return header + '> ' + msg

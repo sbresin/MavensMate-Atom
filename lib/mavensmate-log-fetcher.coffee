@@ -4,22 +4,13 @@ mavensMateAdapter       = require('./mavensmate-core-adapter')
 
 class MavensMateLogFetcher
   
-  goFetch: (logId) ->
-    params =
-      skipPanel: true
-      args:
-        operation: 'download-log'
-      payload:
-        logId: logId
-
-    mavensMateAdapter.executeCommand(params)
-      .then (res) ->
-        if res.result
-          fetchedView = new MavensMateLogFetchedView(res.result)
-          fetchedView.show()
-      .catch (error) ->
-        console.log 'oh no an error'
-        console.log error
+  constructor: (project) ->
+    console.log 'init log fetcher'
+    console.log project
+    project.logService.on 'mavensmate-log-downloaded', (location) ->
+      console.log 'LOG DOWNLOADED!!!'
+      fetchedView = new MavensMateLogFetchedView(location)
+      fetchedView.show()
 
 class MavensMateLogFetchedView extends View
   @content: ->
@@ -68,4 +59,4 @@ class MavensMateLogFetchedView extends View
     @detach()
 
 
-exports.fetcher = new MavensMateLogFetcher()
+module.exports = MavensMateLogFetcher

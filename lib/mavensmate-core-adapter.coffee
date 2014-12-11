@@ -12,7 +12,7 @@ globalFunction = global.Function
 Function.prototype.call = globalFunction.prototype.call
 mavensmate = allowUnsafeNewFunction ->
   allowUnsafeEval ->
-    require '../node_modules/mavensmate/lib/mavensmate.js' # todo: for some reason, we cant reference require('mavensmate')
+    require 'mavensmate'
 
 class MavensMateCoreView extends ScrollView
   constructor: (params) ->
@@ -20,7 +20,6 @@ class MavensMateCoreView extends ScrollView
     @command = params.args.operation
     tabViewUri = 'http://localhost:'+atom.mavensmate.adapter.client.getServer().port+'/app/'+params.args.url
     @iframe.attr 'src', tabViewUri
-    # @iframe.attr 'id', 'iframe-'+@promiseId
 
     @iframe.focus()
    

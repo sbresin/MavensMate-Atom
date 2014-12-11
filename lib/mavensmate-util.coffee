@@ -167,52 +167,6 @@ module.exports =
           numberOfErrors += errors.length
       return numberOfErrors
 
-    # returns the command message to be displayed in the panel
-    @panelCommandMessage: (params, command, isUi=false) ->
-      console.log params
-
-      # todo: move objects to global?
-      uiMessages =
-        new_project : 'Opening new project panel'
-        edit_project : 'Opening edit project panel'
-
-      messages =
-        new_project : 'Creating new project'
-        compile_project: 'Compiling project'
-        index_metadata: 'Indexing metadata'
-        compile: ->
-          if params.payload.files? and params.payload.files.length is 1
-            'Compiling '+params.payload.files[0]
-          else
-            'Compiling selected metadata'
-        delete: ->
-          if params.payload.files? and params.payload.files.length is 1
-            'Deleting ' + params.payload.files[0].split(/[\\/]/).pop() # extract base name
-          else
-            'Deleting selected metadata'
-        refresh: ->
-          if params.payload.files? and params.payload.files.length is 1
-            'Refreshing ' + params.payload.files[0]
-          else
-            'Refreshing selected metadata'
-
-      if isUi
-        msg = uiMessages[command]
-      else
-        msg = messages[command]
-
-      console.log 'msgggggg'
-      console.log msg
-      console.log Object.prototype.toString.call msg
-
-      if msg?
-        if Object.prototype.toString.call(msg) is '[object Function]'
-          return msg() + '...'
-        else
-          return msg + '...'
-      else
-        return 'Running operation...'
-
     # list of commands that do not have status displayed in the panel
     @panelExemptCommands: ->
       [

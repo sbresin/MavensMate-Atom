@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "ansi-to-html": ">=0.1.0",
-    "autocomplete-plus": "git://github.com/saschagehlich/autocomplete-plus.git#feature/api",
+    "autocomplete-plus": "git://github.com/atom-community/autocomplete-plus",
     "body-parser": "1.5.2",
     "cloneextend": "0.0.3",
     "color": "0.7.1",
@@ -28,7 +28,7 @@
     "jquery": "2.1.0",
     "lodash": "2.4.1",
     "loophole": "1.0.0",
-    "mavensmate": "0.0.10",
+    "mavensmate": "0.0.14",
     "moment": "2.8.3",
     "node-uuid": "1.4.1",
     "open": "0.0.5",

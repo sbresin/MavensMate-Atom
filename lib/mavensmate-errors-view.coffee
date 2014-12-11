@@ -28,7 +28,7 @@ class MavensMateErrorsView extends ScrollView
     super
 
   @content: ->
-    @div class: 'mavensmate mavensmate-output tool-panel mavensmate-view native-key-bindings pane-item',  tabindex: -1, =>
+    @div class: 'mavensmate mavensmate-output tool-panel mavensmate-view native-key-bindings pane-item errors-view',  tabindex: -1, =>
       @div class: 'panel-header', =>
         @div class: 'container-fluid', =>
           @div class: 'row', style: 'padding:10px 0px', =>
@@ -38,16 +38,16 @@ class MavensMateErrorsView extends ScrollView
         @div class: 'container-fluid', =>
           @div class: 'row', =>
             @div class: 'col-md-12', =>
-              @table class: 'table table-striped table-bordered', =>
+              @table class: 'table table-striped table-bordered', style: 'margin-top:20px', =>
                 @thead =>
                   @tr =>
                     @td 'Detail'
                     @td 'Go To Error'
-                    @td 'Search', colspan: 2
+                    @td 'Search', colspan: 3
                 @tbody outlet: 'viewErrorsTableBody', ->
                 @tfoot =>
                   @tr =>
-                    @td colspan: 4, =>
+                    @td colspan: 5, =>
                       @i class: 'fa fa-bug', outlet: 'viewErrorsIcon'
                       @span '0 errors', outlet: 'viewErrorsLabel', style: 'display:inline-block;padding-left:5px;'
 
@@ -152,7 +152,10 @@ class MavensMateErrorsViewItem extends View
       shell.openExternal "https://www.google.com/search?q=salesforce #{error.query}"
 
     @btnSalesforceError.click ->
-      shell.openExternal "https://success.salesforce.com/search?keywords=#{error.query}"
+      shell.openExternal "https://developer.salesforce.com/search?q=#{error.query}"
+
+    @btnSalesforceStackStack.click ->
+      shell.openExternal "http://salesforce.stackexchange.com/search?q=#{error.query}"
 
   @content: ->
     @tr =>
@@ -163,13 +166,17 @@ class MavensMateErrorsViewItem extends View
           @span 'Goto the error', outlet: 'goToErrorLabel', style: 'display:inline-block;padding-left:5px;'
           @i class: 'fa fa-bug', outlet: 'goToIcon'
       @td =>
-        @button class: 'btn btn-sm btn-default btn-errorItem', outlet: 'btnGoogleError', =>
-          @span 'Search Google', outlet: 'viewErrorsLabel', style: 'display:inline-block;padding-left:5px;'
-          @i class: 'fa fa-search'
-      @td =>
         @button class: 'btn btn-sm btn-default btn-errorItem', outlet: 'btnSalesforceError', =>
           @span 'Search Salesforce', style: 'display:inline-block;padding-left:5px;'
           @i class: 'fa fa-cloud'
+      @td =>
+        @button class: 'btn btn-sm btn-default btn-errorItem', outlet: 'btnSalesforceStackStack', =>
+          @span 'Search Salesforce Stack Exchange', style: 'display:inline-block;padding-left:5px;'
+          @i class: 'fa fa-group'
+      @td =>
+        @button class: 'btn btn-sm btn-default btn-errorItem', outlet: 'btnGoogleError', =>
+          @span 'Search Google', outlet: 'viewErrorsLabel', style: 'display:inline-block;padding-left:5px;'
+          @i class: 'fa fa-search'
 
   subscribeGoToButtonToError: (error) ->
     if error.lineNumber? and error.filePath?

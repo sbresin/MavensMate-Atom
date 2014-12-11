@@ -1,6 +1,7 @@
 {Provider, Suggestion} = require 'autocomplete-plus'
 fuzzaldrin = require 'fuzzaldrin'
 apex = require './apex.json'
+vf = require './vf.json'
 # console.log apex
 _ = require 'underscore-plus'
 util = require './mavensmate-util'
@@ -42,44 +43,106 @@ module.exports =
 
       return suggestions
 
-  # # provides code assist for standard/custom Apex Class methods
-  # #
-  # # e.g. when user types "s.", if s represents a String, user is shown a list of String instance methods
-  # ApexContextProvider: class ApexContextProvider extends Provider
-  #   wordRegex: /\b\w*[a-zA-Z_]\w*\b./g
-  #   buildSuggestions: ->
-  #     selection = @editor.getSelection()
-  #     # console.log selection
-  #     prefix = @prefixOfSelection selection
-  #     prefix = prefix.replace /./, ''
-  #     # console.log 'prefix!'
-  #     # console.log prefix
-  #     #@editor.
+  # provides code assist for standard/custom Apex Class methods
+  #
+  # e.g. when user types "s.", if s represents a String, user is shown a list of String instance methods
+  ApexContextProvider: class ApexContextProvider extends Provider
+    wordRegex: /\b\w*[a-zA-Z_]\w*\b./g
+    buildSuggestions: ->
+      selection = @editor.getSelection()
+      # console.log selection
+      prefix = @prefixOfSelection selection
+      prefix = prefix.replace /./, ''
+      # console.log 'prefix!'
+      # console.log prefix
+      #@editor.
       
-  #     cursorPosition = @editor.getCursorBufferPosition() #=> returns a point
-  #     cachedBufferText = @editor.getBuffer().cachedText #=> returns the CURRENT buffer
-  #     # console.log cachedBufferText
-  #     if prefix == '.'
-  #       params =
-  #         args:
-  #           operation: 'get_apex_class_completions'
-  #           pane: atom.workspace.getActivePane()
-  #           offline: true
-  #         payload:
-  #           point: [cursorPosition.row, cursorPosition.column]
-  #           buffer: cachedBufferText
-  #           #file_name: util.activeFile()
-  #       mm.run(params).then (result) =>
-  #         # console.log result
-  #         # TODO: waiting on: https://github.com/saschagehlich/autocomplete-plus/pull/99
-  #         suggestions = []
-  #         for s in result.body
-  #           suggestions.push new Suggestion(this, word: s.name, label: "@"+s.name, prefix: prefix)
-  #         console.log suggestions
-  #         return suggestions
+      cursorPosition = @editor.getCursorBufferPosition() #=> returns a point
+      cachedBufferText = @editor.getBuffer().cachedText #=> returns the CURRENT buffer
+      # console.log cachedBufferText
+      if prefix == '.'
+        params =
+          args:
+            operation: 'get_apex_class_completions'
+            pane: atom.workspace.getActivePane()
+            offline: true
+          payload:
+            point: [cursorPosition.row, cursorPosition.column]
+            buffer: cachedBufferText
+            #file_name: util.activeFile()
+        mm.run(params).then (result) =>
+          # console.log result
+          # TODO: waiting on: https://github.com/saschagehlich/autocomplete-plus/pull/99
+          suggestions = []
+          for s in result.body
+            suggestions.push new Suggestion(this, word: s.name, label: "@"+s.name, prefix: prefix)
+          console.log suggestions
+          return suggestions
 
+  # provides code assist for visualforce tags
+  #
+  # e.g. when user types "<", list of vf tags is presented
+  VisualforceTagProvider: class VisualforceTagProvider extends Provider
+    wordRegex: /<.*/g
+    
+    vfTags: []
+
+    initialize: ->
+      @vfTags = vf.tags
+
+    buildSuggestions: ->
+      selection = @editor.getSelection()
+      prefix = @prefixOfSelection selection
+      return unless prefix.length
+
+      suggestions = @findSuggestionsForPrefix prefix
+      return unless suggestions.length
+      return suggestions
+
+    findSuggestionsForPrefix: (prefix) ->
+      # Filter the words using fuzzaldrin
+      prefix = prefix.replace '<', ''
+      words = fuzzaldrin.filter @vfTags, prefix
+
+      # Builds suggestions for the words
+      suggestions = for word in words
+        new Suggestion this, word: word, prefix: prefix, label: "@#{word} (Visualforce)"
+      return suggestions
       
-  #     return []
+  # provides code assist for visualforce tags
+  #
+  # e.g. when user types "<", list of vf tags is presented
+  VisualforceTagContextProvider: class VisualforceTagContextProvider extends Provider
+    wordRegex: /<apex:[a-z]*\b/gi
+    # exclusive: true
+    
+    vfTags: []
+
+    initialize: ->
+      @vfTags = vf.tags
+
+    buildSuggestions: ->
+      console.log 'building suggestions for vf tag context ...'
+      selection = @editor.getSelection()
+      console.log selection
+      prefix = @prefixOfSelection selection
+      console.log '----'
+      console.log prefix
+      return unless prefix.length
+
+      suggestions = @findSuggestionsForPrefix prefix
+      return unless suggestions.length
+      return suggestions
+
+    findSuggestionsForPrefix: (prefix) ->
+      # Filter the words using fuzzaldrin
+      prefix = prefix.replace '<', ''
+      words = fuzzaldrin.filter @vfTags, prefix
+
+      # Builds suggestions for the words
+      suggestions = for word in words
+        new Suggestion this, word: word, prefix: prefix, label: "@#{word} (Visualforce)"
+      return suggestions
 
   # # provides list of Sobjects available in the source org
   # #

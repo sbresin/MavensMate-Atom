@@ -87,6 +87,7 @@
         },
         "execute-apex": {
             "operation": "execute-apex",
+            "url":"apex/new",
             "ui": true,
             "view" : "tab"
         },
