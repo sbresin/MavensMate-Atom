@@ -1,7 +1,7 @@
 {
   "name": "MavensMate-Atom",
   "main": "./lib/main",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "Develop Salesforce1/Force.com applications inside Atom",
   "activationEvents": [],
   "repository": {
@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "ansi-to-html": ">=0.1.0",
-    "autocomplete-plus":"git://github.com/atom-community/autocomplete-plus#feature/api",
+    "autocomplete-plus": "git://github.com/atom-community/autocomplete-plus#feature/api",
     "body-parser": "1.5.2",
     "cloneextend": "0.0.3",
     "color": "0.7.1",
