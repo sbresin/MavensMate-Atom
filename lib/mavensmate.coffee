@@ -288,7 +288,6 @@ module.exports =
     installAutocompletePlus: ->
       # cmd = "#{atom.packages.getApmPath()} install autocomplete-plus"
       # exec cmd, @enableAutocomplete
-      
 
     enableAutocomplete: ->
       atom.packages.activatePackage("autocomplete-plus")
@@ -307,9 +306,9 @@ module.exports =
           @autocomplete.registerProviderForEditorView vfTagProvider, editorView
           @providers.push vfTagProvider
 
-          vfTagContextProvider = new MavensMateCodeAssistProviders.VisualforceTagContextProvider(editorView)
-          @autocomplete.registerProviderForEditorView vfTagContextProvider, editorView
-          @providers.push vfTagContextProvider
+          # vfTagContextProvider = new MavensMateCodeAssistProviders.VisualforceTagContextProvider(editorView)
+          # @autocomplete.registerProviderForEditorView vfTagContextProvider, editorView
+          # @providers.push vfTagContextProvider
 
           # apexContextProvider = new MavensMateCodeAssistProviders.ApexContextProvider(editorView)
           # @autocomplete.registerProviderForEditorView apexContextProvider, editorView
