@@ -1,4 +1,4 @@
-MavensMate for Atom
+MavensMate for Atom (beta)
 ===============
 
 [![Build Status](https://travis-ci.org/joeferraro/MavensMate-Atom.svg?branch=master)](https://travis-ci.org/joeferraro/MavensMate-Atom)
