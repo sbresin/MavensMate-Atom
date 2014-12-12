@@ -7,6 +7,8 @@ MavensMate for Atom is a plugin for the Atom text editor that enables Salesforce
 
 **Note:** MavensMate for Atom is still very much in active development. By installing the plugin at this stage, you are a beta user. You may encounter unexpected behavior, bugs, and general weirdness. Please submit all bugs with specific steps to reproduce: https://github.com/joeferraro/MavensMate-Atom/issues.
 
+**The current beta is OSX-only**
+
 ### Installation
 
 To install MavensMate for Atom: 
@@ -14,10 +16,6 @@ To install MavensMate for Atom:
 `Atom > Preferences > Packages > Search for 'MavensMate' > Install`
 
 **Note for OSX users:** MavensMate for Atom uses a node module called `node-keytar`, from the developers of Atom, to securely access the keychain. If you have Xcode installed and have not accepted the Xcode Terms and Conditions, OSX may refuse to install this node module. Simply open Xcode, accept the T&Cs and attempt your MavensMate for Atom install again.
-
-**Note for Windows users:**  MavensMate for Atom uses a node module called `node-keytar`, from the developers of Atom, to securely access the keychain. You should have Visual Studio Express for Desktop installed in order to properly install this module: http://www.visualstudio.com/downloads/download-visual-studio-vs#d-express-windows-desktop
-
-**Note for Windows/Linux users:** We've performed the bulk of our testing on OSX. If you encounter issues, you are encouraged to submit a bug report.
 
 ![Alt Text](http://i.imgur.com/RiBsW0N.gif?1 "Install")
 
