@@ -15,6 +15,8 @@ To install MavensMate for Atom:
 
 **Note for OSX users:** MavensMate for Atom uses a node module called `node-keytar`, from the developers of Atom, to securely access the keychain. If you have Xcode installed and have not accepted the Xcode Terms and Conditions, OSX may refuse to install this node module. Simply open Xcode, accept the T&Cs and attempt your MavensMate for Atom install again.
 
+**Note for Windows users:**  MavensMate for Atom uses a node module called `node-keytar`, from the developers of Atom, to securely access the keychain. You should have Visual Studio Express for Desktop installed in order to properly install this module: http://www.visualstudio.com/downloads/download-visual-studio-vs#d-express-windows-desktop
+
 **Note for Windows/Linux users:** We've performed the bulk of our testing on OSX. If you encounter issues, you are encouraged to submit a bug report.
 
 ![Alt Text](http://i.imgur.com/RiBsW0N.gif?1 "Install")
