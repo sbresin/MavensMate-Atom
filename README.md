@@ -11,6 +11,8 @@ To install MavensMate for Atom:
 
 `Atom > Preferences > Packages > Search for 'MavensMate' > Install`
 
+**Note for OSX users:** MavensMate for Atom uses a node module called `node-keytar`, from the developers of Atom, to securely access the keychain. If you have Xcode installed and have not accepted the Xcode Terms and Conditions, OSX may refuse to install this node module. Simply open Xcode, accept the T&Cs and attempt your MavensMate for Atom install again.
+
 ![Alt Text](http://i.imgur.com/RiBsW0N.gif?1 "Install")
 
 ### Configuration
