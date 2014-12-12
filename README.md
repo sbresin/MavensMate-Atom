@@ -7,7 +7,7 @@ MavensMate for Atom is a plugin for the Atom text editor that enables Salesforce
 
 **Note:** MavensMate for Atom is still very much in active development. By installing the plugin at this stage, you are a beta user. You may encounter unexpected behavior, bugs, and general weirdness. Please submit all bugs with specific steps to reproduce: https://github.com/joeferraro/MavensMate-Atom/issues.
 
-**The current beta is OSX-only**
+**The current beta is OSX-only**. If you're a Windows/Linux user and you're interested in helping us support those platforms, please let us know.
 
 ### Installation
 
