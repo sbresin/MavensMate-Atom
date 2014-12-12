@@ -2,7 +2,10 @@
   "name": "MavensMate-Atom",
   "main": "./lib/main",
   "version": "0.0.10",
-  "description": "Develop Salesforce1/Force.com applications inside Atom",
+  "description": "Develop Salesforce/Salesforce1/Force.com applications inside Atom",
+  "keywords":[
+    "ide", "salesforce.com", "salesforce1", "salesforce", "force.com", "aura", "lightning", "mavensmate", "visualforce", "apex"
+  ],
   "activationEvents": [],
   "repository": {
     "type": "git",
