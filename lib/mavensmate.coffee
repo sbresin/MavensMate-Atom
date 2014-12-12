@@ -15,7 +15,6 @@ FileSystemWatcher                   = require './watchers/fs-watcher'
 tracker                             = require('./mavensmate-promise-tracker').tracker
 util                                = require './mavensmate-util'
 emitter                             = require('./mavensmate-emitter').pubsub
-MavensMateCodeAssistProviders       = require './mavensmate-code-assist-providers'
 commands                            = require './commands.json'
 {exec}                              = require 'child_process'
 ErrorsView                          = require './mavensmate-errors-view'
@@ -296,14 +295,16 @@ module.exports =
           @registerProviders()
 
     registerProviders: ->
+      MavensMateCodeAssistProviders = require './mavensmate-code-assist-providers'
+
       @editorSubscription = atom.workspaceView.eachEditorView (editorView) =>
         if editorView.attached and not editorView.mini
-          apexProvider = new MavensMateCodeAssistProviders.ApexProvider(editorView)
-          @autocomplete.registerProviderForEditorView apexProvider, editorView
+          apexProvider = new MavensMateCodeAssistProviders.ApexProvider(editorView.editor)
+          @autocomplete.registerProviderForEditor apexProvider, editorView.editor
           @providers.push apexProvider
 
-          vfTagProvider = new MavensMateCodeAssistProviders.VisualforceTagProvider(editorView)
-          @autocomplete.registerProviderForEditorView vfTagProvider, editorView
+          vfTagProvider = new MavensMateCodeAssistProviders.VisualforceTagProvider(editorView.editor)
+          @autocomplete.registerProviderForEditor vfTagProvider, editorView.editor
           @providers.push vfTagProvider
 
           # vfTagContextProvider = new MavensMateCodeAssistProviders.VisualforceTagContextProvider(editorView)
