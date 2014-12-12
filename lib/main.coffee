@@ -4,6 +4,7 @@ MavensMate = require './mavensmate'
 module.exports =
 
   configDefaults:
+    mm_timeout: 300
     mm_developer_mode: false
     mm_community_api_token: ''
     mm_use_keyring: true
