@@ -27,7 +27,11 @@ To create your first MavensMate for Atom project:
 
 1. Be sure to configure your `mm workspace` (see Configuration)
 2. MavensMate > New Project
+ 
+![Alt Text](http://i.imgur.com/SCDknHg.gif?1 "New Project")
 
 ### Run MavensMate Commands
 
 To run MavensMate commands, use the Atom command palette. On OSX: `command + shift + p`
+
+![Alt Text](http://i.imgur.com/IuYO4pU.gif?1 "Commands")
