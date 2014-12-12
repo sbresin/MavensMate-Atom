@@ -58,7 +58,7 @@ class MavensMateCoreAdapter
     @client = mavensmate.createClient(
       editor: 'atom'
       headless: true
-      debugging: true
+      debugging: false
       settings: atom.config.getSettings()['MavensMate-Atom']
     )
 
