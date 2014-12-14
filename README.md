@@ -13,15 +13,15 @@ MavensMate for Atom is a plugin for the Atom text editor that enables Salesforce
 
 MavensMate for Atom uses a node module called `node-keytar`, from the developers of Atom, to securely access the keychain. The prerequisite for installing `node-keytar` varies by platform:
 
-#### OSX
+##### OSX
 
 If you have Xcode installed and have not accepted the Xcode Terms and Conditions, OSX may refuse to install `node-keytar`. Simply open Xcode, accept the T&Cs and attempt your MavensMate for Atom install again.
 
-#### Windows
+##### Windows
 
 You should have Visual Studio Express for Desktop installed in order to properly install `node-keytar`: http://www.visualstudio.com/downloads/download-visual-studio-vs#d-express-windows-desktop
 
-#### Linux
+##### Linux
 
 You should run `sudo apt-get install libgnome-keyring-dev` before installing MavensMate for Atom.
 
