@@ -27,7 +27,11 @@ You should run `sudo apt-get install libgnome-keyring-dev` before installing Mav
 
 #### Installing MavensMate for Atom Package
 
-Atom > Preferences > Packages > Search for 'MavensMate' > Install
+1. Open Atom
+2. Preferences/Settings
+3. Packages
+4. Search for `MavensMate`
+5. Install
 
 **Note for Windows/Linux users:** We've performed the bulk of our testing on OSX. If you encounter issues, you are encouraged to submit a bug report.
 
