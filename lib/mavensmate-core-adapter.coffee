@@ -2,7 +2,6 @@ path                  = require 'path'
 Q                     = require 'q'
 tracker               = require('./mavensmate-promise-tracker').tracker
 emitter               = require('./mavensmate-emitter').pubsub
-util                  = require './mavensmate-util'
 MavensMateModalView   = require './mavensmate-modal-view'
 {ScrollView}          = require 'atom'
 _                     = require 'underscore-plus'
