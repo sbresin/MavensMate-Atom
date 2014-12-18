@@ -22,7 +22,7 @@ module.exports =
       emitter.on 'mavensmate:compile-finished', (params, promiseId) ->
         buffer = me.params.buffer
         files = params.payload.files
-        if buffer.file? and util.isMetadata(buffer.file.getBaseName())
+        if buffer.file? and util.isMetadata(buffer.file.path)
           for f in files
             if util.baseName(f) == me.page
               me.iframe.attr 'src', me.url

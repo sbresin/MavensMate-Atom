@@ -1,9 +1,10 @@
-_       = require 'underscore-plus'
-_.str   = require 'underscore.string'
-fs      = require 'fs'
-os      = require 'os'
-path    = require 'path'
-config  = require('./mavensmate-config').config
+_                       = require 'underscore-plus'
+_.str                   = require 'underscore.string'
+fs                      = require 'fs'
+os                      = require 'os'
+path                    = require 'path'
+config                  = require('./mavensmate-config').config
+mavensMateCoreAdapter   = require('./mavensmate-core-adapter')
 
 module.exports =
 
@@ -94,24 +95,16 @@ module.exports =
     @isMac: ->
       @platform() == 'osx'
 
-    @isMavensMateProject: ->
-      settingsPath = atom.project.path + '/config/.settings'
-      oldSettingsPath = atom.project.path + '/config/settings.yaml'
-      return fs.existsSync(settingsPath) or fs.existsSync(oldSettingsPath)
-
-    @isMetadata: (filePath) ->    
-      apex_file_extensions = atom.config.getSettings()['MavensMate-Atom'].mm_apex_file_extensions
-      return this.extension(filePath) in apex_file_extensions
-
-    # returns true if mm is installed
-    @isMMInstalled: ->
-      (@getMMVersion()?)
-
-    # returns true if user is mac and is on 10.8 + system
-    # see http://en.wikipedia.org/wiki/Darwin_%28operating_system%29#Release_history
-    # for mapping of os.version() return values, i.e. 12.0 => OS X 10.8
-    @isOSX108Plus: ->
-      @isMac() and parseInt os.release() >= 12
+    @hasMavensMateProjectStructure: ->
+      try
+        settingsPath = path.join atom.project.path, 'config', '.settings'
+        return fs.existsSync(settingsPath)
+      catch
+        return false
+        
+    @isMetadata: (filePath) ->
+      apex_file_extensions = atom.config.get('MavensMate-Atom').mm_apex_file_extensions
+      return this.extension(filePath) in apex_file_extensions and path.basename(path.dirname(filePath)) != 'config'
 
     # whether the given command is a request for a ui
     @isUiCommand: (params) ->
@@ -134,7 +127,7 @@ module.exports =
         atom.config.get('MavensMate-Atom.mm_path')
 
     @isStandardMmConfiguration: ->
-      atom.config.get('MavensMate-Atom.mm_path') == 'default'  
+      atom.config.get('MavensMate-Atom.mm_path') == 'default'
 
     # returns full path for atom package home
     @mmPackageHome: ->

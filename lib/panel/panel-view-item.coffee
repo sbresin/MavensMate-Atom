@@ -10,16 +10,17 @@ module.exports =
   # represents a single operation/command within the panel
   class MavensMatePanelViewItem extends View
 
-    constructor: (command, params) ->
+    constructor: ->
       super
+      # set panel font-size to that of the editor
+      fontSize = jQuery("div.editor-contents").css('font-size')
+      @terminal.context.style.fontSize = fontSize
+
+    initCommandMessage: (command, params) ->
       @closePanelOnFinish = true
       @command = command
       @running = true
 
-      # set panel font-size to that of the editor
-      fontSize = jQuery("div.editor-contents").css('font-size')
-      @terminal.context.style.fontSize = fontSize
-      
       # get the message
       message = @.panelCommandMessage params, util.isUiCommand params
 
@@ -29,7 +30,13 @@ module.exports =
 
       # write the message to the terminal
       @terminal.html message
-      
+
+    initGenericMessage: (message, status) ->
+      # write the message to the terminal
+      @terminal.html message
+      if status?
+        @terminal.addClass status
+
     # Internal: Initialize mavensmate output view DOM contents.
     @content: ->
       @div class: 'panel-item',  =>
@@ -47,22 +54,22 @@ module.exports =
       console.log 'updating panel item as a result of command ====>'
       console.log params
       console.log result
-      me = @      
+      self = @
       if @command not in util.panelExemptCommands() and not params.skipPanel
         panelOutput = parseCommand(@command, params, result)
 
         if panelOutput.indicator != 'success'
-          me.closePanelOnFinish = false
+          self.closePanelOnFinish = false
 
         # update progress bar depending on outcome of command
-        me.terminal.removeClass 'active'
-        me.terminal.addClass panelOutput.indicator
+        self.terminal.removeClass 'active'
+        self.terminal.addClass panelOutput.indicator
 
         # update terminal
         itemResponse = new PanelViewItemResponse(id: @promiseId, message: panelOutput.message, result: result)
-        me.terminal.append itemResponse
-        # me.terminal.append '<br/>> '+ '<span id="message-'+@promiseId+'">'+panelOutput.message+'</span>'
-        me.running = false
+        self.terminal.append itemResponse
+        # self.terminal.append '<br/>> '+ '<span id="message-'+@promiseId+'">'+panelOutput.message+'</span>'
+        self.running = false
       return
 
     # returns the command message to be displayed in the panel

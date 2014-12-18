@@ -122,7 +122,7 @@ module.exports =
         atom.workspaceView.open(util.uris.errorsView)
 
     onProjectPathChanged: ->
-      if util.isMavensMateProject() and not atom.workspaceView.mavensMateProjectInitialized
+      if util.hasMavensMateProjectStructure() and not atom.workspaceView.mavensMateProjectInitialized
         atom.workspaceView.mavensMateProjectInitialized = true
         @initializeProject()
       else
@@ -148,10 +148,16 @@ module.exports =
       if atom.project.path
         console.log(atom.project.path)
         self.mavensmateAdapter.client.setProject atom.project.path, (err, response) ->
-          console.log('set the project!')
-          console.log(err)
-          console.log(response)
-          logFetcher = new MavensMateLogFetcher(self.mavensmateAdapter.client.getProject())
+          if err
+            console.log('could not initiate mavensmate project ...')
+            console.log err
+            self.mavensmateAdapter.isProjectValid = false
+            self.panel.addPanelViewItem('Could not activate MavensMate project. MavensMate will not function correctly.<br/>'+err.message.replace(/Error:/g, '<br/>Error:'), 'danger')
+          else
+            console.log('mavensmate project initiated ...')
+            console.log response
+            logFetcher = new MavensMateLogFetcher(self.mavensmateAdapter.client.getProject())
+            self.mavensmateAdapter.isProjectValid = true
           return
 
         # try
@@ -347,7 +353,7 @@ module.exports =
       self = @
       buffer = editorView.editor.getBuffer()
 
-      if buffer.file? and util.isMetadata(buffer.file.getBaseName())
+      if buffer.file? and util.isMetadata(buffer.file.path)
         @subscribe buffer.on 'saved', ->
           params =
             args:
