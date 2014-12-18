@@ -59,7 +59,7 @@ class MavensMateCoreAdapter
       editor: 'atom'
       headless: true
       debugging: false
-      settings: atom.config.getSettings()['MavensMate-Atom']
+      settings: atom.config.get('MavensMate-Atom')
     )
 
     # opens core url in an Atom tab

@@ -61,7 +61,7 @@ module.exports =
     # filters the selected items against metadata extensions
     @getSelectedFiles: ->
       selectedFilePaths = []
-      apex_file_extensions = atom.config.getSettings()['MavensMate-Atom'].mm_apex_file_extensions
+      apex_file_extensions = atom.config.get('MavensMate-Atom').mm_apex_file_extensions
       treeView = this.treeView()
       if treeView.hasFocus() # clicked in sidebar
         filePaths = treeView.selectedPaths()
