@@ -367,3 +367,5 @@ module.exports =
           self.mavensmateAdapter.executeCommand(params)
             .then (result) ->
               self.mmResponseHandler(params, result)
+            .catch (err) ->
+              self.mmResponseHandler(params, err)

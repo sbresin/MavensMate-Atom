@@ -76,9 +76,13 @@ class CompileParser extends CommandParser
 
   parse: ->
     if @result.error?
-      @obj.message = @result.error
+      if @result.result? and _.isString(@result.result) and @result.error?
+        @obj.message = @result.result+': '+@result.error
+      else
+        @obj.message = @result.error
       @obj.success = false
-      return
+      @obj.indicator = 'danger'
+      return @obj
 
     filesCompiled = {}
     for filePath in @params.payload.files
