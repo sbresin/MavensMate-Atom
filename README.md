@@ -9,9 +9,9 @@ MavensMate for Atom is a plugin for the Atom text editor that enables Salesforce
 
 ### Installation
 
-#### Prerequisites
+#### `node-keytar` Dependency (optional)
 
-MavensMate for Atom uses a node module called `node-keytar`, from the developers of Atom, to securely access the keychain. The prerequisite for installing `node-keytar` varies by platform:
+MavensMate for Atom includes an optional dependency, `node-keytar`, from the developers of Atom. `node-keytar` enables MavensMate to securely access the system keychain. The prerequisite for installing `node-keytar` varies by platform:
 
 ##### OSX
 
