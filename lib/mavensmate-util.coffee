@@ -76,17 +76,16 @@ module.exports =
 
     @openUrlInAtom: (params, split = 'right') ->
       resource = Object.keys(params.result)[0]
-      console.log 'RESOURCE IS: '+resource
+      # console.log 'RESOURCE IS: '+resource
       params.textEditor = atom.workspace.getActiveEditor()
       if resource.indexOf('.page') >= 0
         params.split = split
         atom.workspace.open('mavensmate://salesforceView', params)
-      else
-        # params.split = split
-        # atom.workspace.open('mavensmate://salesforceBrowserView', params)
-
-        foo = new MavensMateBrowserView(params)
-        atom.workspace.addRightPanel(item:foo)
+      # else
+      #   # params.split = split
+      #   # atom.workspace.open('mavensmate://salesforceBrowserView', params) --> this currently crashes Atom, ostensibly due to an atom-shell issue
+      #   # browserView = new MavensMateBrowserView(params)
+      #   # atom.workspace.addRightPanel(item:browserView)
 
     # returns true if autocomplete-plus is installed
     @isAutocompletePlusInstalled: ->

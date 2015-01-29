@@ -136,10 +136,6 @@
         "refresh-apex-symbols": {
             "operation": "index-apex"
         },
-        "open-in-salesforce": {
-            "operation": "open-metadata",
-            "payloadFiles": "active"
-        },
         "visualforce-live-preview": {
             "operation": "open-metadata",
             "payloadFiles": "active",
