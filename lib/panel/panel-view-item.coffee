@@ -110,7 +110,7 @@ module.exports =
         when 'index-apex'
           msg = 'Indexing Apex symbols for this project'
         else
-          msg = 'mm ' + @command
+          msg = 'mavensmate ' + @command
       console.log msg
       header = '['+moment().format('MMMM Do YYYY, h:mm:ss a')+']<br/>'
       return header + '> ' + msg
