@@ -1,24 +1,66 @@
-describe 'Main Loader', ->
+helper                    = require './spec-helper'
+temp                      = require 'temp' # npm install temp
+path                      = require 'path' # npm install path
+Q                         = require 'q'
 
-  describe 'before activation', ->
-    it "settings aren't defined", ->
-      expect(atom.config.getSettings()['MavensMate-Atom']).toBeUndefined()
+describe 'main.coffee', ->
 
-    it "isn't activated", ->
+  describe 'package pre activation', ->
+    
+    it 'should not have settings', ->
+      expect(atom.config.get('MavensMate-Atom')).toBeUndefined()
+
+    it 'is not be activated', ->
       expect(atom.packages.activePackages['MavensMate-Atom']).toBeUndefined()
 
-  describe 'after activation', ->
+  describe 'package activation', ->
+
+    [buffer, directory, editor, editorView, filePath, workspaceElement] = []
+    mavensmate = null
+    projectPath = null
 
     beforeEach ->
+      atom.project.setPaths([''])
+
+      workspaceElement = atom.views.getView(atom.workspace)
+      jasmine.attachToDOM(workspaceElement)
+     
+      activationPromise = atom.packages.activatePackage('MavensMate-Atom').then ({mainModule}) ->
+        mavensmate = mainModule.mavensmate
+
+        spyOn(mavensmate.mavensmateAdapter, 'setProject').andCallFake (p) ->
+          deferred = Q.defer()
+          deferred.resolve()
+          deferred.promise
+
+        spyOn(mavensmate.mavensmateAdapter.client, 'getProject').andCallFake ->
+          project =
+            path: projectPath
+            name: 'bar'
+            logService:
+              on: ->
+          return project
+        
       waitsForPromise ->
-        atom.packages.activatePackage 'MavensMate-Atom'
+        activationPromise
 
-    it 'to be activated', ->
-      expect(atom.packages.activePackages['MavensMate-Atom']).toBeDefined()
+      runs ->
+        projectPath = path.join(__dirname, 'fixtures', 'testProject')
+        atom.project.setPaths([projectPath])
 
-    it 'settings are defined', ->
-      expect(atom.config.getSettings()['MavensMate-Atom']).toBeDefined()
-      config = atom.config.getSettings()['MavensMate-Atom']
+      waitsForPromise ->
+        atom.workspace.open('src/package.xml')
+
+      runs ->
+        editor = atom.workspace.getActiveTextEditor()
+        editorView = atom.views.getView(editor)
+
+    it 'should activate package in Atom', ->
+      expect(atom.packages.isPackageActive('MavensMate-Atom')).toBe true
+
+    it 'should have default settings defined', ->
+      expect(atom.config.get('MavensMate-Atom')).toBeDefined()
+      config = atom.config.get('MavensMate-Atom')
       expect(config.mm_timeout).toBeDefined()
       expect(config.mm_developer_mode).toBeDefined()
       expect(config.mm_community_api_token).toBeDefined()
@@ -44,4 +86,31 @@ describe 'Main Loader', ->
       expect(config.mm_ignore_managed_metadata).toBeDefined()
       expect(config.mm_use_org_metadata_for_completions).toBeDefined()
       expect(config.mm_apex_file_extensions).toBeDefined()
+
+    it 'should attach commands', ->
+      expect(helper.hasCommand(workspaceElement, 'mavensmate:new-project')).toBeTruthy()
+      expect(helper.hasCommand(workspaceElement, 'mavensmate:open-project')).toBeTruthy()
+      expect(helper.hasCommand(workspaceElement, 'mavensmate:compile-project')).toBeTruthy()
+    
+    it 'calls openProject() method for mavensmate:open-project event', ->
+      spyOn mavensmate, 'openProject'
+      atom.commands.dispatch(editorView, 'mavensmate:open-project')
+      expect(mavensmate.openProject).toHaveBeenCalled()
+      jasmine.unspy mavensmate, 'openProject'
+
+    it 'calls newProject() method for mavensmate:new-project event', ->
+      spyOn mavensmate, 'newProject'
+      atom.commands.dispatch(editorView, 'mavensmate:new-project')
+      expect(mavensmate.newProject).toHaveBeenCalled()
+      jasmine.unspy mavensmate, 'newProject'
+
+  describe 'package deactivation', ->
+
+    beforeEach ->
+      atom.packages.deactivatePackage 'MavensMate-Atom'
+
+    it 'should deactivate package in Atom', ->
+      expect(atom.packages.activePackages['MavensMate-Atom']).toBeUndefined()
+
+
      

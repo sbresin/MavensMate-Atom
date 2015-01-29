@@ -3,7 +3,7 @@ Q                     = require 'q'
 tracker               = require('./mavensmate-promise-tracker').tracker
 emitter               = require('./mavensmate-emitter').pubsub
 MavensMateModalView   = require './mavensmate-modal-view'
-{ScrollView}          = require 'atom'
+{ScrollView}          = require 'atom-space-pen-views'
 _                     = require 'underscore-plus'
 
 globalFunction = global.Function
@@ -54,6 +54,7 @@ class MavensMateCoreAdapter
   uiServer: null
 
   initialize: () ->
+    self = @
     @client = mavensmate.createClient(
       editor: 'atom'
       headless: true
@@ -62,22 +63,42 @@ class MavensMateCoreAdapter
     )
 
     # opens core url in an Atom tab
-    atom.workspace.registerOpener (uri, params) ->
-      createUiView(params) if uri is 'mavensmate://core'
+    atom.workspace.addOpener (uri, params) ->
+      self.createUiView(params) if uri is 'mavensmate://core'
 
   startUIServer: () ->
     @uiServer = mavensmate.startUIServer(@client)
 
   openUI: (params) ->
     if params.args.view == 'tab'
-      atom.workspaceView.open('mavensmate://core', params)
+      atom.workspace.open('mavensmate://core', params)
     else
       modalView = new MavensMateModalView params.args.url #attach app view pane
       modalView.appendTo document.body
   
-  createUiView = (params) ->
+  createUiView: (params) ->
     ui = new MavensMateCoreView(params)
      
+  setProject: (projectPath) ->
+    console.log 'setting project from core-adapter ===>'
+    
+    deferred = Q.defer()
+    
+    @client.setProject projectPath, (err, response) ->
+      # console.log 'project set response -->'
+      # console.log err
+      # console.log response
+      if err
+        console.error('could not initiate mavensmate project ...')
+        console.error err
+        deferred.reject err
+      else
+        # console.log('mavensmate project initiated ...')
+        # console.log response
+        deferred.resolve response
+
+    deferred.promise
+
   executeCommand: (params) ->
     console.log 'executing command via core adapter: '
     console.log params

@@ -1,6 +1,6 @@
-{View} = require 'atom'
-Firepad = require '../../scripts/firepad-lib'
-FirepadUserList = require '../../scripts/firepad-userlist'
+{View}            = require 'atom-space-pen-views'
+Firepad           = require '../../scripts/firepad-lib'
+FirepadUserList   = require '../../scripts/firepad-userlist'
 
 module.exports =
 class ShareUserListView extends View

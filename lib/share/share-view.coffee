@@ -1,4 +1,5 @@
-{View, EditorView}  = require 'atom'
+{EditorView}        = require 'atom'
+{View}              = require 'atom-space-pen-views'
 Crypto              = require 'crypto'
 Firebase            = require 'firebase'
 Firepad             = require '../../scripts/firepad-lib'
@@ -21,14 +22,14 @@ class MavensMateShareView extends View
   detaching: false
 
   initialize: ->
-    atom.workspaceView.command 'mavensmate:share-session', => @share()
-    atom.workspaceView.command 'mavensmate:unshare-session', => @unshare()
+    atom.commands.add 'atom-workspace', 'mavensmate:share-session', => @share()
+    atom.commands.add 'atom-workspace', 'mavensmate:unshare-session', => @unshare()
 
     @miniEditor.hiddenInput.on 'focusout', => @detach() unless @detaching
     @on 'core:confirm', => @confirm()
     @on 'core:cancel', => @detach()
 
-    @miniEditor.preempt 'textInput', (e) =>
+    @miniEditor.preempt 'textInput', (e) ->
       false unless e.originalEvent.data.match(/[a-zA-Z0-9\-]/)
 
   detach: ->
@@ -38,15 +39,7 @@ class MavensMateShareView extends View
     super
     @detaching = false
 
-  # share: ->
-  #   if editor = atom.workspace.getActiveEditor()
-  #     atom.workspaceView.append(this)
-  #     @message.text('Enter a string to identify this share session')
-  #     @miniEditor.focus()
-
-  share: ->
-    # shareId = @miniEditor.getText()
-    
+  share: ->    
     # @hash = Crypto.createHash('sha256').update(shareId).digest('base64');
     extension = util.extension(util.activeFile())
     @hash = uuid.v1()

@@ -6,9 +6,7 @@ module.exports =
 class MavensMateErrorMarkers
   Subscriber.includeInto(this)
 
-  constructor: (@editorView) ->
-    { @editor, @gutter } = @editorView
-
+  constructor: (@textEditor) ->
     @initialize()
     @refreshMarkers()
 
@@ -23,25 +21,28 @@ class MavensMateErrorMarkers
     @markers = null
 
   refreshMarkers: ->
-    return unless @gutter.isVisible()
-    if @editor.getPath() 
-      if atom.project.errors[@editor.getPath()]?
-        errors = atom.project.errors[@editor.getPath()]
-      else
-        currentFileNameWithoutExtension = util.withoutExtension(util.baseName(@editor.getPath()))
-        errors = atom.project.errors[currentFileNameWithoutExtension] ? []
-      
-    @clearMarkers()
+    try
+      console.log 'refreshing buffer markers ...'
+      if @textEditor.getPath()
+        if atom.project.mavensMateErrors[@textEditor.getPath()]?
+          errors = atom.project.mavensMateErrors[@textEditor.getPath()]
+        else
+          currentFileNameWithoutExtension = util.withoutExtension(util.baseName(@textEditor.getPath()))
+          errors = atom.project.mavensMateErrors[currentFileNameWithoutExtension] ? []
+        
+      @clearMarkers()
 
-    if errors?
-      lines_to_highlight = (error['lineNumber'] for error in errors when error['lineNumber']?)
-      for line in lines_to_highlight
+      if errors?
+        lines_to_highlight = (error['lineNumber'] for error in errors when error['lineNumber']?)
+        for line in lines_to_highlight
           @markRange(line-1, line-1, 'mm-compile-error-gutter', 'gutter')
           @markRange(line-1, line-1, 'mm-compile-error-line', 'highlight')
+    catch error
+      console.log 'error refreshing buffer markers'
+      console.error error
 
   markRange: (startRow, endRow, klass, type) ->
-    # todo: range = editor.getBuffer().rangeForRow(34)?
-    marker = @editor.markBufferRange([[startRow, 0], [endRow, Infinity]], invalidate: 'never')
-    @editor.decorateMarker(marker, type: type, class: klass)
+    marker = @textEditor.markBufferRange([[startRow, 0], [endRow, Infinity]], invalidate: 'never')
+    @textEditor.decorateMarker(marker, type: type, class: klass)
     @markers ?= []
     @markers.push(marker)

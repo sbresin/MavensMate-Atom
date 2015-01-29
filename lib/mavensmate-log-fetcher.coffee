@@ -1,6 +1,6 @@
-{View, EditorView}      = require 'atom'
-Repeat                  = require 'repeat'
-mavensMateAdapter       = require('./mavensmate-core-adapter')
+{View}              = require 'atom-space-pen-views'
+Repeat              = require 'repeat'
+mavensMateAdapter   = require('./mavensmate-core-adapter')
 
 class MavensMateLogFetcher
   
@@ -22,41 +22,40 @@ class MavensMateLogFetchedView extends View
   constructor: (path) ->
     super
     console.log 'constructing view --->'
+    console.log path
     @path = path
 
   initialize: ->
     # when open log button is clicked, log is opened in atom and flash alert is hidden
-    thiz = @
+    self = @
     @openLog.click ->
-      atom.workspaceView.open(thiz.path)
+      atom.workspaceView.open(self.path)
       .then (result) ->
-        thiz.destroy()
+        self.destroy()
 
   show: ->
-    atom.workspaceView.getActivePane().activeView.append(this)
-    thiz = @
-    
+    self = @
+    atom.workspaceView.append(this) # TODO: deprecated
+ 
     # ensures log notification stays open if mouse is over it
     # otherwise disappears after 5 seconds
     hideTimer = setTimeout(->
-      thiz.destroy()
+      self.destroy()
       return
     , 5000)
     
-    thiz.bind "mouseleave", ->
+    self.bind "mouseleave", ->
       hideTimer = setTimeout(->
-        thiz.destroy()
+        self.destroy()
         return
       , 5000)
       return
 
-    thiz.bind "mouseenter", ->
+    self.bind "mouseenter", ->
       clearTimeout hideTimer  if hideTimer isnt null
       return
 
   destroy: ->
-    @unsubscribe()
     @detach()
-
 
 module.exports = MavensMateLogFetcher

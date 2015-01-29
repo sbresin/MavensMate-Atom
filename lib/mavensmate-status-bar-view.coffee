@@ -1,5 +1,5 @@
 {spawn}         = require 'child_process'
-{View}          = require 'atom'
+{View}          = require 'atom-space-pen-views'
 $               = require 'jquery'
 emitter         = require('./mavensmate-emitter').pubsub
 tracker         = require('./mavensmate-promise-tracker').tracker

@@ -10,8 +10,7 @@ window.jQuery = $
 module.exports =
   class MavensMateCheckpointHandler
 
-    constructor: (@editorView, @mm, @responseHandler) ->
-      { @editor, @gutter } = @editorView
+    constructor: (@textEditor, @mm, @responseHandler) ->
       # @mm = mm
       # @responseHandler = rh
       # console.log @responseHandler
@@ -35,7 +34,6 @@ module.exports =
       @markers = null
 
     refreshMarkers: ->
-      return unless @gutter.isVisible()
       @currentFile ?= util.activeFileBaseName()
       @clearMarkers()
 
@@ -45,7 +43,7 @@ module.exports =
             console.log error
           else
             overlays = JSON.parse data
-            atom.project.checkpointCount = overlays.length
+            atom.project.mavensMateCheckpointCount = overlays.length
             for overlay in overlays
               if overlay.API_Name is @currentFile.split('.')[0]
                 line = parseInt overlay.Line
@@ -53,14 +51,14 @@ module.exports =
                 marked.marker.mm_checkpointId = overlay.Id
 
     markRange: (startRow, endRow, klass, type) ->
-      marker = @editor.markBufferRange([[startRow, 0], [endRow, Infinity]], invalidate: 'inside')
-      decoration = @editor.decorateMarker(marker, type: type, class: klass)
+      marker = @textEditor.markBufferRange([[startRow, 0], [endRow, Infinity]], invalidate: 'inside')
+      decoration = @textEditor.decorateMarker(marker, type: type, class: klass)
       @markers ?= []
       @markers.push(marker)
       return { marker: marker, decoration: decoration }
 
     handleGutterClickEvents: ->
-      @editorView.find('.line-numbers').on 'click', '.line-number', (event) =>
+      @textEditor.find('.line-numbers').on 'click', '.line-number', (event) =>
         target = $(event.target)
 
         # ignore clicks on icons in the right of the gutter so that collapsing and other events can still occur
@@ -78,9 +76,9 @@ module.exports =
               @toggleCheckpoint marker, null if marker.mm_checkpointId?
               @markers.splice index, 1
               marker.destroy()
-              atom.project.checkpointCount--
+              atom.project.mavensMateCheckpointCount--
         else
-          if atom.project.checkpointCount >= util.sfdcSettings.maxCheckpoints
+          if atom.project.mavensMateCheckpointCount >= util.sfdcSettings.maxCheckpoints
             atom.confirm
               message: 'Too many checkpoints'
               detailedMessage: "Cannot set more than #{util.sfdcSettings.maxCheckpoints} checkpoint locations"
@@ -88,7 +86,7 @@ module.exports =
                 Ok: null
                 'Refresh Checkpoints': @refreshCheckpoints
             return
-          atom.project.checkpointCount++
+          atom.project.mavensMateCheckpointCount++
           marked = @markRange line-1, line-1, 'mm-checkpoint-gutter-processing', 'gutter'
           @toggleCheckpoint marked.marker, marked.decoration
 

@@ -1,4 +1,4 @@
-{View} = require 'atom'
+{View}          = require 'atom-space-pen-views'
 FirepadUserList = require '../../scripts/firepad-userlist'
 
 module.exports =

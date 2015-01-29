@@ -1,4 +1,4 @@
-{$, View}             = require 'atom'
+{$, View}             = require 'atom-space-pen-views'
 {Subscriber,Emitter}  = require 'emissary'
 emitter               = require('../mavensmate-emitter').pubsub
 util                  = require '../mavensmate-util'
@@ -13,7 +13,7 @@ module.exports =
     constructor: ->
       super
       # set panel font-size to that of the editor
-      fontSize = jQuery("div.editor-contents").css('font-size')
+      fontSize = jQuery("atom-text-editor::shadow div.editor-contents--private").css('font-size')
       @terminal.context.style.fontSize = fontSize
 
     initCommandMessage: (command, params) ->
@@ -85,18 +85,18 @@ module.exports =
         when 'index-metadata'
           msg = 'Indexing metadata'
         when 'compile-metadata'
-          if params.payload.files? and params.payload.files.length is 1
-            msg = 'Compiling '+params.payload.files[0].split(/[\\/]/).pop() # extract base name
+          if params.payload.paths? and params.payload.paths.length is 1
+            msg = 'Compiling '+params.payload.paths[0].split(/[\\/]/).pop() # extract base name
           else
             msg = 'Compiling selected metadata'
         when 'delete-metadata'
-          if params.payload.files? and params.payload.files.length is 1
-            msg = 'Deleting ' + params.payload.files[0].split(/[\\/]/).pop() # extract base name
+          if params.payload.paths? and params.payload.paths.length is 1
+            msg = 'Deleting ' + params.payload.paths[0].split(/[\\/]/).pop() # extract base name
           else
             msg = 'Deleting selected metadata'
         when 'refresh-metadata'
-          if params.payload.files? and params.payload.files.length is 1
-            msg = 'Refreshing ' + params.payload.files[0].split(/[\\/]/).pop() # extract base name
+          if params.payload.paths? and params.payload.paths.length is 1
+            msg = 'Refreshing ' + params.payload.paths[0].split(/[\\/]/).pop() # extract base name
           else
             msg = 'Refreshing selected metadata'
         when 'clean-project'

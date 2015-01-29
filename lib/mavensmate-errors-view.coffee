@@ -1,10 +1,10 @@
-{$, $$, ScrollView, View}   = require 'atom'
-{Subscriber,Emitter}  = require 'emissary'
-emitter               = require('./mavensmate-emitter').pubsub
-util                  = require './mavensmate-util'
-pluralize             = require 'pluralize'
-fs                    = require 'fs'
-shell                 = require 'shell'
+{$, $$, View, ScrollView} = require 'atom-space-pen-views'
+{Subscriber,Emitter}      = require 'emissary'
+emitter                   = require('./mavensmate-emitter').pubsub
+util                      = require './mavensmate-util'
+pluralize                 = require 'pluralize'
+fs                        = require 'fs'
+shell                     = require 'shell'
 
 
 module.exports =
@@ -74,22 +74,22 @@ class MavensMateErrorsView extends ScrollView
   addRunningFiles: (params, promiseId) ->
     command = params.args.operation
     if command in util.compileCommands()
-      if command in ['clean_project', 'compile_project']
+      if command in ['clean-project', 'compile-project']
         @running['all'][promiseId] = params
       else
-        if params.payload? and params.payload.files?
-          for runningFile in params.payload.files
+        if params.payload? and params.payload.paths?
+          for runningFile in params.payload.paths
             @running[runningFile] ?= {}
             @running[runningFile][promiseId] = params
 
   removeFinishedFiles: (params, promiseId) ->
     command = params.args.operation
     if command in util.compileCommands()
-      if command in ['clean_project', 'compile_project'] and @running['all'][promiseId]?
+      if command in ['clean-project', 'compile-project'] and @running['all'][promiseId]?
         delete @running['all'][promiseId]
       else
-        if params.payload.files?
-          for runningFile in params.payload.files
+        if params.payload.paths?
+          for runningFile in params.payload.paths
             if @running[runningFile][promiseId]?
               delete @running[runningFile][promiseId]
 
@@ -116,8 +116,8 @@ class MavensMateErrorsView extends ScrollView
     numberOfErrors = util.numberOfCompileErrors()
     
     @viewErrorsTableBody.html('')
-    if atom.project.errors?
-      for filePath, errors of atom.project.errors
+    if atom.project.mavensMateErrors?
+      for filePath, errors of atom.project.mavensMateErrors
         
         fileRunning = @isFileRunning(filePath)
         for error in errors

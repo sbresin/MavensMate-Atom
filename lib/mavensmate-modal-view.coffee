@@ -1,5 +1,5 @@
 path            = require 'path'
-{$, ScrollView} = require 'atom'
+{$, ScrollView} = require 'atom-space-pen-views'
 uuid            = require 'node-uuid'
 
 module.exports =

@@ -1,6 +1,6 @@
-{View} = require 'atom'
-Tooltip = require './tooltip'
-BufferItemView = require './buffer-item-view'
+{View}          = require 'atom-space-pen-views'
+Tooltip         = require './tooltip'
+BufferItemView  = require './buffer-item-view'
 
 module.exports =
 class BufferView extends View
@@ -12,9 +12,9 @@ class BufferView extends View
   itemViews: []
   itemViewsDict: {}
 
-  constructor: (@editorView) ->
+  constructor: (@textEditor) ->
     super
-  #   @editorView.append(this)
+  #   @textEditor.append(this)
   #   # @subscriptions.push atom.workspaceView.on 'pane:active-item-changed', =>
   #   #   if @editor.id is atom.workspace.getActiveEditor()?.id
   #   #     @showMarkers()
@@ -23,9 +23,8 @@ class BufferView extends View
 
     @handleBufferEvents()
 
-  initialize: (@editorView) ->
-    @editorView.overlayer.append this
-    @editor = @editorView.getEditor()
+  initialize: (@textEditor) ->
+    @textEditor.overlayer.append this
     # @toggleButtons =
     #   line: @lineToggle
     #   gutter: @gutterToggle
@@ -67,7 +66,7 @@ class BufferView extends View
 
   # Internal: register handlers for editor buffer events
   handleBufferEvents: =>
-    buffer = @editor.getBuffer()
+    buffer = @textEditor.getBuffer()
 
     # @subscriptions.push buffer.on 'reloaded saved', (buffer) =>
     #   @throttledLint() if @lintOnSave
@@ -76,10 +75,10 @@ class BufferView extends View
     #   buffer.off 'reloaded saved'
     #   buffer.off 'destroyed'
 
-    @subscriptions.push @editor.on 'contents-modified', =>
+    @subscriptions.push @textEditor.on 'contents-modified', =>
       @run()
 
-    # atom.workspaceView.command "linter:lint", => @lint()
+    # atom.commands.add "linter:lint", => @lint()
 
   run: ->
 
@@ -90,7 +89,7 @@ class BufferView extends View
     res.push /without sharing/gi
     res.push /[A-Z0-9][A-Z0-9][A-Z0-9]\.visual\.force\.com/gi
 
-    thiz = @
+    self = @
 
     # iterate regex, determine whether to add markers
     for metadata in atom.mavensmate.codeHelperMetadata
@@ -101,22 +100,22 @@ class BufferView extends View
       
       # console.log 'SCANNING FOR: '+re
       
-      thiz.editor.getBuffer().scan re, (bufferMatch) ->
+      self.textEditor.getBuffer().scan re, (bufferMatch) ->
         # console.log 'found match: '
         # console.log bufferMatch
         # console.log bufferMatch.range
-        if not thiz.itemViewsDict[bufferMatch.range]?
+        if not self.itemViewsDict[bufferMatch.range]?
           # console.log 'MATCH DOES NOT EXIST CURRENTLY ---------------->'
           bufferMatch.metadata = metadata
           # console.log bufferMatch
 
-          itemView = new BufferItemView thiz, bufferMatch
+          itemView = new BufferItemView self, bufferMatch
           # console.log 'created item view ~~~~~~~~~>'
           # console.log itemView
           # editor.decorateMarker marker, type: 'line', class: 'line-stackframe'
           # editor.decorateMarker marker, type: 'gutter', class: 'gutter-stackframe'
-          thiz.itemViews.push itemView
-          thiz.itemViewsDict[itemView.bufferMatch.range] = itemView
+          self.itemViews.push itemView
+          self.itemViewsDict[itemView.bufferMatch.range] = itemView
 
   removeBufferItem: (range) ->
     delete @itemViewsDict[range]
@@ -145,6 +144,6 @@ class BufferView extends View
       violation: @violation
       container: @lintView
       selector: @find('.code-helper-item-area')
-      editorView: @editorView
+      textEditor: @textEditor
 
     new Tooltip(this, options)

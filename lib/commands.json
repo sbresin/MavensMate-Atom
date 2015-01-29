@@ -16,6 +16,14 @@
             "operation": "compile-metadata",
             "payloadFiles": "selected"
         },
+        "new-resource-bundle": {
+            "operation": "new-resource-bundle",
+            "payloadFiles": "selected"
+        },
+        "deploy-resource-bundle": {
+            "operation": "deploy-resource-bundle",
+            "payloadFiles": "selected"
+        },
         "clean-project": {
             "operation": "clean-project",
             "confirm": {
@@ -73,6 +81,26 @@
             "url":"metadata/new?type=ApexComponent",
             "payloadMetadata": "ApexComponent"
         },
+        "new-lightning-app": {
+            "operation": "new-lightning-app",
+            "ui": true,
+            "url":"lightning/new-app"
+        },
+        "new-lightning-component": {
+            "operation": "new-lightning-component",
+            "ui": true,
+            "url":"lightning/new-component"
+        },
+        "new-lightning-event": {
+            "operation": "new-lightning-event",
+            "ui": true,
+            "url":"lightning/new-event"
+        },
+        "new-lightning-interface": {
+            "operation": "new-lightning-interface",
+            "ui": true,
+            "url":"lightning/new-interface"
+        },
         "run-apex-unit-tests": {
             "operation": "test",
             "ui": true,
@@ -91,10 +119,6 @@
             "ui": true,
             "view" : "tab"
         },
-        "new-project-from-existing-directory": {
-            "operation": "new-project-from-existing-directory",
-            "ui": true
-        },
         "start-logging": {
             "operation": "start-logging"
         },
@@ -104,13 +128,14 @@
         "refresh-apex-symbols": {
             "operation": "index-apex"
         },
-        "get-org-test-coverage": {
-            "operation": "get-coverage"
+        "open-in-salesforce": {
+            "operation": "open-metadata",
+            "payloadFiles": "active"
         },
         "visualforce-live-preview": {
-            "operation": "open-sfdc-url",
+            "operation": "open-metadata",
             "payloadFiles": "active",
-            "payloadType": "preview"
+            "payloadPreview": true
         }
     }
 }

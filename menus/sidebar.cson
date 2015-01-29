@@ -1,21 +1,20 @@
 'context-menu':
-  # '.workspace':
-  #   'MavensMate':
-  #     'child-1': 'test-submenu:toggle'
-  #     '-': '-'
-  #     'child-2': 'test-submenu:toggle'
-  '.workspace .line-number':
-    'MavensMate':
-      'child-1': 'test-submenu:toggle'
-      '-': '-'
-      'child-2': 'test-submenu:toggle'
   '.tree-view.multi-select .file':
     'MavensMate':
-      'Delete Files From Server': 'mavensmate:delete-file-from-server'      
+      'Delete Files From Server': 'mavensmate:delete-file-from-server'
       'Refresh From Server': 'mavensmate:refresh-selected-metadata'
       'Compile Files': 'mavensmate:compile-selected-metadata'
-  '.tree-view:not(.multi-select) .file, .pane .item-views':
+  '.tree-view .directory .header':
     'MavensMate':
-      'Delete File From Server': 'mavensmate:delete-file-from-server'            
+      'Delete From Server': 'mavensmate:delete-file-from-server'
+  '.tree-view .file, .atom-pane .item-views':
+    'MavensMate':
+      'Delete File From Server': 'mavensmate:delete-file-from-server'
       'Refresh From Server': 'mavensmate:refresh-selected-metadata'
       'Compile File': 'mavensmate:compile-selected-metadata'
+  '.tree-view:not(.multi-select) .file span[data-name*=".resource"]':
+    'MavensMate':
+      'New Resource Bundle': 'mavensmate:new-resource-bundle'
+  '.tree-view:not(.multi-select) .directory span[data-path*="resource-bundles"]':
+    'MavensMate':
+      'Deploy Resource Bundle': 'mavensmate:deploy-resource-bundle'

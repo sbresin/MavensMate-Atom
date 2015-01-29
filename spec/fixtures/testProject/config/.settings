@@ -15,5 +15,6 @@
         "StaticResource", 
         "CustomObject", 
         "Profile"
-    ]
+    ],
+    "password" : "foo"
 }

@@ -1,20 +1,18 @@
-{$, $$$, ScrollView, View} = require 'atom'
-Convert = null
-{Subscriber,Emitter} = require 'emissary'
-emitter             = require('../mavensmate-emitter').pubsub
-util                = require '../mavensmate-util'
-moment              = require 'moment'
-pluralize           = require 'pluralize'
-
+{$, View}               = require 'atom-space-pen-views'
+{Subscriber,Emitter}    = require 'emissary'
+emitter                 = require('../mavensmate-emitter').pubsub
+util                    = require '../mavensmate-util'
+moment                  = require 'moment'
+pluralize               = require 'pluralize'
+uuid                    = require 'node-uuid'
 MavensMatePanelViewItem = require './panel-view-item'
-
 
 # The status panel that shows the result of command execution, etc.
 class MavensMatePanelView extends View
   Subscriber.includeInto this
 
   fetchingLogs: false
-  panelItems: []
+  panelDictionary: {}
   collapsed: true
   panelViewHeight: null
 
@@ -38,7 +36,7 @@ class MavensMatePanelView extends View
 
   setPanelViewHeight: (height, animate = true, setPanelHeight = true) =>
     if animate
-      jQuery(@).animate({height:height}, 'fast')  
+      jQuery(@).animate({ height:height }, 'fast')
     else
       @height(height)
     jQuery('.mavensmate-output .message').css('max-height',height-54+'px')
@@ -57,7 +55,7 @@ class MavensMatePanelView extends View
         @div class: 'container-fluid', =>
           @div class: 'row', style: 'padding:10px 0px', =>
             @div class: 'col-md-6', =>
-              @h3 'MavensMate Salesforce1 IDE for Atom.io', outlet: 'myHeader', class: 'clearfix', =>
+              @h3 'MavensMate Salesforce1 IDE for Atom', outlet: 'myHeader', class: 'clearfix', ->
             @div class: 'col-md-6', =>
               @span class: 'config', style: 'float:right', =>
                 @button class: 'btn btn-sm btn-default btn-view-errors', outlet: 'btnViewErrors', =>
@@ -82,7 +80,7 @@ class MavensMatePanelView extends View
       if self.collapsed
         self.expand()
       else
-        self.collapse() 
+        self.collapse()
 
     @btnClearPanel.click ->
       self.clear()
@@ -115,25 +113,17 @@ class MavensMatePanelView extends View
       else if params.args? and params.args.operation?
         operation = params.args.operation
 
-      console.log 'operation is -=-[-=-=-=-=->'
-      console.log operation
-
       if operation? and operation not in util.panelExemptCommands() and not params.skipPanel # some commands are not piped to the panel
         console.log 'panel view picked up an event!'
         console.log params
         console.log result
 
-        promisePanelViewItem = self.panelItems[promiseId]
+        promisePanelViewItem = self.panelDictionary[promiseId]
         promisePanelViewItem.update self, params, result
         
         if promisePanelViewItem.command in util.compileCommands()
           emitter.emit 'mavensmate:compile-finished', params, promiseId
 
-        console.log '~~~~~~~~~~~~~'
-        console.log promisePanelViewItem
-        # console.log 'running panels!'
-        # console.log self.countPanels()
-        # console.log result
         # todo: in order to hide panel when the command completes, we need a way of knowing whether
         #       the command was ultimately successful (collapse panel) or a failure (keep panel open)
         #       bc the responses do not always contain a success property, for example, this is current difficult to do
@@ -156,7 +146,7 @@ class MavensMatePanelView extends View
 
     panelItem = new MavensMatePanelViewItem() # initiate new panel item
     panelItem.initGenericMessage(message, status)
-    # @panelItems[params.promiseId] = panelItem # add panel to dictionary
+    @panelDictionary[uuid.v1()] = panelItem # add panel to dictionary
     @myOutput.prepend panelItem # add panel item to panel
 
   # Update the mavensmate output view contents.
@@ -170,38 +160,44 @@ class MavensMatePanelView extends View
 
     panelItem = new MavensMatePanelViewItem() # initiate new panel item
     panelItem.initCommandMessage(command, params)
-    @panelItems[params.promiseId] = panelItem # add panel to dictionary
+    @panelDictionary[params.promiseId] = panelItem # add panel to dictionary
     @myOutput.prepend panelItem # add panel item to panel
 
-  collapseIfNoRunning: () ->
+  collapseIfNoRunning: ->
     if @countPanels() == 0
       @collapse()
 
-  collapse: () ->
+  collapse: ->
     if not @collapsed
       @setPanelViewHeight(40, true, false)
       @btnToggleIcon.removeClass 'fa-toggle-down'
       @btnToggleIcon.addClass 'fa-toggle-up'
       @collapsed = true
 
-  expand: () ->
-    @setPanelViewHeight(@panelViewHeight)  
+  expand: ->
+    @setPanelViewHeight(@panelViewHeight)
     @btnToggleIcon.removeClass 'fa-toggle-up'
     @btnToggleIcon.addClass 'fa-toggle-down'
     @collapsed = false
 
+  toggleView: ->
+    if @collapsed
+      @expand()
+    else
+      @collapse()
+
   clear: () ->
     $('.panel-item').remove()
-    @panelItems = []
+    @panelDictionary = {}
 
-  afterAttach: (onDom) ->
+  attached: (onDom) ->
     # when attached to dom, set height based on user setting
     self = @
-    atom.workspaceView.command 'mavensmate:toggle-panel', ->
+    atom.commands.add 'atom-workspace', 'mavensmate:toggle-panel', ->
       if self.collapsed
         self.expand()
       else
-        self.collapse() 
+        self.collapse()
     @panelViewHeight = atom.config.get('MavensMate-Atom.mm_panel_height')
     @expand()
 
@@ -217,14 +213,14 @@ class MavensMatePanelView extends View
   #
   countPanels: (commands = []) ->
     panelCount = 0
-    console.log @panelItems
-    console.log commands
+    # console.log @panelDictionary
+    # console.log commands
     if commands.length == 0
-      for promiseId, panelViewItem of @panelItems    
+      for promiseId, panelViewItem of @panelDictionary
         if panelViewItem.running
           panelCount++
     else
-      for promiseId, panelViewItem of @panelItems    
+      for promiseId, panelViewItem of @panelDictionary
         if panelViewItem.command in commands and panelViewItem.running
           panelCount++
     return panelCount
@@ -250,7 +246,7 @@ class MavensMatePanelView extends View
       else
         @btnViewErrors.removeClass 'btn-default'
         @btnViewErrors.addClass 'btn-error'
-        @btnViewErrors.removeClass 'btn-warning'        
+        @btnViewErrors.removeClass 'btn-warning'
     else
       @viewErrorsIcon.addClass 'fa-spin'
       @btnViewErrors.removeClass 'btn-default'
@@ -261,10 +257,11 @@ class MavensMatePanelView extends View
   #
   # Returns nothing.
   toggle: ->
+    self = @
     if @hasParent()
       @detach()
     else
-      atom.workspaceView.prependToBottom(this) unless @hasParent() #todo: attach to specific workspace view
+      atom.workspace.addBottomPanel(item:self) unless @hasParent() #todo: attach to specific workspace view
 
 
 

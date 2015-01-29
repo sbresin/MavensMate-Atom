@@ -1,8 +1,8 @@
-'.workspace':
+'.atom-workspace':
   'ctrl-alt-o': 'mavensmate:open-project'
   'ctrl-alt-n': 'mavensmate:new-project'
   'ctrl-alt-/': 'mavensmate:toggle-panel'
-'.editor':
+'atom-text-editor':
   'ctrl-alt-s': 'mavensmate:compile'
   'ctrl-alt-p': 'mavensmate:compile-project'
   'ctrl-alt-x': 'mavensmate:run-apex-script'

@@ -1,6 +1,7 @@
 _ = require 'lodash'
-{$, View, Range, Point} = require 'atom'
-ViolationTooltip        = require './tooltip'
+{$, Range, Point}   = require 'atom'
+{View}              = require 'atom-space-pen-views'
+ViolationTooltip    = require './tooltip'
 
 module.exports =
 class BufferItemView extends View

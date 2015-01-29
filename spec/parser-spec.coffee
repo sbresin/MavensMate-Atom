@@ -1,39 +1,59 @@
-# helper packages for test
-temp    = require 'temp' # npm install temp
-path    = require 'path' # npm install path
+parseCommand = require('../lib/panel/parsers').parse
 
-# Automatically track and cleanup files at exit
-temp.track()
+describe 'clean-project parser', ->
 
-{WorkspaceView} = require 'atom'
-emitter = require('../lib/mavensmate-emitter').pubsub
-{panel} = require '../lib/panel/panel-view'
+  it 'should parse successful project clean', ->
+    commandResult =
+      result: 'Project cleaned successfully'
 
-xdescribe 'MavensMate Panel View', ->
-  beforeEach ->
-    atom.project.setPath(path.join(__dirname, 'fixtures', 'testProject'))
-    # set up the workspace
-    atom.workspaceView = new WorkspaceView()
-    atom.workspace = atom.workspaceView.model
+    parseResult = parseCommand('clean-project', {}, commandResult)
+    expect(parseResult.error).toBe(undefined)
+    expect(parseResult.stackTrace).toBe(undefined)
+    expect(parseResult.indicator).toBe('success')
+    expect(parseResult.message).toBe('Project cleaned successfully')
 
-    # activate the mavensmate package
-    waitsForPromise ->
-      atom.packages.activatePackage 'MavensMate-Atom'
+  it 'should parse failed project clean', ->
+    commandResult =
+      error: 'Failed!'
+      result: 'Could not clean project'
+      stack: 'A stack trace'
 
-  it 'should be defined', ->
-    expect(panel).toBeDefined()
-    expect(panel).toBeDefined()
-    expect(panel[0].outerText).toBe('MavensMate for Atom.io')
-    expect(panel.myHeader).toBeDefined()
-    expect(panel.myOutput).toBeDefined()
+    parseResult = parseCommand('clean-project', {}, commandResult)
+    expect(parseResult.isException).toBe(true)
+    expect(parseResult.stackTrace).toBe('A stack trace')
+    expect(parseResult.indicator).toBe('danger')
+    expect(parseResult.message).toBe('Could not clean project')
 
-  # describe 'Run All Tests (Async)', ->
+describe 'logging parser', ->
+
+  it 'should parse start logging', ->
+    commandResult =
+      result: 'Started logging'
+
+    parseResult = parseCommand('start-logging', {}, commandResult)
+    expect(parseResult.error).toBe(undefined)
+    expect(parseResult.indicator).toBe('info')
+    expect(parseResult.message).toBe('Started logging')
+
+  it 'should parse start logging failure', ->
+    commandResult =
+      error: 'Failed!'
+      result: 'Could not start logging'
+      stack: 'A stack trace'
+
+    parseResult = parseCommand('start-logging', {}, commandResult)
+    expect(parseResult.isException).toBe(true)
+    expect(parseResult.stackTrace).toBe('A stack trace')
+    expect(parseResult.indicator).toBe('danger')
+    expect(parseResult.message).toBe('Could not start logging')
+
+# describe 'Run All Tests (Async)', ->
   #   beforeEach ->
   #     # set up spy and ensure that calls are delegated
   #     spyOn(panel, 'getRunAsyncTestsCommandOutput').andCallThrough()
   #     spyOn(mm, 'run').andCallThrough()
 
-  #   it 'should invoke mavensmate:run-all-tests-async', ->
+  #   fit 'should invoke mavensmate:run-all-tests-async', ->
   #     atom.workspaceView.trigger 'mavensmate:run-all-tests-async'
   #     expect(mm.run).toHaveBeenCalled()
   #     expect(mm.run.mostRecentCall.args[0].args.operation).toBe('run_all_tests')
@@ -281,57 +301,6 @@ xdescribe 'MavensMate Panel View', ->
   #   it 'should indicate when it is done compiling', ->
   #     myParams = {args: {operation: 'compile_project'}, promiseId: 'my-fake-promiseId'}
   #     successResponse = require('./fixtures/mavensmate-panel-view/compile_project_success.json')
-
-  # # New Quick Log
-  # describe 'New Quick Log', ->
-  #   it 'should indicate that new log was created', ->
-  #     myParams = {args: {operation: 'new_quick_trace_flag'}, promiseId: 'my-fake-promiseId'}
-  #     response = require('./fixtures/mavensmate-panel-view/new_quick_log.json')
-
-  #     # simulate the emitter firing due to a panel start then finish with a success response from tooling api
-  #     emitter.emit 'mavensmatePanelNotifyStart', myParams, 'my-fake-promiseId'
-  #     emitter.emit 'mavensmatePanelNotifyFinish', myParams, response, 'my-fake-promiseId'
-
-  #     # ensure the correct message was set
-  #     expect(panel.myOutput.find('div#message-my-fake-promiseId').html()).toBe('1 Log(s) created successfully')
-  #     expect(panel.myOutput.find('div#stackTrace-my-fake-promiseId div pre').html()).toBe('')
-  #     expect(panel.myOutput.find('div.progress-bar').hasClass('progress-bar-success')).toBe(true)
-
-  #   it 'should indicate when an error occurred creating new log', ->
-  #     myParams = {args: {operation: 'new_quick_trace_flag'}, promiseId: 'my-fake-promiseId'}
-  #     response = require('./fixtures/mavensmate-panel-view/new_quick_log_error.json')
-
-  #     # simulate the emitter firing due to a panel start then finish with a success response from tooling api
-  #     emitter.emit 'mavensmatePanelNotifyStart', myParams, 'my-fake-promiseId'
-  #     emitter.emit 'mavensmatePanelNotifyFinish', myParams, response, 'my-fake-promiseId'
-
-  #     # ensure the correct message was set
-  #     expect(panel.myOutput.find('div#message-my-fake-promiseId').html()).toBe('Malformed request...')
-  #     expect(panel.myOutput.find('div#stackTrace-my-fake-promiseId div pre').html()).not.toBe('')
-  #     expect(panel.myOutput.find('div.progress-bar').hasClass('progress-bar-danger')).toBe(true)
-
-  # describe 'Reset Metadata Container', ->
-  #   beforeEach ->
-  #     spyOn(mm, 'run').andCallThrough()
-  #     spyOn(atom, 'confirm').andReturn(0)
-
-  #   it 'should invoke mavensmate:reset-metadata-container', ->
-  #     atom.workspaceView.trigger 'mavensmate:reset-metadata-container'
-
-  #     expect(mm.run).toHaveBeenCalled()
-  #     expect(mm.run.mostRecentCall.args[0].args.operation).toBe('reset_metadata_container')
-
-
-  # describe 'Clean Project', ->
-  #   beforeEach ->
-  #     spyOn(mm, 'run').andCallThrough()
-  #     spyOn(atom, 'confirm').andReturn(0)
-
-  #   it 'should invoke mavensmate:clean-project', ->
-  #     atom.workspaceView.trigger 'mavensmate:clean-project'
-
-  #     expect(mm.run).toHaveBeenCalled()
-  #     expect(mm.run.mostRecentCall.args[0].args.operation).toBe('clean_project')
 
   # describe 'Generic Operations', ->
   #   beforeEach ->

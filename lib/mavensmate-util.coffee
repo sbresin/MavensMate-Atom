@@ -1,10 +1,10 @@
-_                       = require 'underscore-plus'
-_.str                   = require 'underscore.string'
-fs                      = require 'fs'
-os                      = require 'os'
-path                    = require 'path'
-config                  = require('./mavensmate-config').config
-mavensMateCoreAdapter   = require('./mavensmate-core-adapter')
+_                         = require 'underscore-plus'
+_.str                     = require 'underscore.string'
+fs                        = require 'fs'
+os                        = require 'os'
+path                      = require 'path'
+config                    = require('./mavensmate-config').config
+mavensMateCoreAdapter     = require('./mavensmate-core-adapter')
 
 module.exports =
 
@@ -74,10 +74,14 @@ module.exports =
       return selectedFilePaths
 
     @openUrlInAtom: (params, split = 'right') ->
-      params.split = split
-      params.editorView = atom.workspace.getActiveEditor()
-      params.buffer = params.editorView.getBuffer()
-      atom.workspaceView.open('mavensmate://serverView', params)
+      resource = Object.keys(params.result)[0]
+      console.log 'RESOURCE IS: '+resource
+      params.textEditor = atom.workspace.getActiveEditor()
+      if resource.indexOf('.page') >= 0
+        params.split = split
+        atom.workspace.open('mavensmate://salesforceView', params)
+      else
+        atom.workspace.open('mavensmate://salesforceBrowserView', params)
 
     # returns true if autocomplete-plus is installed
     @isAutocompletePlusInstalled: ->
@@ -103,8 +107,9 @@ module.exports =
         return false
         
     @isMetadata: (filePath) ->
+      console.log 'checking whether file is valid sfdc metadata: '+filePath
       apex_file_extensions = atom.config.get('MavensMate-Atom').mm_apex_file_extensions
-      return this.extension(filePath) in apex_file_extensions and path.basename(path.dirname(filePath)) != 'config'
+      return (path.extname(filePath) in apex_file_extensions || path.basename(path.dirname(path.dirname(filePath))) == 'aura') and path.basename(path.dirname(filePath)) != 'config'
 
     # whether the given command is a request for a ui
     @isUiCommand: (params) ->
@@ -154,9 +159,9 @@ module.exports =
     @numberOfCompileErrors: (fileName) ->
       numberOfErrors = 0
       if fileName?
-        numberOfErrors = atom.project.errors[fileName].length
+        numberOfErrors = atom.project.mavensMateErrors[fileName].length
       else
-        for fileName, errors of atom.project.errors
+        for fileName, errors of atom.project.mavensMateErrors
           numberOfErrors += errors.length
       return numberOfErrors
 

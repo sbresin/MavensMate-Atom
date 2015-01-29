@@ -1,4 +1,5 @@
-{View, EditorView}  = require 'atom'
+{EditorView}  = require 'atom'
+{View}        = require 'atom-space-pen-views'
 
 module.exports =
 class MavensMateJoinShareView extends View
@@ -18,7 +19,7 @@ class MavensMateJoinShareView extends View
   detaching: false
 
   initialize: ->
-    atom.workspaceView.command 'mavensmate:join-session', => @share()
+    atom.commands.add 'atom-workspace', 'mavensmate:join-session', => @share()
 
     @miniEditor.hiddenInput.on 'focusout', => @detach() unless @detaching
     @on 'core:confirm', => @confirm()

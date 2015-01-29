@@ -15,18 +15,19 @@
     "visualforce",
     "apex"
   ],
-  "activationEvents": [],
+  "activationCommands": [],
   "repository": {
     "type": "git",
     "url": "https://github.com/joeferraro/MavensMate-Atom"
   },
   "license": "MIT",
   "engines": {
-    "atom": ">0.50.0",
+    "atom": ">=0.174.0, <2.0.0",
     "node": "*"
   },
   "dependencies": {
     "ansi-to-html": ">=0.1.0",
+    "atom-space-pen-views": "^2.0.3",
     "autocomplete-plus": "git://github.com/atom-community/autocomplete-plus",
     "body-parser": "1.5.2",
     "cloneextend": "0.0.3",
@@ -40,7 +41,7 @@
     "jquery": "2.1.0",
     "lodash": "2.4.1",
     "loophole": "1.0.0",
-    "mavensmate": "0.0.28",
+    "mavensmate": "0.0.30-alpha2",
     "moment": "2.8.3",
     "node-uuid": "1.4.1",
     "open": "0.0.5",
@@ -61,7 +62,8 @@
     "watchr": "2.4.11"
   },
   "devDependencies": {
-    "temp": "latest"
+    "temp": "latest",
+    "bluebird": "latest"
   },
   "readme": "MavensMate plugin for Atom text editor",
   "readmeFilename": "README.md",

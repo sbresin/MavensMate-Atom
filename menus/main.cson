@@ -24,6 +24,15 @@
         ]
       }
       {
+        'label': 'Lightning'
+        'submenu': [
+          { 'label': 'New Lightning App...', 'command': 'mavensmate:new-lightning-app' }
+          { 'label': 'New Lightning Component...', 'command': 'mavensmate:new-lightning-component' }
+          { 'label': 'New Lightning Event...', 'command': 'mavensmate:new-lightning-event' }
+          { 'label': 'New Lightning Interface...', 'command': 'mavensmate:new-lightning-interface' }
+        ]
+      }
+      {
         'label': 'Deploy'
         'submenu': [
           { 'label': 'Deploy to Server(s)...', 'command': 'mavensmate:deploy-to-server' }
