@@ -1,7 +1,15 @@
 {
     "projectCommands" : {
-        "compile": {
+        "compile-file": {
             "operation": "compile-metadata",
+            "payloadFiles": "active"
+        },
+        "refresh-file": {
+            "operation": "refresh-metadata",
+            "payloadFiles": "active"
+        },
+        "delete-file": {
+            "operation": "delete-metadata",
             "payloadFiles": "active"
         },
         "compile-project": {

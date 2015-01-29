@@ -5,6 +5,7 @@ os                        = require 'os'
 path                      = require 'path'
 config                    = require('./mavensmate-config').config
 mavensMateCoreAdapter     = require('./mavensmate-core-adapter')
+MavensMateBrowserView     = require('./mavensmate-salesforce-view').BrowserView
 
 module.exports =
 
@@ -81,7 +82,11 @@ module.exports =
         params.split = split
         atom.workspace.open('mavensmate://salesforceView', params)
       else
-        atom.workspace.open('mavensmate://salesforceBrowserView', params)
+        # params.split = split
+        # atom.workspace.open('mavensmate://salesforceBrowserView', params)
+
+        foo = new MavensMateBrowserView(params)
+        atom.workspace.addRightPanel(item:foo)
 
     # returns true if autocomplete-plus is installed
     @isAutocompletePlusInstalled: ->

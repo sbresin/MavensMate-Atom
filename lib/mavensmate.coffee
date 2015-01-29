@@ -13,7 +13,6 @@ MavensMateStatusBarView             = require './mavensmate-status-bar-view'
 MavensMateLogFetcher                = require './mavensmate-log-fetcher'
 MavensMateIFrameView                = require('./mavensmate-salesforce-view').IFrameView
 MavensMateBrowserView               = require('./mavensmate-salesforce-view').BrowserView
-FileSystemWatcher                   = require './watchers/fs-watcher'
 tracker                             = require('./mavensmate-promise-tracker').tracker
 util                                = require './mavensmate-util'
 emitter                             = require('./mavensmate-emitter').pubsub
@@ -144,16 +143,6 @@ module.exports =
           .catch (err) ->
             if self.panel?
               self.panel.addPanelViewItem('Could not activate MavensMate project. MavensMate will not function correctly.<br/>'+err.message.replace(/Error:/g, '<br/>Error:'), 'danger')
-
-        sessionPath = path.join(atom.project.path,'config','.session')
-
-        if fs.existsSync(sessionPath)
-          # instantiates atom.project.session with cached session information
-          session = util.fileBodyAsString(sessionPath, true)
-          atom.project.session = session
-          emitter.emit 'mavensmate:session-updated', session
-
-      projectFsWatcher = new FileSystemWatcher(atom.project.path)
 
       # attach commands
 
