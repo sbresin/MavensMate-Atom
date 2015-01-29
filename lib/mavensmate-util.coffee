@@ -87,10 +87,6 @@ module.exports =
       #   # browserView = new MavensMateBrowserView(params)
       #   # atom.workspace.addRightPanel(item:browserView)
 
-    # returns true if autocomplete-plus is installed
-    @isAutocompletePlusInstalled: ->
-      atom.packages.getAvailablePackageNames().indexOf('autocomplete-plus') > -1
-
     # whether the given file is a trigger or apex class
     @isClassOrTrigger: (currentFile) ->
       return currentFile? and (currentFile.indexOf('.trigger') >= 0 or currentFile.indexOf('.cls') >= 0)

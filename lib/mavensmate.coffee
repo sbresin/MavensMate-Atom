@@ -13,6 +13,7 @@ MavensMateStatusBarView             = require './mavensmate-status-bar-view'
 MavensMateLogFetcher                = require './mavensmate-log-fetcher'
 MavensMateIFrameView                = require('./mavensmate-salesforce-view').IFrameView
 MavensMateBrowserView               = require('./mavensmate-salesforce-view').BrowserView
+MavensMateCodeAssistProvider        = require './mavensmate-code-assist-providers'
 tracker                             = require('./mavensmate-promise-tracker').tracker
 util                                = require './mavensmate-util'
 emitter                             = require('./mavensmate-emitter').pubsub
@@ -33,8 +34,8 @@ module.exports =
     Subscriber.includeInto this
 
     editorSubscription: null
-    autocomplete: null
-    providers: []
+    apexAutocompleteRegistration: null
+    vfAutocompleteRegistration: null
 
     panel: null # mavensmate status panel
     mavensmateAdapter: null
@@ -140,6 +141,8 @@ module.exports =
             # attach MavensMate views/handlers to each present and future workspace editor views
             atom.workspace.eachEditor (editor) ->
               self.handleBufferEvents editor
+
+            self.registerAutocompleteProviders()
           .catch (err) ->
             if self.panel?
               self.panel.addPanelViewItem('Could not activate MavensMate project. MavensMate will not function correctly.<br/>'+err.message.replace(/Error:/g, '<br/>Error:'), 'danger')
@@ -246,34 +249,25 @@ module.exports =
         atom.packages.once 'activated', ->
           createStatusEntry()
 
-      # we rely upon autocomplete plus right now
-      if !util.isAutocompletePlusInstalled()
-        @installAutocompletePlus()
-      else
-        @enableAutocomplete()
+    registerAutocompleteProviders: () ->
+      
+      console.log(MavensMateCodeAssistProvider.ApexProvider)
+      apexProvider = new MavensMateCodeAssistProvider.ApexProvider()
+      @apexAutocompleteRegistration = atom.services.provide('autocomplete.provider', '1.0.0', {provider:apexProvider})
 
-    installAutocompletePlus: ->
-      # cmd = "#{atom.packages.getApmPath()} install autocomplete-plus"
-      # exec cmd, @enableAutocomplete
+      vfProvider = new MavensMateCodeAssistProvider.VisualforceTagProvider()
+      @vfAutocompleteRegistration = atom.services.provide('autocomplete.provider', '1.0.0', {provider:vfProvider})
 
-    enableAutocomplete: ->
-      atom.packages.activatePackage("autocomplete-plus")
-        .then (pkg) =>
-          @autocomplete = pkg.mainModule
-          @registerProviders()
 
-    registerProviders: ->
-      MavensMateCodeAssistProviders = require './mavensmate-code-assist-providers'
+      # @editorSubscription = atom.workspace.eachEditor (editor) ->
+      #   if editor.attached and not editor.mini
+      #     apexProvider = new MavensMateCodeAssistProviders.ApexProvider(editor.editor)
+      #     @autocomplete.registerProviderForEditor apexProvider, editor.editor
+      #     @providers.push apexProvider
 
-      @editorSubscription = atom.workspace.eachEditor (editor) ->
-        if editor.attached and not editor.mini
-          apexProvider = new MavensMateCodeAssistProviders.ApexProvider(editor.editor)
-          @autocomplete.registerProviderForEditor apexProvider, editor.editor
-          @providers.push apexProvider
-
-          vfTagProvider = new MavensMateCodeAssistProviders.VisualforceTagProvider(editor.editor)
-          @autocomplete.registerProviderForEditor vfTagProvider, editor.editor
-          @providers.push vfTagProvider
+      #     vfTagProvider = new MavensMateCodeAssistProviders.VisualforceTagProvider(editor.editor)
+      #     @autocomplete.registerProviderForEditor vfTagProvider, editor.editor
+      #     @providers.push vfTagProvider
 
           # vfTagContextProvider = new MavensMateCodeAssistProviders.VisualforceTagContextProvider(editor)
           # @autocomplete.registerProviderForEditorView vfTagContextProvider, editor
@@ -298,6 +292,9 @@ module.exports =
       # remove the MavensMate panel
       @panel.destroy()
       @panel = null
+
+      @apexAutocompleteRegistration.dispose()
+      @vfAutocompleteRegistration.dispose()
 
       #unsubscribe from all listeners
       @unsubscribe()

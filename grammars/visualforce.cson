@@ -1,4 +1,4 @@
-'scopeName': 'text.html.basic'
+'scopeName': 'visualforce.text.html.basic'
 'fileTypes': [
   'component'
   'page'

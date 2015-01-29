@@ -1,45 +1,35 @@
-{Provider, Suggestion} = require 'autocomplete-plus'
 fuzzaldrin  = require 'fuzzaldrin'
 apex        = require './apex.json'
 vf          = require './vf.json'
 _           = require 'underscore-plus'
-util        = require './mavensmate-util'
 
-module.exports =
-  # provides code assist for standard Apex Classes
-  #
-  # e.g. when user types "S", String, StringException, Site, Set, System, Sobject, etc. are showing in suggestions
-  ApexProvider: class ApexProvider extends Provider
-    wordRegex: /[A-Z].*/g
-    apexClasses: []
-    
-    initialize: ->
-      apexClasses = []
-      apexNamespaces = apex.publicDeclarations
-      _.each _.keys(apexNamespaces), (ns) ->
-        # console.log ns
-        _.each _.keys(apexNamespaces[ns]), (cls) ->
-          apexClasses.push cls
-      @apexClasses = apexClasses
+# provides code assist for standard Apex Classes
+#
+# e.g. when user types "S", String, StringException, Site, Set, System, Sobject, etc. are showing in suggestions
+class ApexProvider
+  id: 'mavensmate-apexprovider'
+  selector: '.source.apex'
+  apexClasses: null
 
-    buildSuggestions: ->
-      selection = @editor.getSelection()
-      prefix = @prefixOfSelection selection
-      return unless prefix.length
+  constructor: ->
+    apexClasses = []
+    apexNamespaces = apex.publicDeclarations
+    _.each _.keys(apexNamespaces), (ns) ->
+      _.each _.keys(apexNamespaces[ns]), (cls) ->
+        apexClasses.push cls
+    @apexClasses = apexClasses
 
-      suggestions = @findSuggestionsForPrefix prefix
-      return unless suggestions.length
-      return suggestions
-
-    findSuggestionsForPrefix: (prefix) ->
-      # Filter the words using fuzzaldrin
-      words = fuzzaldrin.filter @apexClasses, prefix
-
-      # Builds suggestions for the words
-      suggestions = for word in words
-        new Suggestion this, word: word, prefix: prefix, label: "@#{word} (Apex)"
-
-      return suggestions
+  requestHandler: (options) ->
+    suggestions = []
+    words = fuzzaldrin.filter @apexClasses, options.prefix
+    for word in words
+      suggestion =
+        prefix: options.prefix
+        word: word
+        label: 'Apex'
+      suggestions.push(suggestion)
+    return suggestions
+  
 
   # # provides code assist for standard/custom Apex Class methods
   # #
@@ -77,35 +67,29 @@ module.exports =
   #         console.log suggestions
   #         return suggestions
 
-  # provides code assist for visualforce tags
-  #
-  # e.g. when user types "<", list of vf tags is presented
-  VisualforceTagProvider: class VisualforceTagProvider extends Provider
-    wordRegex: /<.*/g
-    
-    vfTags: []
 
-    initialize: ->
-      @vfTags = vf.tags
+# provides code assist for visualforce tags
+#
+# e.g. when user types "<", list of vf tags is presented
 
-    buildSuggestions: ->
-      selection = @editor.getSelection()
-      prefix = @prefixOfSelection selection
-      return unless prefix.length
+class VisualforceTagProvider
+  id: 'mavensmate-vfprovider'
+  selector: '.visualforce'
+  vfTags: null
 
-      suggestions = @findSuggestionsForPrefix prefix
-      return unless suggestions.length
-      return suggestions
-
-    findSuggestionsForPrefix: (prefix) ->
-      # Filter the words using fuzzaldrin
-      prefix = prefix.replace '<', ''
-      words = fuzzaldrin.filter @vfTags, prefix
-
-      # Builds suggestions for the words
-      suggestions = for word in words
-        new Suggestion this, word: word, prefix: prefix, label: "@#{word} (Visualforce)"
-      return suggestions
+  constructor: ->
+    @vfTags = vf.tags
+   
+  requestHandler: (options) ->
+    suggestions = []
+    words = fuzzaldrin.filter @vfTags, options.prefix
+    for word in words
+      suggestion =
+        prefix: options.prefix
+        word: word
+        label: 'Visualforce'
+      suggestions.push(suggestion)
+    return suggestions
       
   # # provides code assist for visualforce tags
   # #
@@ -169,3 +153,6 @@ module.exports =
   #         new Suggestion this, word: word, prefix: prefix, label: "@#{word} (Sobject)"
 
   #       return suggestions
+
+module.exports.ApexProvider = ApexProvider
+module.exports.VisualforceTagProvider = VisualforceTagProvider
