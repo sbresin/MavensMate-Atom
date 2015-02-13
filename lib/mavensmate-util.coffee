@@ -3,7 +3,6 @@ _.str                     = require 'underscore.string'
 fs                        = require 'fs'
 os                        = require 'os'
 path                      = require 'path'
-config                    = require('./mavensmate-config').config
 mavensMateCoreAdapter     = require('./mavensmate-core-adapter')
 MavensMateBrowserView     = require('./mavensmate-salesforce-view').BrowserView
 
@@ -55,10 +54,6 @@ module.exports =
         params.args.operation
       else
         params.payload.command
-
-    # get the currently installed mm version
-    @getMMVersion: ->
-      config.get 'mm_installed_version'
 
     # filters the selected items against metadata extensions
     @getSelectedFiles: ->
@@ -185,10 +180,6 @@ module.exports =
       return 'windows' if process.platform == 'win32'
       return 'osx' if process.platform == 'darwin'
       return 'linux'
-
-    # set the currently installed version mm version
-    @setMMVersion: (version) ->
-      config.set 'mm_installed_version', version
 
     # setting object to configure MavensMate for future SFDC updates
     @sfdcSettings:

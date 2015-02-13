@@ -3,7 +3,6 @@ fs                    = require 'fs'
 path                  = require 'path'
 {Subscriber,Emitter}  = require 'emissary'
 
-MavensMateConfig                    = require('./mavensmate-config').config
 MavensMateEventEmitter              = require('./mavensmate-emitter').pubsub
 MavensMateCoreAdapter               = require('./mavensmate-core-adapter')
 MavensMateProjectListView           = require './mavensmate-project-list-view'
