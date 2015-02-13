@@ -305,15 +305,13 @@ module.exports =
       MavensMateEventEmitter.emit 'mavensmate:panel-notify-finish', params, result, result.promiseId
 
     handleBufferEvents: (editor) ->
-      console.log 'subscribing to buffer events for editor: '
-      console.log editor
+      # console.log 'subscribing to buffer events for editor: '
+      # console.log editor
       self = @
       buffer = editor.getBuffer()
-      # console.log buffer.file
-      # console.log buffer.file.path
-      if buffer.file? and util.isMetadata(buffer.file.path)
+      if buffer.file? and util.isMetadata(buffer.file.path) and atom.config.get('MavensMate-Atom').mm_compile_on_save
         @subscribe buffer.on 'saved', ->
-          console.log('SAVED')
+          # console.log('SAVED')
           params =
             args:
               operation: 'compile-metadata'
