@@ -310,7 +310,7 @@ module.exports =
       self = @
       buffer = editor.getBuffer()
       ext = path.extname(buffer.file.path)
-      if ext == '.auradoc' || ext == '.app' || ext == '.evt' || ext == '.cmp'
+      if ext == '.auradoc' || ext == '.app' || ext == '.evt' || ext == '.cmp' || ext == '.object'
         editor.setGrammar atom.syntax.grammarForScopeName('text.xml')
 
     # watches active editors for events like save
