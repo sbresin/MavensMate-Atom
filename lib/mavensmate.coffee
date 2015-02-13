@@ -141,6 +141,7 @@ module.exports =
             # attach MavensMate views/handlers to each present and future workspace editor views
             atom.workspace.eachEditor (editor) ->
               self.handleBufferEvents editor
+              self.registerGrammars editor
 
             self.registerAutocompleteProviders()
           .catch (err) ->
@@ -304,6 +305,16 @@ module.exports =
       MavensMateEventEmitter.emit 'mavensmate:promise-completed', result.promiseId
       MavensMateEventEmitter.emit 'mavensmate:panel-notify-finish', params, result, result.promiseId
 
+    # ensures custom extensions load the correct atom grammar file
+    # TODO: refactor
+    registerGrammars: (editor) ->
+      self = @
+      buffer = editor.getBuffer()
+      ext = path.extname(buffer.file.path)
+      if ext == '.auradoc' || ext == '.app' || ext == '.evt' || ext == '.cmp'
+        editor.setGrammar atom.syntax.grammarForScopeName('text.xml')
+
+    # watches active editors for events like save
     handleBufferEvents: (editor) ->
       # console.log 'subscribing to buffer events for editor: '
       # console.log editor
