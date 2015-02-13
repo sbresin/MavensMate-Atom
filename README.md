@@ -15,7 +15,7 @@ MavensMate for Atom is currently not supported on Windows due to an open issue i
 
 #### From Atom
 
-`Open Atom > Preferences/Settings > Packages > Search for "MavensMate" > Install`
+`Open Atom > Preferences... > + Install > Search for "MavensMate" > Install`
 
 #### From Command Line
 
