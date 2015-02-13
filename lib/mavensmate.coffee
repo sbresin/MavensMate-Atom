@@ -1,24 +1,23 @@
-{$, $$, $$$, View}    = require 'atom-space-pen-views'
-fs                    = require 'fs'
-path                  = require 'path'
-{Subscriber,Emitter}  = require 'emissary'
-
-MavensMateEventEmitter              = require('./mavensmate-emitter').pubsub
-MavensMateCoreAdapter               = require('./mavensmate-core-adapter')
-MavensMateProjectListView           = require './mavensmate-project-list-view'
-MavensMateErrorMarkers              = require './mavensmate-error-markers'
-MavensMatePanelView                 = require('./panel/panel-view').panel
-MavensMateStatusBarView             = require './mavensmate-status-bar-view'
-MavensMateLogFetcher                = require './mavensmate-log-fetcher'
-MavensMateIFrameView                = require('./mavensmate-salesforce-view').IFrameView
-MavensMateBrowserView               = require('./mavensmate-salesforce-view').BrowserView
-MavensMateCodeAssistProvider        = require './mavensmate-code-assist-providers'
-tracker                             = require('./mavensmate-promise-tracker').tracker
-util                                = require './mavensmate-util'
-emitter                             = require('./mavensmate-emitter').pubsub
-commands                            = require './commands.json'
-{exec}                              = require 'child_process'
-ErrorsView                          = require './mavensmate-errors-view'
+{$, $$, $$$, View}           = require 'atom-space-pen-views'
+fs                           = require 'fs'
+path                         = require 'path'
+{Subscriber,Emitter}         = require 'emissary'
+MavensMateEventEmitter       = require('./mavensmate-emitter').pubsub
+MavensMateCoreAdapter        = require('./mavensmate-core-adapter')
+MavensMateProjectListView    = require './mavensmate-project-list-view'
+MavensMateErrorMarkers       = require './mavensmate-error-markers'
+MavensMatePanelView          = require('./panel/panel-view').panel
+MavensMateStatusBarView      = require './mavensmate-status-bar-view'
+MavensMateLogFetcher         = require './mavensmate-log-fetcher'
+MavensMateIFrameView         = require('./mavensmate-salesforce-view').IFrameView
+MavensMateBrowserView        = require('./mavensmate-salesforce-view').BrowserView
+MavensMateCodeAssistProvider = require './mavensmate-code-assist-providers'
+tracker                      = require('./mavensmate-promise-tracker').tracker
+util                         = require './mavensmate-util'
+emitter                      = require('./mavensmate-emitter').pubsub
+commands                     = require './commands.json'
+{exec}                       = require 'child_process'
+ErrorsView                   = require './mavensmate-errors-view'
 atom.mavensmate = {}
 window.jQuery = $
 
@@ -129,6 +128,7 @@ module.exports =
 
     initializeProject: ->
       self = @
+      self.panel.addPanelViewItem('Initializing MavensMate project...', 'info')
       atom.project.mavensMateErrors = {}
       atom.project.mavensMateCheckpointCount = 0
       if atom.project.path
@@ -136,6 +136,7 @@ module.exports =
 
         self.mavensmateAdapter.setProject(atom.project.path)
           .then (result) ->
+            self.panel.addPanelViewItem('MavensMate project initialized successfully. Happy coding!', 'success')
             logFetcher = new MavensMateLogFetcher(self.mavensmateAdapter.client.getProject())
             # attach MavensMate views/handlers to each present and future workspace editor views
             atom.workspace.eachEditor (editor) ->
@@ -144,6 +145,9 @@ module.exports =
 
             self.registerAutocompleteProviders()
           .catch (err) ->
+            console.error 'error activating mavensmate project'
+            console.error err.message
+            console.error err.stack
             if self.panel?
               self.panel.addPanelViewItem('Could not activate MavensMate project. MavensMate will not function correctly.<br/>'+err.message.replace(/Error:/g, '<br/>Error:'), 'danger')
 
@@ -250,14 +254,12 @@ module.exports =
           createStatusEntry()
 
     registerAutocompleteProviders: () ->
-      
-      console.log(MavensMateCodeAssistProvider.ApexProvider)
+      # console.log(MavensMateCodeAssistProvider.ApexProvider)
       apexProvider = new MavensMateCodeAssistProvider.ApexProvider()
       @apexAutocompleteRegistration = atom.services.provide('autocomplete.provider', '1.0.0', {provider:apexProvider})
 
       vfProvider = new MavensMateCodeAssistProvider.VisualforceTagProvider()
       @vfAutocompleteRegistration = atom.services.provide('autocomplete.provider', '1.0.0', {provider:vfProvider})
-
 
       # @editorSubscription = atom.workspace.eachEditor (editor) ->
       #   if editor.attached and not editor.mini
@@ -309,9 +311,10 @@ module.exports =
     registerGrammars: (editor) ->
       self = @
       buffer = editor.getBuffer()
-      ext = path.extname(buffer.file.path)
-      if ext == '.auradoc' || ext == '.app' || ext == '.evt' || ext == '.cmp' || ext == '.object'
-        editor.setGrammar atom.syntax.grammarForScopeName('text.xml')
+      if buffer.file?
+        ext = path.extname(buffer.file.path)
+        if ext == '.auradoc' || ext == '.app' || ext == '.evt' || ext == '.cmp' || ext == '.object'
+          editor.setGrammar atom.syntax.grammarForScopeName('text.xml')
 
     # watches active editors for events like save
     handleBufferEvents: (editor) ->
