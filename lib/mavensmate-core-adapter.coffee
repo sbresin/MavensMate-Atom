@@ -66,6 +66,41 @@ class MavensMateCoreAdapter
     atom.workspace.addOpener (uri, params) ->
       self.createUiView(params) if uri is 'mavensmate://core'
 
+    # watch for configuration changes, update client settings
+    atom.config.onDidChange 'MavensMate-Atom.mm_workspace', ({newValue, oldValue}) ->
+      self.reloadConfig()
+
+    atom.config.onDidChange 'MavensMate-Atom.mm_compile_check_conflicts', ({newValue, oldValue}) ->
+      self.reloadConfig()
+
+    atom.config.onDidChange 'MavensMate-Atom.mm_api_version', ({newValue, oldValue}) ->
+      self.reloadConfig()
+
+    atom.config.onDidChange 'MavensMate-Atom.mm_default_subscription', ({newValue, oldValue}) ->
+      self.reloadConfig()
+
+    atom.config.onDidChange 'MavensMate-Atom.mm_use_keyring', ({newValue, oldValue}) ->
+      self.reloadConfig()
+
+    atom.config.onDidChange 'MavensMate-Atom.mm_log_location', ({newValue, oldValue}) ->
+      self.reloadConfig()
+
+    atom.config.onDidChange 'MavensMate-Atom.mm_log_level', ({newValue, oldValue}) ->
+      self.reloadConfig()
+
+    atom.config.onDidChange 'MavensMate-Atom.mm_play_sounds', ({newValue, oldValue}) ->
+      self.reloadConfig()
+
+    atom.config.onDidChange 'MavensMate-Atom.mm_atom_exec_path', ({newValue, oldValue}) ->
+      self.reloadConfig()
+
+    atom.config.onDidChange 'MavensMate-Atom.mm_ignore_managed_metadata', ({newValue, oldValue}) ->
+      self.reloadConfig()
+
+  reloadConfig: () ->
+    @client.settings = atom.config.get('MavensMate-Atom')
+    @client.reloadConfig()
+
   startUIServer: () ->
     @uiServer = mavensmate.startUIServer(@client)
 

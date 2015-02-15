@@ -23,6 +23,12 @@ module.exports =
       type: 'boolean'
       default: true
       order: 30
+    mm_compile_check_conflicts :
+      title: 'Check for conflicts when compiling Apex/Visualforce metadata'
+      description: ''
+      type: 'boolean'
+      default: true
+      order: 35
     mm_timeout:
       title: 'Timeout (in seconds) for MavensMate commands'
       description: ''

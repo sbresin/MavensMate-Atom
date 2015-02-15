@@ -83,6 +83,11 @@ class CompileParser extends CommandParser
       @obj.success = false
       @obj.indicator = 'danger'
       return @obj
+    else if @result.result? and @result.result.status == 'Conflict'
+      @obj.message = 'A conflict has been detected between the local and server copy. Please refresh the metadata from server to continue.'
+      @obj.success = false
+      @obj.indicator = 'warning'
+      return @obj
 
     panelMessages = []
     compileResult = @result.result
