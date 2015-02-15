@@ -48,6 +48,7 @@ describe 'MavensMate Panel View', ->
     runs ->
       editor = atom.workspace.getActiveTextEditor()
       editorView = atom.views.getView(editor)
+      panel.clear()
 
   it 'should be instantiated', ->
     expect(panel).toBeDefined()
