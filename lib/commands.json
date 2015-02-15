@@ -136,6 +136,9 @@
         "refresh-apex-symbols": {
             "operation": "index-apex"
         },
+        "flush-debug-logs": {
+            "operation": "flush-logs"
+        },
         "visualforce-live-preview": {
             "operation": "open-metadata",
             "payloadFiles": "active",
