@@ -3,6 +3,11 @@ MavensMate for Atom (beta)
 
 [![Build Status](https://travis-ci.org/joeferraro/MavensMate-Atom.svg?branch=master)](https://travis-ci.org/joeferraro/MavensMate-Atom)
 
+[![APM](https://img.shields.io/apm/v/mavensmate-atom.svg)](https://atom.io/packages/mavensmate-atom)
+[![APM License](https://img.shields.io/apm/l/mavensmate-atom.svg)](https://atom.io/packages/mavensmate-atom)
+
+
+
 MavensMate for Atom is a plugin for the Atom text editor that enables Salesforce.com developers to build Salesforce1/Force.com applications inside Atom.
 
 **Note:** MavensMate for Atom is still very much in active development. By installing the plugin at this stage, you are a beta user. You may encounter unexpected behavior, bugs, and general weirdness. Please submit all bugs with specific steps to reproduce: https://github.com/joeferraro/MavensMate-Atom/issues.
