@@ -4,7 +4,10 @@ This project contains the CoffeeScript source code that powers the MavensMate pl
 
 #### Submitting Issues
 
-Before submitting an issue to this project, you must be sure that the issue is specific to the **MavensMate for Atom** project.
+Before submitting an issue to this project: 
+
+1. You must be sure that the issue is specific to the **MavensMate for Atom** project
+2. You must **search first** to avoid creating duplicate issues
 
 When submitting a new issue, please specify your platform (OSX, Linux, Windows), the MavensMate for Atom version, and specific steps to reproduce.
 
