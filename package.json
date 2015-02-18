@@ -22,8 +22,7 @@
   },
   "license": "MIT",
   "engines": {
-    "atom": ">=0.174.0 <2.0.0",
-    "node": "*"
+    "atom": ">=0.174.0 <2.0.0"
   },
   "dependencies": {
     "ansi-to-html": ">=0.1.0",
