@@ -14,6 +14,14 @@ module.exports =
       super
       # set panel font-size to that of the editor
       fontSize = jQuery("atom-text-editor::shadow div.editor-contents--private").css('font-size')
+      try
+        if !fontSize
+          fontSize = '14px'
+        else if 'px' in fontSize and parseInt(fontSize.replace('px', '') < 14)
+          fontSize = '14px'
+      catch
+        # pass
+
       @terminal.context.style.fontSize = fontSize
 
     initCommandMessage: (command, params) ->
