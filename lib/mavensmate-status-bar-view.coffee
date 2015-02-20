@@ -51,7 +51,7 @@ module.exports =
     #
     # Returns nothing.
     attach: ->
-      atom.workspaceView.statusBar.appendLeft(this)
+      atom.workspace.statusBar.appendLeft(this)
 
     # Internal: Detach and destroy the mavensmate status barview.
     #
