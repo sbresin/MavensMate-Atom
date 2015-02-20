@@ -56,7 +56,7 @@
         'submenu': [
           {
             'label': 'Open Apex Test Runner UI...',
-            'command': 'mavensmate:run-apex-unit-tests'
+            'command': 'mavensmate:open-apex-test-runner-ui'
           }
           {
             'label': 'Run Tests For This Apex Class',
