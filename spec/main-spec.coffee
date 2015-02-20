@@ -7,11 +7,30 @@ describe 'main.coffee', ->
 
   describe 'package pre activation', ->
     
+    mmMain = null
+
+    beforeEach ->
+      runs ->
+        workspaceElement = atom.views.getView(atom.workspace)
+        jasmine.attachToDOM(workspaceElement)
+
+        pack = atom.packages.loadPackage('MavensMate-Atom')
+        mmMain = pack.mainModule
+        spyOn(mmMain, 'provide').andCallThrough()
+        pack = atom.packages.loadPackage('autocomplete-plus')
+      
     it 'should not have settings', ->
       expect(atom.config.get('MavensMate-Atom')).toBeUndefined()
 
     it 'is not be activated', ->
       expect(atom.packages.activePackages['MavensMate-Atom']).toBeUndefined()
+
+    it 'should have autocomplete providers', ->
+      mmMain.provide()
+      expect(mmMain.apexProvider).toBeDefined()
+      expect(mmMain.apexProvider.apexClasses.length).toEqual(447)
+      expect(mmMain.vfProvider).toBeDefined()
+      expect(mmMain.vfProvider.vfTags.length).toEqual(131)
 
   describe 'package activation', ->
 

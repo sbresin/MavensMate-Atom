@@ -62,9 +62,9 @@ module.exports =
     init: ->
       self = @
 
-      # instantiate mavensmate panel, show it
-      self.panel = MavensMatePanelView
-      self.panel.toggle()
+      self.mavensmateAdapter = MavensMateCoreAdapter
+      self.mavensmateAdapter.initialize()
+      atom.mavensmate.adapter = self.mavensmateAdapter
 
       # opens Salesforce.com URL in an Atom tab
       atom.workspace.addOpener (uri, params) ->
@@ -76,27 +76,12 @@ module.exports =
 
       atom.workspace.mavensMateProjectInitialized ?= false
 
-      # instantiate client interface
-      self.mavensmateAdapter = MavensMateCoreAdapter
-      self.mavensmateAdapter.initialize()
-      atom.mavensmate.adapter = self.mavensmateAdapter
-      self.projectCommands = commands.projectCommands
-
       atom.commands.add 'atom-workspace', 'mavensmate:new-project', => @newProject()
       atom.commands.add 'atom-workspace', 'mavensmate:open-project', => @openProject()
 
       atom.project.onDidChangePaths => @onProjectPathChanged()
-
+      
       self.initializeProject()
-
-      self.createErrorsView(util.uris.errorsView)
-      atom.workspace.addOpener (uri) ->
-        self.errorsView if uri is util.uris.errorsView
-
-      atom.deserializers.add(@errorsDeserializer)
-
-      atom.commands.add 'atom-workspace', 'mavensmate:view-errors', ->
-        atom.workspaceView.open(util.uris.errorsView)
 
     newProject: ->
       params = {}
@@ -107,7 +92,7 @@ module.exports =
 
     openProject: ->
       @selectList = new MavensMateProjectListView()
-      @selectList.toggle()
+      @selectList.show()
 
     createErrorsView: (params) ->
       @errorsView = new ErrorsView(params)
@@ -127,13 +112,17 @@ module.exports =
 
     initializeProject: ->
       self = @
-      self.panel.addPanelViewItem('Initializing MavensMate project...', 'info')
-      atom.project.mavensMateErrors = {}
-      atom.project.mavensMateCheckpointCount = 0
-      if atom.project.path
-        console.log 'initializing project from mavensmate.coffee --> '+atom.project.path
+      if atom.project.getPath() and util.hasMavensMateProjectStructure()
+        self.panel = MavensMatePanelView
+        self.panel.addPanelViewItem('Initializing MavensMate project, please wait...', 'info')
+        atom.project.mavensMateErrors = {}
+        atom.project.mavensMateCheckpointCount = 0
+        # instantiate mavensmate panel, show it
+        self.panel.toggle()
 
-        self.mavensmateAdapter.setProject(atom.project.path)
+        console.log 'initializing project from mavensmate.coffee --> '+atom.project.getPath()
+
+        self.mavensmateAdapter.setProject(atom.project.getPath())
           .then (result) ->
             self.panel.addPanelViewItem('MavensMate project initialized successfully. Happy coding!', 'success')
             logFetcher = new MavensMateLogFetcher(self.mavensmateAdapter.client.getProject())
@@ -141,6 +130,18 @@ module.exports =
             atom.workspace.eachEditor (editor) ->
               self.handleBufferEvents editor
               self.registerGrammars editor
+
+            # instantiate client interface
+            self.registerProjectCommands()
+
+            self.createErrorsView(util.uris.errorsView)
+            atom.workspace.addOpener (uri) ->
+              self.errorsView if uri is util.uris.errorsView
+
+            atom.deserializers.add(self.errorsDeserializer)
+
+            atom.commands.add 'atom-workspace', 'mavensmate:view-errors', ->
+              atom.workspaceView.open(util.uris.errorsView)
 
           .catch (err) ->
             console.error 'error activating mavensmate project'
@@ -180,14 +181,24 @@ module.exports =
             .catch (err) ->
               self.mmResponseHandler(params, err)
 
+    # places mavensmate 3 dot icon in the status bar
+    createStatusEntry = =>
+      @mavensmateStatusBar = new MavensMateStatusBarView(@panel)
 
+    if atom.workspace? and atom.workspace.statusBar
+      createStatusEntry()
+    else
+      atom.packages.once 'activated', ->
+        createStatusEntry()
+
+    registerProjectCommands: ->
       # attach commands to workspace based on commands.json
-      for commandName, command of @projectCommands
+      for commandName, command of commands.projectCommands
         resolvedName = 'mavensmate:' + commandName
 
-        atom.commands.add 'atom-workspace', resolvedName, (options) =>
+        atom.commands.add 'atom-workspace', resolvedName, (options) ->
           commandName = options.type.split(':').pop()
-          command = @projectCommands[commandName]
+          command = commands.projectCommands[commandName]
           if command?
             params =
               args:
@@ -240,16 +251,6 @@ module.exports =
                     self.mmResponseHandler(params, result)
                   .catch (err) ->
                     self.mmResponseHandler(params, err)
-
-      # places mavensmate 3 dot icon in the status bar
-      createStatusEntry = =>
-        @mavensmateStatusBar = new MavensMateStatusBarView(@panel)
-
-      if atom.workspace.statusBar
-        createStatusEntry()
-      else
-        atom.packages.once 'activated', ->
-          createStatusEntry()
 
     # Public: Deactivate the package and destroy the mavensmate views.
     #
