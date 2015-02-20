@@ -94,9 +94,9 @@ module.exports =
     @isMac: ->
       @platform() == 'osx'
 
-    @hasMavensMateProjectStructure: ->
+    @hasMavensMateProjectStructure: (filePath=atom.project.getPath()) ->
       try
-        settingsPath = path.join atom.project.path, 'config', '.settings'
+        settingsPath = path.join filePath, 'config', '.settings'
         return fs.existsSync(settingsPath)
       catch
         return false
