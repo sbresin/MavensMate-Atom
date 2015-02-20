@@ -1,23 +1,34 @@
-{SelectListView} = require 'atom'
-fs = require 'fs'
+{SelectListView}  = require 'atom'
+fs                = require 'fs'
+util              = require './mavensmate-util'
 
 module.exports =
 class MavensMateProjectListView extends SelectListView
 
   initialize: () ->
     super
-    @addClass 'overlay from-top'
-    @setItems(@getDirs())
+    @addClass('command-palette')
 
-  viewForItem: (item) ->
-    "<li>#{item.name}<br/>#{item.path}</li>"
+  cancelled: ->
+    @hide()
 
-  # opens new atom window for selected project
   confirmed: (item) ->
     @cancel()
     console.log ('opening project: ' + item.path)
     atom.open options =
       pathsToOpen: [item.path]
+
+  toggle: ->
+    if @panel?.isVisible()
+      @cancel()
+    else
+      @show()
+
+  viewForItem: (item) ->
+    "<li>#{item.name}<br/>#{item.path}</li>"
+
+  hide: ->
+    @panel?.hide()
 
   # returns list of project directories based on workspace setting
   getDirs: ->
@@ -29,13 +40,11 @@ class MavensMateProjectListView extends SelectListView
       if fs.existsSync workspace
         files = fs.readdirSync workspace
         for file in files
-          # console.log file
           if file[0] != '.'
-            filePath = "#{workspace}/#{file}"
+            filePath = path.join workspace, file
             stat = fs.statSync filePath
-
-            if stat.isDirectory()
-                dirs.push { name : file, path: filePath }
+            if stat.isDirectory() and util.hasMavensMateProjectStructure(filePath)
+              dirs.push { name : file, path: filePath }
 
     return dirs
 
@@ -44,8 +53,14 @@ class MavensMateProjectListView extends SelectListView
     'name'
 
   # shows list view
-  open: ->
-    atom.workspaceView.append(this)
+  show: ->
+    @panel ?= atom.workspace.addModalPanel(item: this)
+    @panel.show()
+
+    @storeFocusedElement()
+    
+    @setItems(@getDirs())
+
     @focusFilterEditor()
 
   # Returns an object that can be retrieved when package is activated
@@ -57,9 +72,3 @@ class MavensMateProjectListView extends SelectListView
 
   isOpen: ->
     @hasParent()
-
-  toggle: ->
-    if @isOpen()
-      @close()
-    else
-      @open()
