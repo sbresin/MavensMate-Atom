@@ -11,7 +11,6 @@ MavensMateStatusBarView      = require './mavensmate-status-bar-view'
 MavensMateLogFetcher         = require './mavensmate-log-fetcher'
 MavensMateIFrameView         = require('./mavensmate-salesforce-view').IFrameView
 MavensMateBrowserView        = require('./mavensmate-salesforce-view').BrowserView
-MavensMateCodeAssistProvider = require './mavensmate-code-assist-providers'
 tracker                      = require('./mavensmate-promise-tracker').tracker
 util                         = require './mavensmate-util'
 emitter                      = require('./mavensmate-emitter').pubsub
@@ -143,7 +142,6 @@ module.exports =
               self.handleBufferEvents editor
               self.registerGrammars editor
 
-            self.registerAutocompleteProviders()
           .catch (err) ->
             console.error 'error activating mavensmate project'
             console.error err.message
@@ -253,36 +251,6 @@ module.exports =
         atom.packages.once 'activated', ->
           createStatusEntry()
 
-    registerAutocompleteProviders: () ->
-      # console.log(MavensMateCodeAssistProvider.ApexProvider)
-      apexProvider = new MavensMateCodeAssistProvider.ApexProvider()
-      @apexAutocompleteRegistration = atom.services.provide('autocomplete.provider', '1.0.0', {provider:apexProvider})
-
-      vfProvider = new MavensMateCodeAssistProvider.VisualforceTagProvider()
-      @vfAutocompleteRegistration = atom.services.provide('autocomplete.provider', '1.0.0', {provider:vfProvider})
-
-      # @editorSubscription = atom.workspace.eachEditor (editor) ->
-      #   if editor.attached and not editor.mini
-      #     apexProvider = new MavensMateCodeAssistProviders.ApexProvider(editor.editor)
-      #     @autocomplete.registerProviderForEditor apexProvider, editor.editor
-      #     @providers.push apexProvider
-
-      #     vfTagProvider = new MavensMateCodeAssistProviders.VisualforceTagProvider(editor.editor)
-      #     @autocomplete.registerProviderForEditor vfTagProvider, editor.editor
-      #     @providers.push vfTagProvider
-
-          # vfTagContextProvider = new MavensMateCodeAssistProviders.VisualforceTagContextProvider(editor)
-          # @autocomplete.registerProviderForEditorView vfTagContextProvider, editor
-          # @providers.push vfTagContextProvider
-
-          # apexContextProvider = new MavensMateCodeAssistProviders.ApexContextProvider(editor)
-          # @autocomplete.registerProviderForEditorView apexContextProvider, editor
-          # @providers.push apexContextProvider
-
-          # sobjectProvider = new MavensMateCodeAssistProviders.SobjectProvider(editor)
-          # @autocomplete.registerProviderForEditorView sobjectProvider, editor
-          # @providers.push sobjectProvider
-
     # Public: Deactivate the package and destroy the mavensmate views.
     #
     # Returns nothing.
@@ -294,9 +262,6 @@ module.exports =
       # remove the MavensMate panel
       @panel.destroy()
       @panel = null
-
-      @apexAutocompleteRegistration.dispose()
-      @vfAutocompleteRegistration.dispose()
 
       #unsubscribe from all listeners
       @unsubscribe()

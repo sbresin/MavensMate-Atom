@@ -1,4 +1,5 @@
-MavensMate = require './mavensmate'
+MavensMate                    = require './mavensmate'
+MavensMateCodeAssistProvider  = require './mavensmate-code-assist-providers'
 
 module.exports =
 
@@ -145,6 +146,11 @@ module.exports =
   # i think we want to keep each MavensMate() instance tied to a project, but not 100% sure how to approach that
   activate: (state) ->
     @mavensmate = new MavensMate()
+
+  provide: ->
+    @apexProvider = new MavensMateCodeAssistProvider.ApexProvider()
+    @vfProvider = new MavensMateCodeAssistProvider.VisualforceTagProvider()
+    return {providers: [@apexProvider, @vfProvider]}
 
   deactivate: ->
     console.log 'deactivating mavensmate'
