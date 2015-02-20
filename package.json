@@ -39,7 +39,7 @@
     "jquery": "2.1.0",
     "lodash": "2.4.1",
     "loophole": "1.0.0",
-    "mavensmate": "0.0.32",
+    "mavensmate": "0.0.33",
     "moment": "2.8.3",
     "node-uuid": "1.4.1",
     "open": "0.0.5",
@@ -58,6 +58,13 @@
     "unzip": "latest",
     "watchjs": "latest",
     "watchr": "2.4.11"
+  },
+  "providedServices": {
+    "autocomplete.provider": {
+      "versions": {
+        "1.1.0": "provide"
+      }
+    }
   },
   "devDependencies": {
     "temp": "latest",
