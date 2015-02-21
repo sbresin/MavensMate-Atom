@@ -28,11 +28,11 @@ module.exports =
       @attach()
 
       # event handlers
-      me = @
+      self = @
 
       # when a promise is enqueued, set busy flag to true
       emitter.on 'mavensmate:promise-enqueued', ->
-        me.setBusy true
+        self.setBusy true
         return
 
       # when a promise is completed, check the tracker to see whether there are pending promises
@@ -40,22 +40,23 @@ module.exports =
       emitter.on 'mavensmate:promise-completed', ->
         # console.log 'mavensmate:promise-completed FROM STATUS BAR ====>'
         if Object.keys(tracker.tracked).length is 0
-          me.setBusy false
+          self.setBusy false
         return
 
       # toggle panel view when icon is clickd
-      @subscribe this, 'click', =>
-        @panel.toggle()
+      jQuery(this).on 'click', ->
+        self.panel.toggle()
 
     # Internal: Attach the status bar view to the status bar.
     #
     # Returns nothing.
     attach: ->
-      atom.workspace.statusBar.appendLeft(this)
+      # workspaceElement = atom.views.getView(atom.workspace)
+      # console.log workspaceElement
+      if atom.workspaceView? and atom.workspaceView.statusBar?
+        atom.workspaceView.statusBar.appendLeft(this)
 
     # Internal: Detach and destroy the mavensmate status barview.
-    #
-    # Returns nothing.
     destroy: ->
       @detach()
       @unsubscribe()
