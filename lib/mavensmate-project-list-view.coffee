@@ -1,5 +1,6 @@
 {SelectListView}  = require 'atom'
 fs                = require 'fs'
+path              = require 'path'
 util              = require './mavensmate-util'
 
 module.exports =
