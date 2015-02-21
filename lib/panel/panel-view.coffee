@@ -16,7 +16,7 @@ class PanelView extends View
   collapsed: true
   panelViewHeight: null
 
-  constructor: () ->
+  constructor: ->
     super
 
   resizeStarted: =>
@@ -29,7 +29,7 @@ class PanelView extends View
 
   resizePanelHandler: (evt) =>
     return @resizeStopped() unless evt.which is 1
-    height = jQuery("body").height() - evt.pageY - 10
+    height = jQuery('body').height() - evt.pageY - 10
     @setPanelViewHeight(height, animate = false)
     @panelViewHeight = height
     atom.config.set('MavensMate-Atom.mm_panel_height', height)
@@ -97,7 +97,7 @@ class PanelView extends View
         self.addCommandPanelViewItem command, params
       if command in util.compileCommands()
         self.updateErrorsBtn()
-      return
+      self.scrollToTop()
 
     # handler for finished operations
     # writes status to panel item
@@ -151,8 +151,6 @@ class PanelView extends View
   # Update the mavensmate output view contents.
   #
   # output - A string of the test runner results.
-  #
-  # Returns nothing.
   addCommandPanelViewItem: (command, params) ->
     if @collapsed
       @expand()
@@ -179,13 +177,16 @@ class PanelView extends View
     @btnToggleIcon.addClass 'fa-toggle-down'
     @collapsed = false
 
+  scrollToTop: ->
+    jQuery('.mavensmate-output .message').animate { scrollTop: 0 }, 300
+
   toggleView: ->
     if @collapsed
       @expand()
     else
       @collapse()
 
-  clear: () ->
+  clear: ->
     $('.panel-item').remove()
     @panelDictionary = {}
 
