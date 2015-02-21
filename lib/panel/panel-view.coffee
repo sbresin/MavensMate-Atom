@@ -1,14 +1,14 @@
 {$, View}               = require 'atom-space-pen-views'
 {Subscriber,Emitter}    = require 'emissary'
-emitter                 = require('../mavensmate-emitter').pubsub
-util                    = require '../mavensmate-util'
+emitter                 = require('../emitter').pubsub
+util                    = require '../util'
 moment                  = require 'moment'
 pluralize               = require 'pluralize'
 uuid                    = require 'node-uuid'
-MavensMatePanelViewItem = require './panel-view-item'
+PanelViewItem           = require './panel-view-item'
 
 # The status panel that shows the result of command execution, etc.
-class MavensMatePanelView extends View
+class PanelView extends View
   Subscriber.includeInto this
 
   fetchingLogs: false
@@ -144,7 +144,7 @@ class MavensMatePanelView extends View
     if @collapsed
       @expand()
 
-    panelItem = new MavensMatePanelViewItem() # initiate new panel item
+    panelItem = new PanelViewItem() # initiate new panel item
     panelItem.initGenericMessage(message, status)
     @panelDictionary[uuid.v1()] = panelItem # add panel to dictionary
     @myOutput.prepend panelItem # add panel item to panel
@@ -158,7 +158,7 @@ class MavensMatePanelView extends View
     if @collapsed
       @expand()
 
-    panelItem = new MavensMatePanelViewItem() # initiate new panel item
+    panelItem = new PanelViewItem() # initiate new panel item
     panelItem.initCommandMessage(command, params)
     @panelDictionary[params.promiseId] = panelItem # add panel to dictionary
     @myOutput.prepend panelItem # add panel item to panel
@@ -265,5 +265,5 @@ class MavensMatePanelView extends View
 
 
 
-panel = new MavensMatePanelView()
+panel = new PanelView()
 exports.panel = panel

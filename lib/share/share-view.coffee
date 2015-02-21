@@ -5,7 +5,7 @@ Firebase            = require 'firebase'
 Firepad             = require '../../scripts/firepad-lib'
 ShareStatusView     = require './share-status-view'
 uuid                = require 'node-uuid'
-util                = require '../mavensmate-util'
+util                = require '../util'
 
 module.exports =
 class MavensMateShareView extends View

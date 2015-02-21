@@ -137,7 +137,7 @@ describe 'logging parser', ->
   #       expect(mm.run.mostRecentCall.args[0].payload.files).toEqual([filePath])
 
   #     it 'should refresh the selected files if the sidebar is focused', ->
-  #       util = require '../lib/mavensmate-util'
+  #       util = require '../lib/util'
   #       treeView = util.treeView()
   #       spyOn(treeView, 'hasFocus').andReturn(true)
   #       spyOn(treeView, 'selectedPaths').andReturn(filePaths)
@@ -202,7 +202,7 @@ describe 'logging parser', ->
   #       expect(mm.run.mostRecentCall.args[0].payload.files).toEqual([filePath])
 
   #     it 'should delete the selected files if the sidebar is focused', ->
-  #       util = require '../lib/mavensmate-util'
+  #       util = require '../lib/util'
   #       treeView = util.treeView()
   #       spyOn(treeView, 'hasFocus').andReturn(true)
   #       spyOn(treeView, 'selectedPaths').andReturn(filePaths)

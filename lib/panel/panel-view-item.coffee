@@ -1,14 +1,14 @@
 {$, View}             = require 'atom-space-pen-views'
 {Subscriber,Emitter}  = require 'emissary'
-emitter               = require('../mavensmate-emitter').pubsub
-util                  = require '../mavensmate-util'
+emitter               = require('../emitter').pubsub
+util                  = require '../util'
 moment                = require 'moment'
 parseCommand          = require('./parsers').parse
 PanelViewItemResponse = require './panel-view-item-response'
 
 module.exports =
   # represents a single operation/command within the panel
-  class MavensMatePanelViewItem extends View
+  class PanelViewItem extends View
 
     constructor: ->
       super

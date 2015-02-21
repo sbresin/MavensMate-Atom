@@ -1,5 +1,5 @@
-MavensMate                    = require './mavensmate'
-MavensMateCodeAssistProvider  = require './mavensmate-code-assist-providers'
+MavensMate             = require './mavensmate'
+AutoCompleteProviders  = require './autocomplete/providers'
 
 module.exports =
 
@@ -145,14 +145,15 @@ module.exports =
   # right now, this activates MavensMate once per Atom window
   # i think we want to keep each MavensMate() instance tied to a project, but not 100% sure how to approach that
   activate: (state) ->
+    console.log 'activating MavensMate-Atom'
     @mavensmate = new MavensMate()
 
   provide: ->
-    @apexProvider = new MavensMateCodeAssistProvider.ApexProvider()
-    @vfProvider = new MavensMateCodeAssistProvider.VisualforceTagProvider()
+    @apexProvider = new AutoCompleteProviders.ApexProvider()
+    @vfProvider = new AutoCompleteProviders.VisualforceTagProvider()
     return {providers: [@apexProvider, @vfProvider]}
 
   deactivate: ->
-    console.log 'deactivating mavensmate'
+    console.log 'deactivating MavensMate-Atom'
     @mavensmate?.destroy()
     delete @mavensmate

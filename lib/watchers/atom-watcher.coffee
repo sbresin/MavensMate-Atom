@@ -1,10 +1,10 @@
-emitter = require('../mavensmate-emitter').pubsub
+emitter = require('../emitter').pubsub
 
 Repeat = require 'repeat'
 
 # use this class to register watchers for atom-specific attributes (font size, settings, etc)
 # emit events for subscription by other plugin classes
-class MavensMateAtomWatcher
+class AtomWatcher
 
   constructor: () ->
     atom.mavensmate.currentFontSize = jQuery("atom-text-editor::shadow div.editor-contents--private").css("font-size")
@@ -21,5 +21,5 @@ class MavensMateAtomWatcher
       emitter.emit 'mavensmate:font-size-changed', atom.mavensmate.currentFontSize
     return
 
-watcher = new MavensMateAtomWatcher()
+watcher = new AtomWatcher()
 exports.mm = watcher

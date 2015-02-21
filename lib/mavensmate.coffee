@@ -1,28 +1,28 @@
-{$, $$, $$$, View}           = require 'atom-space-pen-views'
-fs                           = require 'fs'
-path                         = require 'path'
-{Subscriber,Emitter}         = require 'emissary'
-MavensMateEventEmitter       = require('./mavensmate-emitter').pubsub
-MavensMateCoreAdapter        = require('./mavensmate-core-adapter')
-MavensMateProjectListView    = require './mavensmate-project-list-view'
-MavensMateErrorMarkers       = require './mavensmate-error-markers'
-MavensMatePanelView          = require('./panel/panel-view').panel
-MavensMateStatusBarView      = require './mavensmate-status-bar-view'
-MavensMateLogFetcher         = require './mavensmate-log-fetcher'
-MavensMateIFrameView         = require('./mavensmate-salesforce-view').IFrameView
-MavensMateBrowserView        = require('./mavensmate-salesforce-view').BrowserView
-tracker                      = require('./mavensmate-promise-tracker').tracker
-util                         = require './mavensmate-util'
-emitter                      = require('./mavensmate-emitter').pubsub
-commands                     = require './commands.json'
-{exec}                       = require 'child_process'
-ErrorsView                   = require './mavensmate-errors-view'
-atom.mavensmate = {}
-window.jQuery = $
+{$, $$, $$$, View}    = require 'atom-space-pen-views'
+fs                    = require 'fs'
+path                  = require 'path'
+{Subscriber,Emitter}  = require 'emissary'
+EventEmitter          = require('./emitter').pubsub
+CoreAdapter           = require('./adapter')
+ProjectListView       = require './project-list-view'
+ErrorMarkers          = require './error-markers'
+PanelView             = require('./panel/panel-view').panel
+StatusBarView         = require './status-bar-view'
+LogFetcher            = require './log-fetcher'
+IFrameView            = require('./salesforce-view').IFrameView
+BrowserView           = require('./salesforce-view').BrowserView
+tracker               = require('./promise-tracker').tracker
+util                  = require './util'
+emitter               = require('./emitter').pubsub
+commands              = require './commands.json'
+{exec}                = require 'child_process'
+ErrorsView            = require './errors-view'
+atom.mavensmate       = {}
+window.jQuery         = $
 
 require '../scripts/bootstrap'
 
-MavensMateAtomWatcher = require('./watchers/atom-watcher').watcher
+AtomWatcher = require('./watchers/atom-watcher').watcher
 
 module.exports =
 
@@ -41,7 +41,7 @@ module.exports =
     tabViewUri: 'mavensmate://tabView'
 
     errorsDeserializer:
-      name: 'MavensMateErrorsView'
+      name: 'ErrorsView'
       version: 1
       deserialize: (state) ->
         self.createErrorsView(state) if state.constructor is Object
@@ -62,7 +62,7 @@ module.exports =
     init: ->
       self = @
 
-      self.mavensmateAdapter = MavensMateCoreAdapter
+      self.mavensmateAdapter = CoreAdapter
       self.mavensmateAdapter.initialize()
       atom.mavensmate.adapter = self.mavensmateAdapter
 
@@ -91,17 +91,17 @@ module.exports =
       @mavensmateAdapter.openUI(params)
 
     openProject: ->
-      @selectList = new MavensMateProjectListView()
+      @selectList = new ProjectListView()
       @selectList.show()
 
     createErrorsView: (params) ->
       @errorsView = new ErrorsView(params)
 
     createSalesforceView: (params) ->
-      salesforceView = new MavensMateIFrameView(params)
+      salesforceView = new IFrameView(params)
 
     createSalesforceBrowserView: (params) ->
-      salesforceBrowserView = new MavensMateBrowserView(params)
+      salesforceBrowserView = new BrowserView(params)
 
     onProjectPathChanged: ->
       if util.hasMavensMateProjectStructure() and not atom.workspace.mavensMateProjectInitialized
@@ -112,8 +112,9 @@ module.exports =
 
     initializeProject: ->
       self = @
+      # TODO: use atom.project.getPaths()
       if atom.project.getPath() and util.hasMavensMateProjectStructure()
-        self.panel = MavensMatePanelView
+        self.panel = PanelView
         self.panel.addPanelViewItem('Initializing MavensMate project, please wait...', 'info')
         atom.project.mavensMateErrors = {}
         atom.project.mavensMateCheckpointCount = 0
@@ -125,7 +126,7 @@ module.exports =
         self.mavensmateAdapter.setProject(atom.project.getPath())
           .then (result) ->
             self.panel.addPanelViewItem('MavensMate project initialized successfully. Happy coding!', 'success')
-            logFetcher = new MavensMateLogFetcher(self.mavensmateAdapter.client.getProject())
+            logFetcher = new LogFetcher(self.mavensmateAdapter.client.getProject())
             # attach MavensMate views/handlers to each present and future workspace editor views
             atom.workspace.eachEditor (editor) ->
               self.handleBufferEvents editor
@@ -183,7 +184,7 @@ module.exports =
 
     # places mavensmate 3 dot icon in the status bar
     createStatusEntry = =>
-      @mavensmateStatusBar = new MavensMateStatusBarView(@panel)
+      @mavensmateStatusBar = new StatusBarView(@panel)
 
     if atom.workspace? and atom.workspace.statusBar
       createStatusEntry()
@@ -261,16 +262,17 @@ module.exports =
       @mavensmateStatusBar = null
 
       # remove the MavensMate panel
-      @panel.destroy()
-      @panel = null
+      if panel?
+        @panel.destroy()
+        @panel = null
 
       #unsubscribe from all listeners
       @unsubscribe()
 
     mmResponseHandler: (params, result) ->
       tracker.pop(result.promiseId).result
-      MavensMateEventEmitter.emit 'mavensmate:promise-completed', result.promiseId
-      MavensMateEventEmitter.emit 'mavensmate:panel-notify-finish', params, result, result.promiseId
+      EventEmitter.emit 'mavensmate:promise-completed', result.promiseId
+      EventEmitter.emit 'mavensmate:panel-notify-finish', params, result, result.promiseId
 
     # ensures custom extensions load the correct atom grammar file
     # TODO: refactor

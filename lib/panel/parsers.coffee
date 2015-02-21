@@ -1,8 +1,8 @@
 {View}      = require 'atom-space-pen-views'
 _           = require 'underscore-plus'
-util        = require '../mavensmate-util'
+util        = require '../util'
 pluralize   = require 'pluralize'
-emitter     = require('../mavensmate-emitter').pubsub
+emitter     = require('../emitter').pubsub
 
 class CommandParser
   

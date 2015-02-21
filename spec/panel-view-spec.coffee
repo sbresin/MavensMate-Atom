@@ -6,7 +6,7 @@ Q       = require 'q'
 # Automatically track and cleanup files at exit
 temp.track()
 
-emitter = require('../lib/mavensmate-emitter').pubsub
+emitter = require('../lib/emitter').pubsub
 {panel} = require '../lib/panel/panel-view'
 
 describe 'MavensMate Panel View', ->
