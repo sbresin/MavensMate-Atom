@@ -2,10 +2,12 @@ path            = require 'path'
 {$, ScrollView} = require 'atom-space-pen-views'
 uuid            = require 'node-uuid'
 
+# ModalView is a container for an iframe that displays a MavensMate view (ui)
+# e.g. http://localhost:8000/app/new-project
+
 module.exports =
   class ModalView extends ScrollView
 
-    # Internal: Initialize mavensmate output view DOM contents.
     @content: ->
       @div class: 'mavensmate modal-wrapper', =>
         @div class: 'modal fade in', outlet: 'modal',  =>
@@ -32,9 +34,6 @@ module.exports =
         $(e.target).parent().remove()
         return
 
-      # add listeners...
-      @addIframeCloseListener()
-
       @iframe.attr 'src', 'http://localhost:'+atom.mavensmate.adapter.client.getServer().port+'/app/'+@url
       @iframe.attr 'id', 'iframe-'+id
 
@@ -45,17 +44,3 @@ module.exports =
 
       @iframe.show()
       @loading.hide()
-      # addIframeLoadListener: ->
-      #   document.addEventListener 'mavensmateIframeLoaded', (evt) -> 
-      #     # console.log 'iframe loaded!!!!'
-      #     modalId = 'modal-'+evt.detail
-      #     # console.log evt.detail
-      #     $('#'+modalId).find('div.modal-loading').hide()
-      #     $('#'+modalId).find('iframe').fadeIn()
-
-    # hide modal when close button is clicked in iframe
-    addIframeCloseListener: ->
-      document.addEventListener 'mavensmateCloseIframe', (evt) ->
-        modalId = 'modal-'+evt.detail
-        $('.modal.in').modal('hide')
-
