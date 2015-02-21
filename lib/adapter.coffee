@@ -108,7 +108,7 @@ class CoreAdapter
     if params.args.view == 'tab'
       atom.workspace.open('mavensmate://core', params)
     else
-      modalView = new MavensMateModalView params.args.url #attach app view pane
+      modalView = new ModalView params.args.url #attach app view pane
       modalView.appendTo document.body
   
   createUiView: (params) ->

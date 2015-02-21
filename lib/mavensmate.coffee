@@ -1,6 +1,8 @@
 {$, $$, $$$, View}    = require 'atom-space-pen-views'
+window.jQuery         = $
 fs                    = require 'fs'
 path                  = require 'path'
+{exec}                = require 'child_process'
 {Subscriber,Emitter}  = require 'emissary'
 EventEmitter          = require('./emitter').pubsub
 CoreAdapter           = require('./adapter')
@@ -15,14 +17,11 @@ tracker               = require('./promise-tracker').tracker
 util                  = require './util'
 emitter               = require('./emitter').pubsub
 commands              = require './commands.json'
-{exec}                = require 'child_process'
 ErrorsView            = require './errors-view'
 atom.mavensmate       = {}
-window.jQuery         = $
+AtomWatcher           = require('./watchers/atom-watcher').watcher
 
 require '../scripts/bootstrap'
-
-AtomWatcher = require('./watchers/atom-watcher').watcher
 
 module.exports =
 
@@ -178,9 +177,9 @@ module.exports =
         if answer == 1 # 1 => Delete
           self.mavensmateAdapter.executeCommand(params)
             .then (result) ->
-              self.mmResponseHandler(params, result)
+              self.adapterResponseHandler(params, result)
             .catch (err) ->
-              self.mmResponseHandler(params, err)
+              self.adapterResponseHandler(params, err)
 
     # places mavensmate 3 dot icon in the status bar
     createStatusEntry = =>
@@ -249,27 +248,11 @@ module.exports =
               if answer == 0 # Yes
                 self.mavensmateAdapter.executeCommand(params)
                   .then (result) ->
-                    self.mmResponseHandler(params, result)
+                    self.adapterResponseHandler(params, result)
                   .catch (err) ->
-                    self.mmResponseHandler(params, err)
+                    self.adapterResponseHandler(params, err)
 
-    # Public: Deactivate the package and destroy the mavensmate views.
-    #
-    # Returns nothing.
-    destroy: ->
-      # remove MavensMate items from the status bar
-      @mavensmateStatusBar?.destroy()
-      @mavensmateStatusBar = null
-
-      # remove the MavensMate panel
-      if panel?
-        @panel.destroy()
-        @panel = null
-
-      #unsubscribe from all listeners
-      @unsubscribe()
-
-    mmResponseHandler: (params, result) ->
+    adapterResponseHandler: (params, result) ->
       tracker.pop(result.promiseId).result
       EventEmitter.emit 'mavensmate:promise-completed', result.promiseId
       EventEmitter.emit 'mavensmate:panel-notify-finish', params, result, result.promiseId
@@ -286,8 +269,6 @@ module.exports =
 
     # watches active editors for events like save
     handleBufferEvents: (editor) ->
-      # console.log 'subscribing to buffer events for editor: '
-      # console.log editor
       self = @
       buffer = editor.getBuffer()
       if buffer.file? and util.isMetadata(buffer.file.path) and atom.config.get('MavensMate-Atom').mm_compile_on_save
@@ -303,6 +284,20 @@ module.exports =
               paths: [buffer.file.path]
           self.mavensmateAdapter.executeCommand(params)
             .then (result) ->
-              self.mmResponseHandler(params, result)
+              self.adapterResponseHandler(params, result)
             .catch (err) ->
-              self.mmResponseHandler(params, err)
+              self.adapterResponseHandler(params, err)
+
+    # Deactivate the package and destroy the mavensmate views.
+    destroy: ->
+      # remove MavensMate items from the status bar
+      @mavensmateStatusBar?.destroy()
+      @mavensmateStatusBar = null
+
+      # remove the MavensMate panel
+      if panel?
+        @panel.destroy()
+        @panel = null
+
+      #unsubscribe from all listeners
+      @unsubscribe()

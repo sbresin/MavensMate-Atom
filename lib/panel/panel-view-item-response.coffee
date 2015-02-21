@@ -14,9 +14,6 @@ class PanelViewItemResponse extends View
         @span JSON.stringify(params.result, undefined, 2)
 
   initialize: (params) ->
-    console.log 'what? params??'
-    console.log params
-
     if typeChecker.isObject params.message
       @message.append params.message
     else

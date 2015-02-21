@@ -3,7 +3,7 @@ path            = require 'path'
 uuid            = require 'node-uuid'
 
 module.exports =
-  class MavensMateModalView extends ScrollView
+  class ModalView extends ScrollView
 
     # Internal: Initialize mavensmate output view DOM contents.
     @content: ->
