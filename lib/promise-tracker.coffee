@@ -33,13 +33,7 @@ class PromiseTracker
 
   hasPendingOperation: (operation) ->
     console.debug 'is there a pending operation for: '+operation
-    me = @
-    _.each _.keys(me.tracked), (promiseId) ->
-      tracked = me.tracked[promiseId]
-      console.debug 'TRACKED: '+tracked
-      if tracked.operation == operation
-        return true
-    return false
+    return _.find(@tracked, (item) -> return item.operation == operation ) != undefined
 
   start: (promiseId, promise) ->
     emitter.emit 'mavensmate:promise-started', promiseId, promise
@@ -56,8 +50,6 @@ class PromiseTracker
     if pop
       p = _.clone(@tracked[promiseId])
       delete @tracked[promiseId]
-      # if Object.keys(@tracked).length is 0
-      #   emitter.emit 'mavensmate:promise-queue-empty'
       return p
     else
       @tracked[promiseId]
