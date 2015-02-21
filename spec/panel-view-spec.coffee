@@ -9,8 +9,9 @@ temp.track()
 emitter = require('../lib/emitter').pubsub
 {panel} = require '../lib/panel/panel-view'
 
-describe 'MavensMate Panel View', ->
+describe 'PanelView', ->
   
+  mavensmate = null
   projectPath = null
 
   beforeEach ->
@@ -22,7 +23,7 @@ describe 'MavensMate Panel View', ->
     activationPromise = atom.packages.activatePackage('MavensMate-Atom').then ({mainModule}) ->
       mavensmate = mainModule.mavensmate
 
-      spyOn(mavensmate.mavensmateAdapter, 'setProject').andCallFake (p) ->
+      spyOn(mavensmate.mavensmateAdapter, 'setProject').andCallFake ->
         deferred = Q.defer()
         deferred.resolve()
         deferred.promise
@@ -48,7 +49,9 @@ describe 'MavensMate Panel View', ->
     runs ->
       editor = atom.workspace.getActiveTextEditor()
       editorView = atom.views.getView(editor)
-      panel.clear()
+
+  afterEach ->
+    panel.clear()
 
   it 'should be instantiated', ->
     expect(panel).toBeDefined()
@@ -58,9 +61,11 @@ describe 'MavensMate Panel View', ->
     expect(panel.myOutput).toBeDefined()
 
   it 'should add text', ->
+    expect(panel.find('.panel-item').length).toBe(2) # package init adds 2 items
+    expect(Object.keys(panel.panelDictionary).length).toBe(2)
     panel.addPanelViewItem('unit test', 'danger')
-    expect(Object.keys(panel.panelDictionary).length).toBe(1)
-    expect(panel.find('.panel-item').length).toBe(1)
+    expect(Object.keys(panel.panelDictionary).length).toBe(3)
+    expect(panel.find('.panel-item').length).toBe(3)
 
   it 'should expand', ->
     panel.expand()
