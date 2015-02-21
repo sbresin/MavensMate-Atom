@@ -8,9 +8,9 @@ module.exports =
   config:
     mm_workspace :
       title: 'Workspaces'
-      description: 'List of workspaces'
+      description: 'Comma-separated list of workspaces (must be absolute paths!)'
       type: 'array'
-      default: ['/one/cool/workspace', '/one/not-so-cool/workspace']
+      default: ['/one/cool/workspace', '/another/cool/workspace']
       order: 10
     mm_api_version :
       title: 'Salesforce.com API Version'
@@ -38,21 +38,19 @@ module.exports =
       order: 40
     mm_default_subscription:
       title: 'Default metadata subscription'
-      description: ''
+      description: 'Comma-separated list of metadata types, e.g. ApexClass, ApexPage, CustomObject, StaticResource'
       type: 'array'
       default: [
         'ApexClass',
         'ApexComponent',
         'ApexPage',
         'ApexTrigger',
-        'StaticResource',
-        'CustomObject',
-        'Profile'
+        'StaticResource'
       ]
       order: 50
     mm_use_keyring:
       title: 'Use keyring'
-      description: 'Set to true if you would like MavensMate to use your machine\s keyring support'
+      description: 'Set to true if you would like MavensMate to use your machine\'s keyring support to store/retrieve Salesforce.com credentials. If set to false, MavensMate will store passwords in plain text in your project\'s config/.settings and config/.org_connections files.'
       type: 'boolean'
       default: true
       order: 60
@@ -64,7 +62,7 @@ module.exports =
       order: 70
     mm_log_level :
       title: 'Plugin log level'
-      description: 'INFO, DEBUG, WARN, ERROR'
+      description: 'INFO, WARN, DEBUG, VERBOSE, SILLY'
       type: 'string'
       default: 'DEBUG'
       order: 80
