@@ -223,11 +223,9 @@ module.exports =
               payload.metadata_type = command.payloadMetadata
             if 'payloadPreview' of command
               payload.preview = command.payloadPreview
-            # console.log 'command payload: '
-            # console.log payload
+          
             if Object.keys(payload).length != 0
               params.payload = payload
-            # console.log(params.payload)
 
             if params.args.ui
               self.mavensmateAdapter.openUI(params)
