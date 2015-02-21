@@ -26,6 +26,7 @@ module.exports =
 
     initCommandMessage: (command, params) ->
       @closePanelOnFinish = true
+      @closePanelDelay = atom.config.get('MavensMate-Atom.mm_close_panel_delay')
       @command = command
       @running = true
 
@@ -66,8 +67,11 @@ module.exports =
       if @command not in util.panelExemptCommands() and not params.skipPanel
         panelOutput = parseCommand(@command, params, result)
 
-        if panelOutput.indicator != 'success'
+        if panelOutput.indicator != 'success' and panelOutput.indicator != 'info'
           self.closePanelOnFinish = false
+
+        if panelOutput.indicator == 'info'
+          self.closePanelDelay = self.closePanelDelay * 4
 
         # update progress bar depending on outcome of command
         self.terminal.removeClass 'active'
@@ -76,7 +80,6 @@ module.exports =
         # update terminal
         itemResponse = new PanelViewItemResponse(id: @promiseId, message: panelOutput.message, result: result)
         self.terminal.append itemResponse
-        # self.terminal.append '<br/>> '+ '<span id="message-'+@promiseId+'">'+panelOutput.message+'</span>'
         self.running = false
       return
 
