@@ -134,6 +134,9 @@ module.exports =
             # instantiate client interface
             self.registerProjectCommands()
 
+            # places mavensmate 3 dot icon in the status bar
+            @mavensmateStatusBar = new StatusBarView(self.panel)
+           
             self.createErrorsView(util.uris.errorsView)
             atom.workspace.addOpener (uri) ->
               self.errorsView if uri is util.uris.errorsView
@@ -180,16 +183,6 @@ module.exports =
               self.adapterResponseHandler(params, result)
             .catch (err) ->
               self.adapterResponseHandler(params, err)
-
-    # places mavensmate 3 dot icon in the status bar
-    createStatusEntry = =>
-      @mavensmateStatusBar = new StatusBarView(@panel)
-
-    if atom.workspace? and atom.workspace.statusBar
-      createStatusEntry()
-    else
-      atom.packages.once 'activated', ->
-        createStatusEntry()
 
     registerProjectCommands: ->
       # attach commands to workspace based on commands.json
