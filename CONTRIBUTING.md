@@ -9,7 +9,11 @@ Before submitting an issue to this project:
 1. You must be sure that the issue is specific to the **MavensMate for Atom** project
 2. You must **search first** to avoid creating duplicate issues
 
-When submitting a new issue, please specify your platform (OSX, Linux, Windows), the MavensMate for Atom version, and specific steps to reproduce.
+**When submitting a new issue, please specify the following information:**
+
+1. Your platform (OSX, Linux, Windows)
+2. MavensMate-Atom version
+3. **specific steps to reproduce**
 
 #### Submitting Pull Requests
 
