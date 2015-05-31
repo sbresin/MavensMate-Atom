@@ -41,7 +41,7 @@ class CoreView extends ScrollView
   getIconName: ->
     'browser'
 
-  getUri: ->
+  getURI: ->
     @uri
 
   # Tear down any state and detach

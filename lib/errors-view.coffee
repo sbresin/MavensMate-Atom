@@ -65,7 +65,7 @@ class ErrorsView extends ScrollView
   getIconName: ->
     'bug'
 
-  getUri: ->
+  getURI: ->
     @uri
 
   isEqual: (other) ->

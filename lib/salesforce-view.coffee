@@ -49,7 +49,7 @@ class BrowserView extends ScrollView
   getIconName: ->
     'browser'
 
-  getUri: ->
+  getURI: ->
     @uri
 
   # Tear down any state and detach
@@ -115,7 +115,7 @@ class IFrameView extends ScrollView
   getIconName: ->
     'browser'
 
-  getUri: ->
+  getURI: ->
     @uri
 
   # Tear down any state and detach
