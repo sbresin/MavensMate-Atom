@@ -1,7 +1,7 @@
 {SelectListView}  = require 'atom-space-pen-views'
 fs                = require 'fs'
 path              = require 'path'
-util              = require './util'
+util              = require '../util'
 
 module.exports =
 class ProjectListView extends SelectListView

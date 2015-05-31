@@ -1,6 +1,6 @@
 path    = require 'path' # npm install path
 
-ProjectListView = require '../lib/project-list-view'
+ProjectListView = require '../lib/select-list-views/projects'
 
 describe 'ProjectListView', ->
   

@@ -19,14 +19,15 @@ class PromiseTracker
   # initiates base promise, assigns id
   #
   # returns promise id
-  enqueuePromise: (operation) ->
+  enqueuePromise: (operation, params) ->
     emitter.emit 'mavensmate:promise-enqueued'
 
     promiseId = uuid.v1()
     promise = {
       id: promiseId,
       complete: false,
-      operation: operation
+      operation: operation,
+      params: params
     }
     @tracked[promiseId] = promise
     promiseId

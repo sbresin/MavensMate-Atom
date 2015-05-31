@@ -6,7 +6,7 @@ path                  = require 'path'
 {Subscriber,Emitter}  = require 'emissary'
 EventEmitter          = require('./emitter').pubsub
 CoreAdapter           = require('./adapter')
-ProjectListView       = require './project-list-view'
+ProjectListView       = require './select-list-views/projects'
 ErrorMarkers          = require './error-markers'
 PanelView             = require('./panel/panel-view').panel
 StatusBarView         = require './status-bar-view'
@@ -34,7 +34,7 @@ module.exports =
     vfAutocompleteRegistration: null
 
     panel: null # mavensmate status panel
-    mavensmateAdapter: null
+    adapter: null
     errorsView: null
 
     tabViewUri: 'mavensmate://tabView'
@@ -61,9 +61,10 @@ module.exports =
     init: ->
       self = @
 
-      self.mavensmateAdapter = CoreAdapter
-      self.mavensmateAdapter.initialize()
-      atom.mavensmate.adapter = self.mavensmateAdapter
+      self.adapter = CoreAdapter
+      self.adapter.initialize()
+      atom.mavensmate.adapter = self.adapter
+      self.adapter.initSocketListeners()
 
       # opens Salesforce.com URL in an Atom tab
       atom.workspace.addOpener (uri, params) ->
@@ -87,7 +88,7 @@ module.exports =
       params.args = {}
       params.args.operation = 'new-project'
       params.args.url = 'project/new'
-      @mavensmateAdapter.openUI(params)
+      @adapter.openUI(params)
 
     openProject: ->
       @selectList = new ProjectListView()
@@ -122,10 +123,10 @@ module.exports =
 
         console.log 'initializing project from mavensmate.coffee --> '+atom.project.getPath()
 
-        self.mavensmateAdapter.setProject(atom.project.getPath())
+        self.adapter.setProject(atom.project.getPath())
           .then (result) ->
             self.panel.addPanelViewItem('MavensMate project initialized successfully. Happy coding!', 'success')
-            logFetcher = new LogFetcher(self.mavensmateAdapter.client.getProject())
+            logFetcher = new LogFetcher(self.adapter.client.getProject())
             # attach MavensMate views/handlers to each present and future workspace editor views
             atom.workspace.eachEditor (editor) ->
               self.handleBufferEvents editor
@@ -178,13 +179,16 @@ module.exports =
           #     so that we can simulate button clicks properly in the spec
           buttons: ["Cancel", "Delete"]
         if answer == 1 # 1 => Delete
-          self.mavensmateAdapter.executeCommand(params)
+          self.adapter.executeCommand(params)
             .then (result) ->
               self.adapterResponseHandler(params, result)
             .catch (err) ->
               self.adapterResponseHandler(params, err)
 
     registerProjectCommands: ->
+      # foo = require('./commands.coffee').registerCommands
+      # foo(@)
+      # return
       # attach commands to workspace based on commands.json
       for commandName, command of commands.projectCommands
         resolvedName = 'mavensmate:' + commandName
@@ -228,7 +232,7 @@ module.exports =
               params.payload = payload
 
             if params.args.ui
-              self.mavensmateAdapter.openUI(params)
+              self.adapter.openUI(params)
             else
               answer = 0
               if command.confirm?
@@ -237,16 +241,16 @@ module.exports =
                   detailedMessage: command.confirm.message
                   buttons: command.confirm.buttons
               if answer == 0 # Yes
-                self.mavensmateAdapter.executeCommand(params)
+                self.adapter.executeCommand(params)
                   .then (result) ->
                     self.adapterResponseHandler(params, result)
                   .catch (err) ->
                     self.adapterResponseHandler(params, err)
 
     adapterResponseHandler: (params, result) ->
-      tracker.pop(result.promiseId).result
-      EventEmitter.emit 'mavensmate:promise-completed', result.promiseId
-      EventEmitter.emit 'mavensmate:panel-notify-finish', params, result, result.promiseId
+      # tracker.pop(result.promiseId).result
+      # EventEmitter.emit 'mavensmate:promise-completed', result.promiseId
+      # EventEmitter.emit 'mavensmate:panel-notify-finish', params, result, result.promiseId
 
     # ensures custom extensions load the correct atom grammar file
     # TODO: refactor
@@ -273,7 +277,7 @@ module.exports =
               buffer: buffer
             payload:
               paths: [buffer.file.path]
-          self.mavensmateAdapter.executeCommand(params)
+          self.adapter.executeCommand(params)
             .then (result) ->
               self.adapterResponseHandler(params, result)
             .catch (err) ->

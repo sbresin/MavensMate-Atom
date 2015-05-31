@@ -23,12 +23,12 @@ describe 'PanelView', ->
     activationPromise = atom.packages.activatePackage('MavensMate-Atom').then ({mainModule}) ->
       mavensmate = mainModule.mavensmate
 
-      spyOn(mavensmate.mavensmateAdapter, 'setProject').andCallFake ->
+      spyOn(mavensmate.adapter, 'setProject').andCallFake ->
         deferred = Q.defer()
         deferred.resolve()
         deferred.promise
 
-      spyOn(mavensmate.mavensmateAdapter.client, 'getProject').andCallFake ->
+      spyOn(mavensmate.adapter.client, 'getProject').andCallFake ->
         project =
           path: projectPath
           name: 'bar'

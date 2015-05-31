@@ -1,15 +1,15 @@
 'context-menu':
   '.tree-view.multi-select .file':
     'MavensMate':
-      'Delete Files From Server': 'mavensmate:delete-file-from-server'
+      'Delete Files From Server': 'mavensmate:delete-selected-metadata'
       'Refresh From Server': 'mavensmate:refresh-selected-metadata'
       'Compile Files': 'mavensmate:compile-selected-metadata'
   '.tree-view .directory .header':
     'MavensMate':
-      'Delete From Server': 'mavensmate:delete-file-from-server'
+      'Delete From Server': 'mavensmate:delete-selected-metadata'
   '.tree-view .file, .atom-pane .item-views':
     'MavensMate':
-      'Delete File From Server': 'mavensmate:delete-file-from-server'
+      'Delete File From Server': 'mavensmate:delete-selected-metadata'
       'Refresh From Server': 'mavensmate:refresh-selected-metadata'
       'Compile File': 'mavensmate:compile-selected-metadata'
   '.tree-view:not(.multi-select) .file span[data-name*=".resource"]':

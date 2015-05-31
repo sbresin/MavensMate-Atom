@@ -57,9 +57,10 @@ module.exports =
 
     # filters the selected items against metadata extensions
     @getSelectedFiles: ->
+      console.debug 'getting selected files -->>>'
       selectedFilePaths = []
       apex_file_extensions = atom.config.get('MavensMate-Atom').mm_apex_file_extensions
-      treeView = this.treeView()
+      treeView = @treeView()
       if treeView.hasFocus() # clicked in sidebar
         filePaths = treeView.selectedPaths()
       else # command palette or right click in editor
@@ -67,6 +68,7 @@ module.exports =
       for filePath in filePaths
         if this.extension(filePath) in apex_file_extensions
           selectedFilePaths.push(filePath)
+      console.log selectedFilePaths
       return selectedFilePaths
 
     @openUrlInAtom: (params, split = 'right') ->

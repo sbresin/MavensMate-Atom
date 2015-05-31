@@ -5,6 +5,8 @@ Q             = require 'q'
 tracker       = require('./promise-tracker').tracker
 emitter       = require('./emitter').pubsub
 ModalView     = require './modal-view'
+request       = require 'request'
+io            = require 'socket.io'
 
 globalFunction = global.Function
 {allowUnsafeEval, allowUnsafeNewFunction, Function} = require 'loophole'
@@ -51,7 +53,6 @@ class CoreView extends ScrollView
 class CoreAdapter
 
   client: null
-  uiServer: null
 
   initialize: () ->
     self = @
@@ -97,12 +98,19 @@ class CoreAdapter
     atom.config.onDidChange 'MavensMate-Atom.mm_ignore_managed_metadata', ({newValue, oldValue}) ->
       self.reloadConfig()
 
+  initSocketListeners: () ->
+    setTimeout(->
+      console.log('http://localhost:'+atom.mavensmate.adapter.client.getServer().port)
+      socket = require('socket.io-client')('http://localhost:'+atom.mavensmate.adapter.client.getServer().port);
+      socket.on 'command.finish', (data) -> 
+        trackedPromise = tracker.pop(data.jobId);
+        emitter.emit 'mavensmate:promise-completed', data.jobId
+        emitter.emit 'mavensmate:panel-notify-finish', trackedPromise.params, data.response, data.jobId
+    , 500)
+
   reloadConfig: () ->
     @client.settings = atom.config.get('MavensMate-Atom')
     @client.reloadConfig()
-
-  startUIServer: () ->
-    @uiServer = mavensmate.startUIServer(@client)
 
   openUI: (params) ->
     if params.args.view == 'tab'
@@ -139,20 +147,29 @@ class CoreAdapter
     console.log params
     
     args = params.args or {}
-    payload = params.payload
+    payload = params.payload or {}
     promiseId = params.promiseId
     
     command = if args.operation then args.operation else payload.command
 
     if not promiseId?
-      promiseId = tracker.enqueuePromise(command)
+      promiseId = tracker.enqueuePromise(command, params)
 
     deferred = Q.defer()
 
-    @client.executeCommand command, payload, (err, response) ->
-      console.log('executeCommand response: ')
-      console.log(err)
-      console.log(response)
+    payload.jobId = promiseId
+
+    options = {
+      uri: 'http://localhost:'+atom.mavensmate.adapter.client.getServer().port+'/api/commands/'+command,
+      method: 'POST',
+      json: payload
+    };
+
+    request options, (err, response, body) ->
+      console.log 'REQUEST RESPONSE'
+      console.log err
+      console.log response
+      console.log body
       if err
         err.promiseId = promiseId
         deferred.reject err
@@ -160,13 +177,9 @@ class CoreAdapter
         response.promiseId = promiseId
         deferred.resolve response
 
-        # result = response.result # core always responds like so:
-        #   { result: { /* the result */ } }
-        # result.promiseId = promiseId
-        # deferred.resolve response
-          
     # add to promise tracker,
-    # # emit an event so the panel knows when to do its thing
+    # emit an event so the panel knows when to do its thing
+    
     tracker.start promiseId, deferred.promise
     emitter.emit 'mavensmate:panel-notify-start', params, promiseId
 
