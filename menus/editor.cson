@@ -1,6 +1,0 @@
-'context-menu':
-  '.atom-text-editor':
-    'MavensMate':
-      'Delete From Server': 'mavensmate:delete-file'
-      'Refresh From Server': 'mavensmate:refresh-file'
-      'Compile': 'mavensmate:compile-file'
