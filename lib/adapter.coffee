@@ -104,8 +104,9 @@ class CoreAdapter
       socket = require('socket.io-client')('http://localhost:'+atom.mavensmate.adapter.client.getServer().port);
       socket.on 'command.finish', (data) -> 
         trackedPromise = tracker.pop(data.jobId);
-        emitter.emit 'mavensmate:promise-completed', data.jobId
-        emitter.emit 'mavensmate:panel-notify-finish', trackedPromise.params, data.response, data.jobId
+        if trackedPromise
+          emitter.emit 'mavensmate:promise-completed', data.jobId
+          emitter.emit 'mavensmate:panel-notify-finish', trackedPromise.params, data.response, data.jobId
     , 500)
 
   reloadConfig: () ->
