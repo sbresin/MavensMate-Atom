@@ -37,8 +37,8 @@ module.exports =
       @currentFile ?= util.activeFileBaseName()
       @clearMarkers()
 
-      if atom.project.getPath() and @currentFile?
-        fs.readFile path.join(atom.project.getPath(), 'config', '.overlays'), (error, data) =>
+      if atom.project.getPaths().length > 0 and @currentFile?
+        fs.readFile path.join(atom.project.getPaths()[0], 'config', '.overlays'), (error, data) =>
           if error
             console.log error
           else
