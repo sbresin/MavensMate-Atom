@@ -127,7 +127,7 @@ module.exports =
             self.panel.addPanelViewItem('MavensMate project initialized successfully. Happy coding!', 'success')
             logFetcher = new LogFetcher(self.mavensmateAdapter.client.getProject())
             # attach MavensMate views/handlers to each present and future workspace editor views
-            atom.workspace.eachEditor (editor) ->
+            atom.workspace.observeTextEditors (editor) ->
               self.handleBufferEvents editor
               self.registerGrammars editor
 
@@ -263,8 +263,7 @@ module.exports =
       self = @
       buffer = editor.getBuffer()
       if buffer.file? and util.isMetadata(buffer.file.path) and atom.config.get('MavensMate-Atom').mm_compile_on_save
-        @subscribe buffer.on 'saved', ->
-          # console.log('SAVED')
+        editor.onDidSave () ->
           params =
             args:
               operation: 'compile-metadata'
