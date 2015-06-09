@@ -73,7 +73,7 @@ class PanelView extends View
     self = @ # this
 
     @btnViewErrors.click ->
-      atom.workspaceView.open(util.uris.errorsView)
+      atom.workspace.open(util.uris.errorsView)
 
     # toggle log fetcher
     @btnTogglePanel.click ->

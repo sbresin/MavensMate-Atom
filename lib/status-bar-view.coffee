@@ -53,8 +53,8 @@ module.exports =
     attach: ->
       # workspaceElement = atom.views.getView(atom.workspace)
       # console.log workspaceElement
-      if atom.workspaceView? and atom.workspaceView.statusBar?
-        atom.workspaceView.statusBar.appendLeft(this)
+      if atom.workspace? and document.querySelector('status-bar')?
+        document.querySelector('status-bar').appendLeft(this)
 
     # Internal: Detach and destroy the mavensmate status barview.
     destroy: ->

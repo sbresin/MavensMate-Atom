@@ -1,10 +1,10 @@
-_             = require 'underscore-plus'
-_.str         = require 'underscore.string'
-fs            = require 'fs'
-os            = require 'os'
-path          = require 'path'
-CoreAdapter   = require('./adapter')
-BrowserView   = require('./salesforce-view').BrowserView
+_                 = require 'underscore-plus'
+_.str             = require 'underscore.string'
+fs                = require 'fs'
+os                = require 'os'
+path              = require 'path'
+CoreAdapter       = require('./adapter')
+BrowserView       = require('./salesforce-view').BrowserView
 
 module.exports =
 
@@ -187,8 +187,8 @@ module.exports =
 
     # returns tree view
     @treeView: ->
-      atom.workspaceView.find('.tree-view').view()
-
+      atom.packages.getActivePackage('tree-view').mainModule.treeView
+      
     @typeIsArray: (value) ->
       Array.isArray or (value) ->
         {}.toString.call(value) is "[object Array]"

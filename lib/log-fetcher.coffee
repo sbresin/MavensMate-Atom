@@ -28,14 +28,17 @@ class MavensMateLogFetchedView extends View
     # when open log button is clicked, log is opened in atom and flash alert is hidden
     self = @
     @openLog.click ->
-      atom.workspaceView.open(self.path)
+      atom.workspace.open(self.path)
       .then (result) ->
         self.destroy()
 
   show: ->
     self = @
-    atom.workspaceView.append(this) # TODO: deprecated
- 
+    # atom.workspace.addBottomPanel(self) # TODO: deprecated
+  
+    @panel ?= atom.workspace.addBottomPanel(item: this)
+    @panel.show()
+
     # ensures log notification stays open if mouse is over it
     # otherwise disappears after 5 seconds
     hideTimer = setTimeout(->

@@ -144,7 +144,7 @@ module.exports =
             atom.deserializers.add(self.errorsDeserializer)
 
             atom.commands.add 'atom-workspace', 'mavensmate:view-errors', ->
-              atom.workspaceView.open(util.uris.errorsView)
+              atom.workspace.open(util.uris.errorsView)
 
           .catch (err) ->
             console.error 'error activating mavensmate project'
