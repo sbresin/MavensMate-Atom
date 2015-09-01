@@ -5,6 +5,7 @@ Q             = require 'q'
 tracker       = require('./promise-tracker').tracker
 emitter       = require('./emitter').pubsub
 ModalView     = require './modal-view'
+request       = require 'request'
 
 globalFunction = global.Function
 {allowUnsafeEval, allowUnsafeNewFunction, Function} = require 'loophole'
@@ -16,7 +17,7 @@ mavensmate = allowUnsafeNewFunction ->
 class CoreView extends ScrollView
   constructor: (params) ->
     super
-    @command = params.args.operation
+    @command = params.command
     tabViewUri = 'http://localhost:'+atom.mavensmate.adapter.client.getServer().port+'/app/'+params.args.url
     @iframe.attr 'src', tabViewUri
 
@@ -55,54 +56,29 @@ class CoreAdapter
 
   initialize: () ->
     self = @
-    @client = mavensmate.createClient(
-      editor: 'atom'
-      headless: true
-      debugging: false
-      settings: atom.config.get('MavensMate-Atom')
-    )
+    
+    deferred = Q.defer()
 
-    # opens core url in an Atom tab
-    atom.workspace.addOpener (uri, params) ->
-      self.createUiView(params) if uri is 'mavensmate://core'
+    request
+      .get("http://localhost:#{atom.config.get('MavensMate-Atom').mm_app_server_port}/app/home/index")
+      .on('response', (response) ->
+        if response.statusCode == 200
+          # todo: if user wants embedded views, allow it to happen?
+          # opens core url in an Atom tab
+          atom.workspace.addOpener (uri, params) ->
+            self.createUiView(params) if uri is 'mavensmate://core'
 
-    # watch for configuration changes, update client settings
-    atom.config.onDidChange 'MavensMate-Atom.mm_workspace', ({newValue, oldValue}) ->
-      self.reloadConfig()
+          deferred.resolve()
+        else
+          console.log(response)
+          deferred.reject('Could not contact local MavensMate server, please ensure the MavensMate app is installed and running (https://github.com/joeferraro/mavensmate-app/releases). MavensMate will not run properly until resolved.')
+      )
+      .on('error', (err) ->
+        console.log(err)
+        deferred.reject('Could not contact local MavensMate server, please ensure the MavensMate app is installed and running (https://github.com/joeferraro/mavensmate-app/releases). MavensMate will not run properly until resolved.')
+      )
 
-    atom.config.onDidChange 'MavensMate-Atom.mm_compile_check_conflicts', ({newValue, oldValue}) ->
-      self.reloadConfig()
-
-    atom.config.onDidChange 'MavensMate-Atom.mm_api_version', ({newValue, oldValue}) ->
-      self.reloadConfig()
-
-    atom.config.onDidChange 'MavensMate-Atom.mm_default_subscription', ({newValue, oldValue}) ->
-      self.reloadConfig()
-
-    atom.config.onDidChange 'MavensMate-Atom.mm_use_keyring', ({newValue, oldValue}) ->
-      self.reloadConfig()
-
-    atom.config.onDidChange 'MavensMate-Atom.mm_log_location', ({newValue, oldValue}) ->
-      self.reloadConfig()
-
-    atom.config.onDidChange 'MavensMate-Atom.mm_log_level', ({newValue, oldValue}) ->
-      self.reloadConfig()
-
-    atom.config.onDidChange 'MavensMate-Atom.mm_play_sounds', ({newValue, oldValue}) ->
-      self.reloadConfig()
-
-    atom.config.onDidChange 'MavensMate-Atom.mm_atom_exec_path', ({newValue, oldValue}) ->
-      self.reloadConfig()
-
-    atom.config.onDidChange 'MavensMate-Atom.mm_ignore_managed_metadata', ({newValue, oldValue}) ->
-      self.reloadConfig()
-
-  reloadConfig: () ->
-    @client.settings = atom.config.get('MavensMate-Atom')
-    @client.reloadConfig()
-
-  startUIServer: () ->
-    @uiServer = mavensmate.startUIServer(@client)
+    deferred.promise
 
   openUI: (params) ->
     if params.args.view == 'tab'
@@ -114,59 +90,113 @@ class CoreAdapter
   createUiView: (params) ->
     ui = new CoreView(params)
      
-  setProject: (projectPath) ->
-    console.log 'setting project from core-adapter ===>'
-    
-    deferred = Q.defer()
-    
-    @client.setProject projectPath, (err, response) ->
-      # console.log 'project set response -->'
-      # console.log err
-      # console.log response
-      if err
-        console.error('could not initiate mavensmate project ...')
-        console.error err
-        deferred.reject err
-      else
-        # console.log('mavensmate project initiated ...')
-        # console.log response
-        deferred.resolve response
-
-    deferred.promise
-
   executeCommand: (params) ->
     console.log 'executing command via core adapter: '
     console.log params
     
-    args = params.args or {}
     payload = params.payload
     promiseId = params.promiseId
-    
-    command = if args.operation then args.operation else payload.command
+      
+    # command = if args.operation then args.operation else payload.command
+    command = params.command
 
     if not promiseId?
       promiseId = tracker.enqueuePromise(command)
 
     deferred = Q.defer()
 
-    @client.executeCommand command, payload, (err, response) ->
-      console.log('executeCommand response: ')
-      console.log(err)
-      console.log(response)
+    reqUrl = "http://localhost:#{atom.config.get('MavensMate-Atom').mm_app_server_port}/execute?command=#{command}&async=1"
+    if atom.project.mavensmateId
+      reqUrl += '&pid='+atom.project.mavensmateId
+
+    reqOptions =
+      method: 'POST'
+      url: reqUrl
+      headers:
+        'Content-Type': 'application/json'
+        'MavensMate-Editor-Agent': 'atom'
+      body: JSON.stringify payload
+
+    console.log('executing MavensMate command', reqOptions)
+
+    request(reqOptions, (err, response, body) ->
+      console.log('REQUEST CALLBACK')
+      console.log err
+      console.log response
+      console.log body
       if err
         err.promiseId = promiseId
         deferred.reject err
       else
-        response.promiseId = promiseId
-        deferred.resolve response
-
-        # result = response.result # core always responds like so:
-        #   { result: { /* the result */ } }
-        # result.promiseId = promiseId
-        # deferred.resolve response
+        console.log('response from mavensmate', response, body) 
+        statusResponse = JSON.parse body
+        requestId = statusResponse.id
+        requestDone = false
+        requestResponse = null
           
-    # add to promise tracker,
-    # # emit an event so the panel knows when to do its thing
+        console.log 'need to poll ...'
+
+        poll = ->
+          console.log 'polling for response ...'
+
+          statusOption =
+            method: 'GET',
+            url: "http://localhost:#{atom.config.get('MavensMate-Atom').mm_app_server_port}/status?id=#{requestId}"
+            headers:
+              'MavensMate-Editor-Agent': 'atom'
+        
+          request(statusOption, (err, response, body) ->
+            if err
+              err.promiseId = promiseId
+              deferred.reject err
+            else
+              res = JSON.parse body
+              if res.status and res.status == 'pending'
+                setTimeout(->
+                  poll()
+                , 500)
+                # poll()
+              else
+                # requestResponse = res
+                # requestDone = true
+                console.log('done!')
+                console.log(res)
+                res.promiseId = promiseId
+                deferred.resolve res
+          )  
+
+        poll()      
+    )
+
+    # reqOptions
+    #   .get(reqUrl)
+    #   .on('response', (response) ->
+    #     console.log('response from mavensmate', response) 
+
+    #   )
+    #   .on('error', (err) ->
+    #     console.log(err)
+    #     deferred.reject('Could not contact local MavensMate server, please ensure the MavensMate app is installed and running (https://github.com/joeferraro/mavensmate-app/releases). MavensMate will not run properly until resolved.')
+    #   )    
+
+    # @client.executeCommand command, payload, (err, response) ->
+    #   console.log('executeCommand response: ')
+    #   console.log(err)
+    #   console.log(response)
+    #   if err
+    #     err.promiseId = promiseId
+    #     deferred.reject err
+    #   else
+    #     response.promiseId = promiseId
+    #     deferred.resolve response
+
+    #     # result = response.result # core always responds like so:
+    #     #   { result: { /* the result */ } }
+    #     # result.promiseId = promiseId
+    #     # deferred.resolve response
+          
+    # # add to promise tracker,
+    # # # emit an event so the panel knows when to do its thing
     tracker.start promiseId, deferred.promise
     emitter.emit 'mavensmate:panel-notify-start', params, promiseId
 

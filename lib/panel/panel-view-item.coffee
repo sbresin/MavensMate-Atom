@@ -5,6 +5,7 @@ util                  = require '../util'
 moment                = require 'moment'
 parseCommand          = require('./parsers').parse
 PanelViewItemResponse = require './panel-view-item-response'
+commands              = require '../commands.json'
 
 module.exports =
   # represents a single operation/command within the panel
@@ -85,43 +86,23 @@ module.exports =
 
     # returns the command message to be displayed in the panel
     # todo: refactor to something like parsers.coffee
-    panelCommandMessage: (params, isUi=false) ->
-      # console.log params
-      
-      switch @command
-        when 'new-project'
-          msg =  'Creating new project'
-        when 'compile-project'
-          msg = 'Compiling project'
-        when 'index-metadata'
-          msg = 'Indexing metadata'
-        when 'compile-metadata'
-          if params.payload.paths? and params.payload.paths.length is 1
-            msg = 'Compiling '+params.payload.paths[0].split(/[\\/]/).pop() # extract base name
-          else
-            msg = 'Compiling selected metadata'
-        when 'delete-metadata'
-          if params.payload.paths? and params.payload.paths.length is 1
-            msg = 'Deleting ' + params.payload.paths[0].split(/[\\/]/).pop() # extract base name
-          else
-            msg = 'Deleting selected metadata'
-        when 'refresh-metadata'
-          if params.payload.paths? and params.payload.paths.length is 1
-            msg = 'Refreshing ' + params.payload.paths[0].split(/[\\/]/).pop() # extract base name
-          else
-            msg = 'Refreshing selected metadata'
-        when 'clean-project'
-          msg = 'Cleaning project'
-        when 'run-tests'
-          msg = 'Running Apex unit test(s)'
-        when 'start-logging'
-          msg = 'Creating trace flags for user ids in config/.debug'
-        when 'stop-logging'
-          msg = 'Deleting trace flags you have created for user ids in config/.debug'
-        when 'index-apex'
-          msg = 'Indexing Apex symbols for this project'
-        else
-          msg = 'mavensmate ' + @command
+    panelCommandMessage: (params, isUi=false) ->      
+      console.log('.....')
+      console.log(@command)
+
+      if commands.applicationCommands[@command]
+        commandConfig = commands.applicationCommands[@command]
+      else if commands.projectCommands[@command]
+        commandConfig = commands.projectCommands[@command]
+
+      if commandConfig and commandConfig.panelMessage
+        msg = commandConfig.panelMessage
+      else
+        msg = 'mavensmate ' + @command
+
+      if params.payload? and params.payload.paths? and params.payload.paths.length is 1
+        msg += ' '+params.payload.paths[0].split(/[\\/]/).pop() # extract base name
+        
       console.log msg
       header = '['+moment().format('MMMM Do YYYY, h:mm:ss a')+']<br/>'
       return header + '> ' + msg

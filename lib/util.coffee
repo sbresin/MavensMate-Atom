@@ -50,8 +50,8 @@ module.exports =
     # returns the name of the command
     # useful because the command can reside in args or payload
     @getCommandName: (params) ->
-      if params.args? and params.args.operation?
-        params.args.operation
+      if params.args? and params.command?
+        params.command
       else
         params.payload.command
 
@@ -164,15 +164,11 @@ module.exports =
     @panelExemptCommands: ->
       [
         'get-indexed_metadata',
-        'deploy',
         'session',
         'new-apex-overlay',
         'delete-apex-overlay',
         'index-apex-overlays',
-        'new-metadata',
-        'unit-test',
-        'list-metadata',
-        'edit-project'
+        'list-metadata'
       ]
 
     # returns platform flag (windows|osx|linux[default])

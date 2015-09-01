@@ -110,8 +110,8 @@ class PanelView extends View
       # todo: ensure exempt or skippanel commands are not handled here
       if params.payload? and params.payload.command?
         operation = params.payload.command
-      else if params.args? and params.args.operation?
-        operation = params.args.operation
+      else if params.args? and params.command?
+        operation = params.command
 
       if operation? and operation not in util.panelExemptCommands() and not params.skipPanel # some commands are not piped to the panel
         console.log 'panel view picked up an event!'

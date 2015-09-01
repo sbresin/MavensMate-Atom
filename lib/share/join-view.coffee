@@ -45,12 +45,13 @@ class MavensMateJoinShareView extends View
     shareId = @miniEditor.getText()
     thiz = @
     params =
+      command: 'share'
       args:
-        operation: 'share'
-        ui: true
         pane: atom.workspace.getActivePane()
         view: 'tab'
       payload:
+        args:
+          ui: true
         hash: shareId
     @mm.run(params).then (result) =>
       thiz.responseHandler(params, result)

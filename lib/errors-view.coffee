@@ -72,7 +72,7 @@ class ErrorsView extends ScrollView
     other instanceof ErrorsView
 
   addRunningFiles: (params, promiseId) ->
-    command = params.args.operation
+    command = params.command
     if command in util.compileCommands()
       if command in ['clean-project', 'compile-project']
         @running['all'][promiseId] = params
@@ -83,7 +83,7 @@ class ErrorsView extends ScrollView
             @running[runningFile][promiseId] = params
 
   removeFinishedFiles: (params, promiseId) ->
-    command = params.args.operation
+    command = params.command
     if command in util.compileCommands()
       if command in ['clean-project', 'compile-project'] and @running['all'][promiseId]?
         delete @running['all'][promiseId]

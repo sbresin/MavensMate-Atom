@@ -21,12 +21,12 @@ module.exports =
     initialize: ->
       # when save/fetch starts clear markers out
       emitter.on 'mavensmate:panel-notify-start', (params, promiseId) =>
-        @clearMarkers() if params.args? and (params.args.operation is 'compile' or params.args.operation is 'index_apex_overlays')
+        @clearMarkers() if params.args? and (params.command is 'compile' or params.command is 'index_apex_overlays')
 
       # when save/fetch finishes refresh checkpoints to ensure they are in sync with the server
       emitter.on 'mavensmate:panel-notify-finish', (params, result) =>
-        @refreshCheckpoints() if params.args.operation is 'compile'
-        @refreshMarkers()     if params.args.operation is 'index_apex_overlays'
+        @refreshCheckpoints() if params.command is 'compile'
+        @refreshMarkers()     if params.command is 'index_apex_overlays'
 
     clearMarkers: ->
       return unless @markers?
@@ -104,8 +104,8 @@ module.exports =
         console.debug 'SYNCING CHECKPOINTS =====>'
         atom.mavensmate.lastCheckpointSync = moment()
         params =
+          command: 'index-apex-overlays'
           args:
-            operation: 'index_apex_overlays'
             pane: atom.workspace.getActivePane()
         @mm.run(params).then (result) =>
           @refreshMarkers()
@@ -137,6 +137,6 @@ module.exports =
         payload: payload
       @mm.run(params).then (result) =>
         marker.mm_checkpointId = result.id
-        if params.args.operation is 'new_apex_overlay'
+        if params.command is 'new_apex_overlay'
           decoration.update {type: 'gutter', class: 'mm-checkpoint-gutter'}
         thiz.responseHandler(params, result)

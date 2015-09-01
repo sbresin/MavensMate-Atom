@@ -61,33 +61,28 @@ module.exports =
     init: ->
       self = @
 
-      self.mavensmateAdapter = CoreAdapter
-      self.mavensmateAdapter.initialize()
-      atom.mavensmate.adapter = self.mavensmateAdapter
+      if atom.project? and atom.project.getPaths().length > 0 and util.hasMavensMateProjectStructure()
+        self.panel = PanelView
+        self.panel.addPanelViewItem('Initializing MavensMate, please wait...', 'info')
 
-      # opens Salesforce.com URL in an Atom tab
-      atom.workspace.addOpener (uri, params) ->
-        self.createSalesforceView(params) if uri is 'mavensmate://salesforceView'
+        self.mavensmateAdapter = CoreAdapter
+        self.mavensmateAdapter.initialize()
+          .then(() ->
+            atom.mavensmate.adapter = self.mavensmateAdapter
+            atom.project.mavensmateId = util.fileBodyAsString(path.join(atom.project.getPaths()[0], 'config', '.settings'), true).id
+            atom.workspace.mavensMateProjectInitialized ?= false
 
-      # opens Salesforce.com URL in an Atom browser window
-      atom.workspace.addOpener (uri, params) ->
-        self.createSalesforceBrowserView(params) if uri is 'mavensmate://salesforceBrowserView'
+            self.registerApplicationCommands()
+            # atom.commands.add 'atom-workspace', 'mavensmate:open-project', => self.openProject()
 
-      atom.workspace.mavensMateProjectInitialized ?= false
-
-      atom.commands.add 'atom-workspace', 'mavensmate:new-project', => @newProject()
-      atom.commands.add 'atom-workspace', 'mavensmate:open-project', => @openProject()
-
-      atom.project.onDidChangePaths => @onProjectPathChanged()
-      
-      self.initializeProject()
-
-    newProject: ->
-      params = {}
-      params.args = {}
-      params.args.operation = 'new-project'
-      params.args.url = 'project/new'
-      @mavensmateAdapter.openUI(params)
+            atom.project.onDidChangePaths => @onProjectPathChanged()
+            
+            self.initializeProject()
+          )
+          .catch((err) ->
+            self.panel.addPanelViewItem(err, 'danger')
+            self.panel.toggle()
+          )
 
     openProject: ->
       @selectList = new ProjectListView()
@@ -112,49 +107,36 @@ module.exports =
     initializeProject: ->
       self = @
       # TODO: use atom.project.getPaths()
-      if atom.project? and atom.project.getPaths().length > 0 and util.hasMavensMateProjectStructure()
-        self.panel = PanelView
-        self.panel.addPanelViewItem('Initializing MavensMate project, please wait...', 'info')
-        atom.project.mavensMateErrors = {}
-        atom.project.mavensMateCheckpointCount = 0
-        # instantiate mavensmate panel, show it
-        self.panel.toggle()
+      atom.project.mavensMateErrors = {}
+      atom.project.mavensMateCheckpointCount = 0
+      # instantiate mavensmate panel, show it
+      self.panel.toggle()
 
-        console.log 'initializing project from mavensmate.coffee --> '+atom.project.getPaths()
+      console.log 'initializing project from mavensmate.coffee --> '+atom.project.getPaths()
 
-        self.mavensmateAdapter.setProject(atom.project.getPaths()[0])
-          .then (result) ->
-            self.panel.addPanelViewItem('MavensMate project initialized successfully. Happy coding!', 'success')
-            logFetcher = new LogFetcher(self.mavensmateAdapter.client.getProject())
-            # attach MavensMate views/handlers to each present and future workspace editor views
-            atom.workspace.observeTextEditors (editor) ->
-              self.handleBufferEvents editor
-              self.registerGrammars editor
+      self.panel.addPanelViewItem('MavensMate initialized successfully. Happy coding!', 'success')
+      # logFetcher = new LogFetcher(self.mavensmateAdapter.client.getProject())
+      # attach MavensMate views/handlers to each present and future workspace editor views
+      atom.workspace.observeTextEditors (editor) ->
+        self.handleBufferEvents editor
+        self.registerGrammars editor
 
-            # instantiate client interface
-            self.registerProjectCommands()
+      # instantiate client interface
+      self.registerProjectCommands()
 
-            # places mavensmate 3 dot icon in the status bar
-            @mavensmateStatusBar = new StatusBarView(self.panel)
-           
-            self.createErrorsView(util.uris.errorsView)
-            atom.workspace.addOpener (uri) ->
-              self.errorsView if uri is util.uris.errorsView
+      # places mavensmate 3 dot icon in the status bar
+      @mavensmateStatusBar = new StatusBarView(self.panel)
+      
+      self.createErrorsView(util.uris.errorsView)
+      atom.workspace.addOpener (uri) ->
+        self.errorsView if uri is util.uris.errorsView
 
-            atom.deserializers.add(self.errorsDeserializer)
+      atom.deserializers.add(self.errorsDeserializer)
 
-            atom.commands.add 'atom-workspace', 'mavensmate:view-errors', ->
-              atom.workspace.open(util.uris.errorsView)
-
-          .catch (err) ->
-            console.error 'error activating mavensmate project'
-            console.error err.message
-            console.error err.stack
-            if self.panel?
-              self.panel.addPanelViewItem('Could not activate MavensMate project. MavensMate will not function correctly.<br/>'+err.message.replace(/Error:/g, '<br/>Error:'), 'danger')
+      atom.commands.add 'atom-workspace', 'mavensmate:view-errors', ->
+        atom.workspace.open(util.uris.errorsView)
 
       # attach commands
-
       atom.commands.add 'atom-workspace', 'mavensmate:toggle-output', ->
         self.panel.toggleView()
 
@@ -166,8 +148,8 @@ module.exports =
         else # command palette or right click in editor
           filePaths = [util.activeFile()]
         params =
+          command: 'delete-metadata'
           args:
-            operation: 'delete-metadata'
             pane: atom.workspace.getActivePane()
           payload:
             paths: filePaths
@@ -184,6 +166,34 @@ module.exports =
             .catch (err) ->
               self.adapterResponseHandler(params, err)
 
+    registerApplicationCommands: ->
+      for commandName, command of commands.applicationCommands
+        resolvedName = 'mavensmate:' + commandName
+
+        atom.commands.add 'atom-workspace', resolvedName, (options) ->
+          commandName = options.type.split(':').pop()
+          command = commands.applicationCommands[commandName]
+          if command?
+            params =
+              command: command.name
+              args:
+                pane: atom.workspace.getActivePane()
+
+            payload = {}
+            payload.args = {}
+
+            if 'ui' of command
+              payload.args.ui = command.ui
+
+            if Object.keys(payload).length != 0
+              params.payload = payload
+
+            self.mavensmateAdapter.executeCommand(params)
+              .then (result) ->
+                self.adapterResponseHandler(params, result)
+              .catch (err) ->
+                self.adapterResponseHandler(params, err)
+
     registerProjectCommands: ->
       # attach commands to workspace based on commands.json
       for commandName, command of commands.projectCommands
@@ -194,12 +204,10 @@ module.exports =
           command = commands.projectCommands[commandName]
           if command?
             params =
+              command: command.name
               args:
-                operation: command.operation
                 pane: atom.workspace.getActivePane()
 
-            if 'ui' of command
-              params.args.ui = command.ui
             if 'view' of command
               params.args.view = command.view
             if 'url' of command
@@ -208,14 +216,18 @@ module.exports =
               params.args.view = 'modal'
 
             payload = {}
-            if 'payloadFiles' of command
-              switch command['payloadFiles']
+            payload.args = {}
+            
+            if 'ui' of command
+              payload.args.ui = command.ui
+            if 'paths' of command
+              switch command['paths']
                 when 'active'
                   payload.paths = [util.activeFile()]
                 when 'selected'
                   payload.paths = util.getSelectedFiles()
-            if 'payloadClasses' of command
-              switch command['payloadClasses']
+            if 'classes' of command
+              switch command['classes']
                 when 'activeBaseName'
                   if util.activeFile().indexOf('.cls') >= 0
                     payload.classes = [util.activeFileBaseName().split('.')[0]]
@@ -227,21 +239,18 @@ module.exports =
             if Object.keys(payload).length != 0
               params.payload = payload
 
-            if params.args.ui
-              self.mavensmateAdapter.openUI(params)
-            else
-              answer = 0
-              if command.confirm?
-                answer = atom.confirm
-                  message: command.confirm.message
-                  detailedMessage: command.confirm.message
-                  buttons: command.confirm.buttons
-              if answer == 0 # Yes
-                self.mavensmateAdapter.executeCommand(params)
-                  .then (result) ->
-                    self.adapterResponseHandler(params, result)
-                  .catch (err) ->
-                    self.adapterResponseHandler(params, err)
+            answer = 0
+            if command.confirm?
+              answer = atom.confirm
+                message: command.confirm.message
+                detailedMessage: command.confirm.detailedMessage
+                buttons: command.confirm.buttons
+            if answer == 0 # Yes
+              self.mavensmateAdapter.executeCommand(params)
+                .then (result) ->
+                  self.adapterResponseHandler(params, result)
+                .catch (err) ->
+                  self.adapterResponseHandler(params, err)
 
     adapterResponseHandler: (params, result) ->
       tracker.pop(result.promiseId).result
@@ -265,8 +274,8 @@ module.exports =
       if buffer.file? and util.isMetadata(buffer.file.path) and atom.config.get('MavensMate-Atom').mm_compile_on_save
         editor.onDidSave () ->
           params =
+            command: 'compile-metadata'
             args:
-              operation: 'compile-metadata'
               pane: atom.workspace.getActivePane()
               textEditor: atom.workspace.getActiveTextEditor()
               buffer: buffer
