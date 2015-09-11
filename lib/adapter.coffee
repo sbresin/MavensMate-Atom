@@ -6,17 +6,7 @@ tracker       = require('./promise-tracker').tracker
 emitter       = require('./emitter').pubsub
 request       = require 'request'
 
-globalFunction = global.Function
-{allowUnsafeEval, allowUnsafeNewFunction, Function} = require 'loophole'
-Function.prototype.call = globalFunction.prototype.call
-mavensmate = allowUnsafeNewFunction ->
-  allowUnsafeEval ->
-    require 'mavensmate'
-
 class CoreAdapter
-
-  client: null
-  uiServer: null
 
   initialize: () ->
     self = @
