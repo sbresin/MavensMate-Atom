@@ -55,12 +55,10 @@ module.exports =
       self = @
 
       self.mavensmateAdapter = CoreAdapter
-      atom.mavensmate.adapter = self.mavensmateAdapter
 
       self.panel = PanelView
       self.registerApplicationCommands()
-      atom.project.onDidChangePaths => @onProjectPathChanged()
-
+      
       console.log 'DOIIIING ITTTT'
       console.log atom.project
       console.log atom.project.getPaths()
@@ -69,21 +67,17 @@ module.exports =
       if atom.project? and atom.project.getPaths().length > 0 and util.hasMavensMateProjectStructure()
         self.mavensmateAdapter.initialize()
           .then(() ->
-            atom.project.mavensmateId = util.fileBodyAsString(path.join(atom.project.getPaths()[0], 'config', '.settings'), true).id
-            atom.workspace.mavensMateProjectInitialized ?= true
-
             # TODO
             # atom.commands.add 'atom-workspace', 'mavensmate:open-project', => self.openProject()
-            
-            self.initializeProject()
+            if not atom.workspace.mavensMateProjectInitialized
+              self.initializeProject()
           )
           .catch((err) ->
             self.panel.addPanelViewItem(err, 'danger')
             self.panel.toggle()
           )
 
-    initializeCoreAdapter: ->
-
+      atom.project.onDidChangePaths => @onProjectPathChanged()
 
     # todo: expose settings retrieval from core so we can display this list
     # openProject: ->
@@ -95,7 +89,6 @@ module.exports =
 
     onProjectPathChanged: ->
       if util.hasMavensMateProjectStructure() and not atom.workspace.mavensMateProjectInitialized
-        atom.workspace.mavensMateProjectInitialized = true
         @initializeProject()
       else
         console.log('not a mavensmate project or already initialized')
@@ -103,6 +96,9 @@ module.exports =
     initializeProject: ->
       self = @
       self.panel.addPanelViewItem('Initializing MavensMate, please wait...', 'info')
+
+      atom.project.mavensmateId = util.fileBodyAsString(path.join(atom.project.getPaths()[0], 'config', '.settings'), true).id
+      atom.workspace.mavensMateProjectInitialized ?= true
 
       # TODO: use atom.project.getPaths()
       atom.project.mavensMateErrors = {}

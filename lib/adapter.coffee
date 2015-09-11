@@ -69,43 +69,50 @@ class CoreAdapter
         deferred.reject err
       else
         console.log('response from mavensmate', response, body) 
-        statusResponse = JSON.parse body
-        requestId = statusResponse.id
-        requestDone = false
-        requestResponse = null
+        if response.statusCode > 300
+          res = 
+            promiseId: promiseId
+            error: new Error body
+          deferred.resolve res
+        else
+          statusResponse = JSON.parse body
+          requestId = statusResponse.id
+          requestDone = false
+          requestResponse = null
+            
+          console.log 'Need to poll local MavensMate server for response ...'
+
+          poll = ->
+            console.log 'polling for response ...'
+
+            statusOption =
+              method: 'GET',
+              url: "http://localhost:#{atom.config.get('MavensMate-Atom').mm_app_server_port}/status?id=#{requestId}"
+              headers:
+                'MavensMate-Editor-Agent': 'atom'
           
-        console.log 'need to poll ...'
-
-        poll = ->
-          console.log 'polling for response ...'
-
-          statusOption =
-            method: 'GET',
-            url: "http://localhost:#{atom.config.get('MavensMate-Atom').mm_app_server_port}/status?id=#{requestId}"
-            headers:
-              'MavensMate-Editor-Agent': 'atom'
-        
-          request(statusOption, (err, response, body) ->
-            if err
-              err.promiseId = promiseId
-              deferred.reject err
-            else
-              res = JSON.parse body
-              if res.status and res.status == 'pending'
-                setTimeout(->
-                  poll()
-                , 500)
-                # poll()
+            request(statusOption, (err, response, body) ->
+              if err
+                err.promiseId = promiseId
+                deferred.reject err
               else
-                # requestResponse = res
-                # requestDone = true
-                console.log('done!')
-                console.log(res)
-                res.promiseId = promiseId
-                deferred.resolve res
-          )  
+                # todo: catch interruption
+                res = JSON.parse body
+                if res.status and res.status == 'pending'
+                  setTimeout(->
+                    poll()
+                  , 500)
+                  # poll()
+                else
+                  # requestResponse = res
+                  # requestDone = true
+                  console.log('done!')
+                  console.log(res)
+                  res.promiseId = promiseId
+                  deferred.resolve res
+            )  
 
-        poll()      
+          poll()      
     )
        
     # add to promise tracker,
