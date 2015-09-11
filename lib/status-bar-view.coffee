@@ -59,7 +59,6 @@ module.exports =
     # Internal: Detach and destroy the mavensmate status barview.
     destroy: ->
       @detach()
-      @unsubscribe()
 
     setBusy: (busy) ->
       if busy

@@ -29,7 +29,8 @@ describe 'logging parser', ->
 
   it 'should parse start logging', ->
     commandResult =
-      result: 'Started logging'
+      result:
+        message: 'Started logging'
 
     parseResult = parseCommand('start-logging', {}, commandResult)
     expect(parseResult.error).toBe(undefined)

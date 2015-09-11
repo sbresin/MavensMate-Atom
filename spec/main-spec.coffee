@@ -33,7 +33,7 @@ describe 'main.coffee', ->
       expect(mmMain.vfProvider).toBeDefined()
       expect(mmMain.vfProvider.vfTags.length).toEqual(131)
 
-  fdescribe 'package activation', ->
+  describe 'package activation', ->
     [buffer, directory, editor, editorView, filePath, workspaceElement] = []
     mavensmate = null
     projectPath = null
@@ -51,12 +51,10 @@ describe 'main.coffee', ->
         atom.project.setPaths([projectPath])
 
       activationPromise = atom.packages.activatePackage('MavensMate-Atom').then ({mainModule}) ->
-        console.log 'activate handler'
-
+        console.log 'spec: MavensMate-Atom activated ...'
         mavensmate = mainModule.mavensmate
         console.log mavensmate
 
- 
       waitsForPromise ->
         activationPromise
 
@@ -92,10 +90,10 @@ describe 'main.coffee', ->
     #   jasmine.unspy mavensmate, 'openProject'
 
     it 'calls newProject() method for mavensmate:new-project event', ->
-      spyOn adapter, 'executeCommand'
+      spyOn mavensmate.mavensmateAdapter, 'executeCommand'
       atom.commands.dispatch(editorView, 'mavensmate:new-project')
-      expect(adapter.executeCommand).toHaveBeenCalled()
-      jasmine.unspy adapter, 'executeCommand'
+      expect(mavensmate.mavensmateAdapter.executeCommand).toHaveBeenCalled()
+      jasmine.unspy mavensmate.mavensmateAdapter, 'executeCommand'
 
   describe 'package deactivation', ->
 

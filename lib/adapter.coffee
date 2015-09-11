@@ -8,7 +8,7 @@ request       = require 'request'
 
 class CoreAdapter
 
-  initialize: () ->
+  checkStatus: () ->
     self = @
     
     deferred = Q.defer()

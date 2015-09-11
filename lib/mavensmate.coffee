@@ -59,13 +59,12 @@ module.exports =
       self.panel = PanelView
       self.registerApplicationCommands()
       
-      console.log 'DOIIIING ITTTT'
       console.log atom.project
       console.log atom.project.getPaths()
       
       # if this window is an atom project AND a mavensmate project, initialize the project
       if atom.project? and atom.project.getPaths().length > 0 and util.hasMavensMateProjectStructure()
-        self.mavensmateAdapter.initialize()
+        self.mavensmateAdapter.checkStatus()
           .then(() ->
             # TODO
             # atom.commands.add 'atom-workspace', 'mavensmate:open-project', => self.openProject()
@@ -167,6 +166,7 @@ module.exports =
       self.panel.addPanelViewItem('MavensMate initialized successfully. Happy coding!', 'success')
 
     registerApplicationCommands: ->
+      self = @
       for c in util.getCommands('application')
         resolvedName = 'mavensmate:' + c.atomName
 

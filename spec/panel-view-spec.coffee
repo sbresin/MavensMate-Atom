@@ -49,11 +49,11 @@ describe 'PanelView', ->
 
   it 'should add items', ->
     panel.addPanelViewItem('unit test', 'danger')
-    expect(Object.keys(panel.panelDictionary).length).toBe(1)
-    expect(panel.find('.panel-item').length).toBe(1)
+    expect(Object.keys(panel.panelDictionary).length).toBe(3)
+    expect(panel.find('.panel-item').length).toBe(3)
     panel.addPanelViewItem('unit test', 'success')
-    expect(Object.keys(panel.panelDictionary).length).toBe(2)
-    expect(panel.find('.panel-item').length).toBe(2)
+    expect(Object.keys(panel.panelDictionary).length).toBe(4)
+    expect(panel.find('.panel-item').length).toBe(4)
 
   it 'should expand', ->
     panel.expand()
