@@ -39,7 +39,7 @@
     "request": "^2.44.0",
     "typechecker": "2.0.8",
     "underscore-plus": "1.x",
-    "underscore.string": "2.3.x",
+    "underscore.string": "2.3.x"
   },
   "providedServices": {
     "autocomplete.provider": {
