@@ -21,7 +21,7 @@ class CommandParser
     console.log @result
     if @result.result? and not @result.error?
       @result.success = true
-      @obj.message = @result.result
+      @obj.message = @result.result.message
       @obj.indicator = if @result.success then 'success' else 'danger'
       @obj.stackTrace = @result.stack
       @obj.isException = @result.stack?
@@ -65,8 +65,8 @@ class DeleteParser extends CommandParser
 class UiParser extends CommandParser
 
   parse: ->
-    if @result.success
-      @obj.message = 'UI generated successfully'
+    if @result.result? and not @result.error?
+      @obj.message = @result.result.message
       @obj.indicator = 'success'
       return @obj
     else
@@ -321,13 +321,11 @@ class LoggingParser extends CommandParser
 
   parse: ->
     if @result.error?
-      @obj.indicator = 'danger'
-      @obj.isException = true
-      @obj.stackTrace = @result.stack
+      @obj = @getErrorOutput()
     else
       @obj.indicator = 'info'
+      @obj.message = @result.result.message
 
-    @obj.message = @result.result
     return @obj
 
 class OpenMetadataParser extends CommandParser
@@ -356,8 +354,11 @@ parsers = {
 }
 
 getCommandParser = (command, params) ->
-  
-  if params.args? and params.args.ui
+  console.log 'determing parser for command'
+  console.log command
+  console.log params
+
+  if params.payload? and params.payload.args? and params.payload.args.ui
     return UiParser
   else
     parserClassName = _.camelize(command)

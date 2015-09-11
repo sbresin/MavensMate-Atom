@@ -2,6 +2,7 @@ helper                    = require './spec-helper'
 temp                      = require 'temp' # npm install temp
 path                      = require 'path' # npm install path
 Q                         = require 'q'
+adapter                   = require '../lib/adapter'
 
 describe 'main.coffee', ->
 
@@ -32,8 +33,7 @@ describe 'main.coffee', ->
       expect(mmMain.vfProvider).toBeDefined()
       expect(mmMain.vfProvider.vfTags.length).toEqual(131)
 
-  describe 'package activation', ->
-
+  fdescribe 'package activation', ->
     [buffer, directory, editor, editorView, filePath, workspaceElement] = []
     mavensmate = null
     projectPath = null
@@ -43,29 +43,22 @@ describe 'main.coffee', ->
 
       workspaceElement = atom.views.getView(atom.workspace)
       jasmine.attachToDOM(workspaceElement)
-     
-      activationPromise = atom.packages.activatePackage('MavensMate-Atom').then ({mainModule}) ->
-        mavensmate = mainModule.mavensmate
-
-        spyOn(mavensmate.mavensmateAdapter, 'setProject').andCallFake (p) ->
-          deferred = Q.defer()
-          deferred.resolve()
-          deferred.promise
-
-        spyOn(mavensmate.mavensmateAdapter.client, 'getProject').andCallFake ->
-          project =
-            path: projectPath
-            name: 'bar'
-            logService:
-              on: ->
-          return project
-        
-      waitsForPromise ->
-        activationPromise
 
       runs ->
+        console.log 'setting project'
         projectPath = path.join(__dirname, 'fixtures', 'testProject')
+        console.log(projectPath)
         atom.project.setPaths([projectPath])
+
+      activationPromise = atom.packages.activatePackage('MavensMate-Atom').then ({mainModule}) ->
+        console.log 'activate handler'
+
+        mavensmate = mainModule.mavensmate
+        console.log mavensmate
+
+ 
+      waitsForPromise ->
+        activationPromise
 
       waitsForPromise ->
         atom.workspace.open('src/package.xml')
@@ -80,43 +73,29 @@ describe 'main.coffee', ->
     it 'should have default settings defined', ->
       expect(atom.config.get('MavensMate-Atom')).toBeDefined()
       config = atom.config.get('MavensMate-Atom')
-      expect(config.mm_timeout).toBeDefined()
-      expect(config.mm_compile_check_conflicts).toBeDefined()
-      expect(config.mm_community_api_token).toBeDefined()
-      expect(config.mm_use_keyring).toBeDefined()
-      expect(config.mm_api_version).toBeDefined()
-      expect(config.mm_log_location).toBeDefined()
-      expect(config.mm_log_level).toBeDefined()
-      expect(config.mm_workspace).toBeDefined()
-      expect(config.mm_http_proxy).toBeDefined()
-      expect(config.mm_https_proxy).toBeDefined()
-      expect(config.mm_play_sounds).toBeDefined()
+      expect(config.mm_compile_on_save).toBeDefined()
       expect(config.mm_panel_height).toBeDefined()
       expect(config.mm_close_panel_on_successful_operation).toBeDefined()
       expect(config.mm_close_panel_delay).toBeDefined()
-      expect(config.mm_template_location).toBeDefined()
-      expect(config.mm_template_source).toBeDefined()
-      expect(config.mm_default_subscription).toBeDefined()
-      expect(config.mm_atom_exec_path).toBeDefined()
-      expect(config.mm_ignore_managed_metadata).toBeDefined()
       expect(config.mm_apex_file_extensions).toBeDefined()
+      expect(config.mm_app_server_port).toBeDefined()
 
     it 'should attach commands', ->
       expect(helper.hasCommand(workspaceElement, 'mavensmate:new-project')).toBeTruthy()
-      expect(helper.hasCommand(workspaceElement, 'mavensmate:open-project')).toBeTruthy()
+      # expect(helper.hasCommand(workspaceElement, 'mavensmate:open-project')).toBeTruthy()
       expect(helper.hasCommand(workspaceElement, 'mavensmate:compile-project')).toBeTruthy()
     
-    it 'calls openProject() method for mavensmate:open-project event', ->
-      spyOn mavensmate, 'openProject'
-      atom.commands.dispatch(editorView, 'mavensmate:open-project')
-      expect(mavensmate.openProject).toHaveBeenCalled()
-      jasmine.unspy mavensmate, 'openProject'
+    # it 'calls openProject() method for mavensmate:open-project event', ->
+    #   spyOn mavensmate, 'openProject'
+    #   atom.commands.dispatch(editorView, 'mavensmate:open-project')
+    #   expect(mavensmate.openProject).toHaveBeenCalled()
+    #   jasmine.unspy mavensmate, 'openProject'
 
     it 'calls newProject() method for mavensmate:new-project event', ->
-      spyOn mavensmate, 'newProject'
+      spyOn adapter, 'executeCommand'
       atom.commands.dispatch(editorView, 'mavensmate:new-project')
-      expect(mavensmate.newProject).toHaveBeenCalled()
-      jasmine.unspy mavensmate, 'newProject'
+      expect(adapter.executeCommand).toHaveBeenCalled()
+      jasmine.unspy adapter, 'executeCommand'
 
   describe 'package deactivation', ->
 

@@ -4,7 +4,8 @@ describe 'clean-project parser', ->
 
   it 'should parse successful project clean', ->
     commandResult =
-      result: 'Project cleaned successfully'
+      result:
+        message: 'Project cleaned successfully'
 
     parseResult = parseCommand('clean-project', {}, commandResult)
     expect(parseResult.error).toBe(undefined)

@@ -1,15 +1,36 @@
 _                 = require 'underscore-plus'
 _.str             = require 'underscore.string'
+__                = require 'lodash'
 fs                = require 'fs'
 os                = require 'os'
 path              = require 'path'
 CoreAdapter       = require('./adapter')
 BrowserView       = require('./salesforce-view').BrowserView
+commands          = require './commands.json'
 
 module.exports =
 
   class MMUtil
 
+    @getCommands: (scope) ->
+      if scope?
+        return __.where(commands, {
+          scope: scope
+        })
+      else
+        return commands
+
+    @getCommandByCoreName: (name, ui=false) ->
+      return __.find(commands, {
+        coreName: name,
+        ui: ui
+      })
+
+    @getCommandByAtomName: (name) ->
+      return __.find(commands, {
+        atomName: name
+      })
+    
     # returns the active file path
     @activeFile: ->
       editor = atom.workspace.getActivePaneItem()
@@ -26,11 +47,6 @@ module.exports =
     # e.g. /workspace/MyApexClass.cls -> MyApexClass.cls
     @baseName: (filePath) ->
       filePath.split(/[\\/]/).pop()
-
-    # takes a url and attempts to return the base salesforce url
-    @baseSalesforceUrl: (url) ->
-      # e.g., https://na14.salesforce.com/services/Soap/u/30.0/00Dd0000000cRQK
-      return _.str.strLeftBack(url, '/services/')
 
     @extension: (filePath) ->
       '.' + filePath.split(/[.]/).pop()

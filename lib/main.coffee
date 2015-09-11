@@ -5,6 +5,7 @@ module.exports =
 
   mavensmate: null
 
+  # configure MM for Atom SPECIFIC settings (global MavensMate settings handled in mavensmate-app)
   config:
     mm_compile_on_save :
       title: 'Compile files on save'
@@ -47,15 +48,16 @@ module.exports =
   # right now, this activates MavensMate once per Atom window
   # i think we want to keep each MavensMate() instance tied to a project, but not 100% sure how to approach that
   activate: (state) ->
-    console.log 'activating MavensMate-Atom'
+    console.log '===========> Activating MavensMate-Atom'
     @mavensmate = new MavensMate()
 
+  # instanstiate autocomplete providers
   provide: ->
     @apexProvider = new AutoCompleteProviders.ApexProvider()
     @vfProvider = new AutoCompleteProviders.VisualforceTagProvider()
     return {providers: [@apexProvider, @vfProvider]}
 
   deactivate: ->
-    console.log 'deactivating MavensMate-Atom'
+    console.log '===========> Deactivating MavensMate-Atom'
     @mavensmate?.destroy()
     delete @mavensmate

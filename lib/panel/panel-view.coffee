@@ -11,14 +11,16 @@ PanelViewItem           = require './panel-view-item'
 class PanelView extends View
   Subscriber.includeInto this
 
-  fetchingLogs: false
-  panelDictionary: {}
-  collapsed: true
-  panelViewHeight: null
+  panelDictionary: {} # dictionary of promise (job) id to panel item
+  collapsed: true # whether the panel is collapsed
+  panelViewHeight: null # total height in pixels
 
   constructor: ->
     super
 
+  # 
+  # handlers for resizing
+  # 
   resizeStarted: =>
     $(document).on('mousemove', @resizePanelHandler)
     $(document).on('mouseup', @resizeStopped)
@@ -34,18 +36,19 @@ class PanelView extends View
     @panelViewHeight = height
     atom.config.set('MavensMate-Atom.mm_panel_height', height)
 
+  handleEvents: ->
+    @on 'mousedown', '.entry', (e) =>
+      @onMouseDown(e)
+
+    @on 'mousedown', '.mavensmate-panel-view-resize-handle', (e) => @resizeStarted(e)
+
+  # explicitly set height of panel 
   setPanelViewHeight: (height, animate = true, setPanelHeight = true) =>
     if animate
       jQuery(@).animate({ height:height }, 'fast')
     else
       @height(height)
     jQuery('.mavensmate-output .message').css('max-height',height-54+'px')
-
-  handleEvents: ->
-    @on 'mousedown', '.entry', (e) =>
-      @onMouseDown(e)
-
-    @on 'mousedown', '.mavensmate-panel-view-resize-handle', (e) => @resizeStarted(e)
 
   # Internal: Initialize mavensmate output view DOM contents.
   @content: ->
@@ -75,13 +78,14 @@ class PanelView extends View
     @btnViewErrors.click ->
       atom.workspace.open(util.uris.errorsView)
 
-    # toggle log fetcher
+    # toggle panel visibility
     @btnTogglePanel.click ->
       if self.collapsed
         self.expand()
       else
         self.collapse()
 
+    # button to clear all panel items
     @btnClearPanel.click ->
       self.clear()
 
@@ -134,11 +138,13 @@ class PanelView extends View
             -> self.collapseIfNoRunning(),
           promisePanelViewItem.closePanelDelay)
 
+    # if compile finishes, be sure to keep errors view up-to-date
     emitter.on 'mavensmate:compile-finished', (params, promiseId) ->
       self.updateErrorsBtn()
 
     @handleEvents()
 
+  # adds item to panel
   addPanelViewItem: (message, status) ->
     if @collapsed
       @expand()
@@ -177,6 +183,7 @@ class PanelView extends View
     @btnToggleIcon.addClass 'fa-toggle-down'
     @collapsed = false
 
+  # scrolls panel to top, especially helpful if running new command and panel is scrolled down
   scrollToTop: ->
     jQuery('.mavensmate-output .message').animate { scrollTop: 0 }, 300
 

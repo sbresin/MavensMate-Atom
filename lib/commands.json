@@ -1,166 +1,217 @@
-{
-    "applicationCommands": {
-        "new-project": {
-            "name": "new-project",
-            "ui": true,
-            "panelMessage": "Opening edit project UI"
-        }
+[
+    {
+        "coreName": "new-project",
+        "atomName": "new-project",
+        "ui": true,
+        "panelMessage": "Opening new project UI",
+        "scope": "application"
     },
-    "projectCommands" : {
-        "compile-file": {
-            "name": "compile-metadata",
-            "paths": "active",
-            "panelMessage": "Compiling"
+    {
+        "atomName": "compile-file",
+        "coreName": "compile-metadata",
+        "paths": "active",
+        "panelMessage": "Compiling",
+        "scope": "project"
+    },
+    {
+        "atomName": "compile-metadata",
+        "coreName": "compile-metadata",
+        "paths": "active",
+        "panelMessage": "Compiling",
+        "scope": "project"
+    },
+    {
+        "atomName": "refresh-file",
+        "coreName": "refresh-metadata",
+        "paths": "active",
+        "panelMessage": "Refreshing",
+        "scope": "project"
+    },
+    {
+        "atomName": "delete-file",
+        "coreName": "delete-metadata",
+        "paths": "active",
+        "panelMessage": "Deleting",
+        "scope": "project"
+    },
+    {
+        "atomName": "compile-project",
+        "coreName": "compile-project",
+        "confirm": {
+            "message": "Compile Project",
+            "detailedMessage": "Would you like to compile the project?",
+            "buttons": ["Yes", "No"]
         },
-        "compile-metadata": {
-            "name": "compile-metadata",
-            "paths": "active",
-            "panelMessage": "Compiling"
+        "panelMessage": "Compiling project",
+        "scope": "project"
+    },
+    {
+        "atomName": "compile-selected-metadata",
+        "coreName": "compile-metadata",
+        "paths": "selected",
+        "panelMessage": "Compiling",
+        "scope": "project"
+    },
+    {
+        "atomName": "new-resource-bundle",
+        "coreName": "new-resource-bundle",
+        "paths": "selected",
+        "panelMessage": "Creating resource bundle",
+        "scope": "project"
+    },
+    {
+        "atomName": "deploy-resource-bundle",
+        "coreName": "deploy-resource-bundle",
+        "paths": "selected",
+        "panelMessage": "Deploying resource bundle",
+        "scope": "project"
+    },
+    {
+        "atomName": "clean-project",
+        "coreName": "clean-project",
+        "confirm": {
+          "message": "Clean Project",
+          "detailedMessage": "Are you sure you want to clean this project? All local (non-server) files will be deleted and your project will be refreshed from the server.",
+          "buttons": ["Yes", "No"]
         },
-        "refresh-file": {
-            "name": "refresh-metadata",
-            "paths": "active",
-            "panelMessage": "Refreshing"
+        "panelMessage": "Cleaning project",
+        "scope": "project"
+    },
+    {
+        "atomName": "index-metadata",
+        "coreName": "index-metadata",
+        "panelMessage": "Indexing org metadata",
+        "scope": "project"
+    },
+    {
+        "atomName": "refresh-selected-metadata",
+        "coreName": "refresh-metadata",
+        "paths": "selected",
+        "confirm": {
+          "message": "Refresh Selected Metadata",
+          "detailedMessage": "Are you sure you want to overwrite the selected files' contents from Salesforce?",
+          "buttons": ["Yes", "No"]
         },
-        "delete-file": {
-            "name": "delete-metadata",
-            "paths": "active",
-            "panelMessage": "Deleting"
-        },
-        "compile-project": {
-            "name": "compile-project",
-            "confirm": {
-                "message": "Compile Project",
-                "detailedMessage": "Would you like to compile the project?",
-                "buttons": ["Yes", "No"]
-            },
-            "panelMessage": "Compiling project"
-        },
-        "compile-selected-metadata": {
-            "name": "compile-metadata",
-            "paths": "selected",
-            "panelMessage": "Compiling"
-        },
-        "new-resource-bundle": {
-            "name": "new-resource-bundle",
-            "paths": "selected",
-            "panelMessage": "Creating resource bundle"
-        },
-        "deploy-resource-bundle": {
-            "name": "deploy-resource-bundle",
-            "paths": "selected",
-            "panelMessage": "Deploying resource bundle"
-        },
-        "clean-project": {
-            "name": "clean-project",
-            "confirm": {
-              "message": "Clean Project",
-              "detailedMessage": "Are you sure you want to clean this project? All local (non-server) files will be deleted and your project will be refreshed from the server.",
-              "buttons": ["Yes", "No"]
-            },
-            "panelMessage": "Cleaning project"
-        },
-        "index-metadata": {
-            "name": "index-metadata",
-            "panelMessage": "Indexing org metadata"
-        },
-        "refresh-selected-metadata": {
-            "name": "refresh-metadata",
-            "paths": "selected",
-            "confirm": {
-              "message": "Refresh Selected Metadata",
-              "detailedMessage": "Are you sure you want to overwrite the selected files' contents from Salesforce?",
-              "buttons": ["Yes", "No"]
-            },
-            "panelMessage": "Refreshing"            
-        },
-        "run-tests": {
-            "name": "run-tests",
-            "classes": "activeBaseName",
-            "panelMessage": "Running Apex unit tests"
-        },
-        "edit-project": {
-            "name": "edit-project",
-            "ui": true,
-            "panelMessage": "Opening edit project UI"
-        },
-        "new-apex-class": {
-            "name": "new-metadata",
-            "ui": true,
-            "payloadMetadata": "ApexClass",
-            "panelMessage": "Opening new Apex Class UI"
-        },
-        "new-apex-trigger": {
-            "name": "new-metadata",
-            "ui": true,
-            "payloadMetadata": "ApexTrigger",
-            "panelMessage": "Opening new Apex Trigger UI"
-        },
-        "new-visualforce-page": {
-            "name": "new-metadata",
-            "ui": true,
-            "payloadMetadata": "ApexPage",
-            "panelMessage": "Opening new Apex Page UI"
-        },
-        "new-visualforce-component": {
-            "name": "new-metadata",
-            "ui": true,
-            "payloadMetadata": "ApexComponent",
-            "panelMessage": "Opening new Apex Component UI"
-        },
-        "new-lightning-app": {
-            "name": "new-lightning-app",
-            "ui": true,
-            "panelMessage": "Opening new Lightning App UI"
-        },
-        "new-lightning-component": {
-            "name": "new-lightning-component",
-            "ui": true,
-            "panelMessage": "Opening new Lightning Component UI"
-        },
-        "new-lightning-event": {
-            "name": "new-lightning-event",
-            "ui": true,
-            "panelMessage": "Opening new Lightning Event UI"
-        },
-        "new-lightning-interface": {
-            "name": "new-lightning-interface",
-            "ui": true,
-            "panelMessage": "Opening new Lightning Interface UI"
-        },
-        "open-apex-test-runner-ui": {
-            "name": "run-tests",
-            "ui": true,
-            "url":"test/new",
-            "panelMessage": "Opening Apex unit test UI"
-        },
-        "deploy-to-server": {
-            "name": "deploy",
-            "url":"deploy/new",
-            "ui": true,
-            "panelMessage": "Opening deploy UI"
-        },
-        "execute-apex": {
-            "name": "execute-apex",
-            "url":"apex/new",
-            "ui": true,
-            "panelMessage": "Opening execute Apex UI"
-        },
-        "start-logging": {
-            "name": "start-logging",
-            "panelMessage": "Starting logging for users specified in config/.debug"
-        },
-        "stop-logging": {
-            "name": "stop-logging",
-            "panelMessage": "Stopping logging for users specified in config/.debug"
-        },
-        "refresh-apex-symbols": {
-            "name": "index-apex",
-            "panelMessage": "Refreshing Apex symbol tables"
-        },
-        "flush-debug-logs": {
-            "name": "flush-logs",
-            "panelMessage": "Flushing debug logs from your project"
-        }
+        "panelMessage": "Refreshing",
+        "scope": "project"           
+    },
+    {
+        "atomName": "edit-project",
+        "coreName": "edit-project",
+        "ui": true,
+        "panelMessage": "Opening edit project UI",
+        "scope": "project"
+    },
+    {
+        "atomName": "new-apex-class",
+        "coreName": "new-metadata",
+        "ui": true,
+        "payloadMetadata": "ApexClass",
+        "panelMessage": "Opening new Apex Class UI",
+        "scope": "project"
+    },
+    {
+        "atomName": "new-apex-trigger",
+        "coreName": "new-metadata",
+        "ui": true,
+        "payloadMetadata": "ApexTrigger",
+        "panelMessage": "Opening new Apex Trigger UI",
+        "scope": "project"
+    },
+    {
+        "atomName": "new-visualforce-page",
+        "coreName": "new-metadata",
+        "ui": true,
+        "payloadMetadata": "ApexPage",
+        "panelMessage": "Opening new Apex Page UI",
+        "scope": "project"
+    },
+    {
+        "atomName": "new-visualforce-component",
+        "coreName": "new-metadata",
+        "ui": true,
+        "payloadMetadata": "ApexComponent",
+        "panelMessage": "Opening new Apex Component UI",
+        "scope": "project"
+    },
+    {
+        "atomName": "new-lightning-app",
+        "coreName": "new-lightning-app",
+        "ui": true,
+        "panelMessage": "Opening new Lightning App UI",
+        "scope": "project"
+    },
+    {
+        "atomName": "new-lightning-component",
+        "coreName": "new-lightning-component",
+        "ui": true,
+        "panelMessage": "Opening new Lightning Component UI",
+        "scope": "project"
+    },
+    {
+        "atomName": "new-lightning-event",
+        "coreName": "new-lightning-event",
+        "ui": true,
+        "panelMessage": "Opening new Lightning Event UI",
+        "scope": "project"
+    },
+    {
+        "atomName": "new-lightning-interface",
+        "coreName": "new-lightning-interface",
+        "ui": true,
+        "panelMessage": "Opening new Lightning Interface UI",
+        "scope": "project"
+    },
+    {
+        "atomName": "open-apex-test-runner-ui",
+        "coreName": "run-tests",
+        "ui": true,
+        "panelMessage": "Opening Apex unit test UI",
+        "scope": "project"
+    },
+    {
+        "atomName": "run-tests",
+        "coreName": "run-tests",
+        "classes": "activeBaseName",
+        "panelMessage": "Running Apex unit tests",
+        "scope": "project"
+    },
+    {
+        "atomName": "deploy-to-server",
+        "coreName": "deploy",
+        "ui": true,
+        "panelMessage": "Opening deploy UI",
+        "scope": "project"
+    },
+    {
+        "atomName": "execute-apex",
+        "coreName": "execute-apex",
+        "ui": true,
+        "panelMessage": "Opening execute Apex UI",
+        "scope": "project"
+    },
+    {
+        "atomName": "start-logging",
+        "coreName": "start-logging",
+        "panelMessage": "Starting logging for users specified in config/.debug",
+        "scope": "project"
+    },
+    {
+        "atomName": "stop-logging",
+        "coreName": "stop-logging",
+        "panelMessage": "Stopping logging for users specified in config/.debug",
+        "scope": "project"
+    },
+    {
+        "atomName": "refresh-apex-symbols",
+        "coreName": "index-apex",
+        "panelMessage": "Refreshing Apex symbol tables",
+        "scope": "project"
+    },
+    {
+        "atomName": "flush-debug-logs",
+        "coreName": "flush-logs",
+        "panelMessage": "Flushing debug logs from your project",
+        "scope": "project"
     }
-}
+]

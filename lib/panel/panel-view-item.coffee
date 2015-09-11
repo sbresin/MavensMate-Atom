@@ -1,5 +1,6 @@
 {$, View}             = require 'atom-space-pen-views'
 {Subscriber,Emitter}  = require 'emissary'
+_                     = require 'lodash'
 emitter               = require('../emitter').pubsub
 util                  = require '../util'
 moment                = require 'moment'
@@ -14,7 +15,7 @@ module.exports =
     constructor: ->
       super
       # set panel font-size to that of the editor
-      fontSize = jQuery("atom-text-editor::shadow div.editor-contents--private").css('font-size')
+      fontSize = jQuery('atom-text-editor::shadow div.editor-contents--private').css('font-size')
       try
         if !fontSize
           fontSize = '14px'
@@ -29,17 +30,15 @@ module.exports =
       @closePanelOnFinish = true
       @closePanelDelay = atom.config.get('MavensMate-Atom.mm_close_panel_delay')
       @command = command
+      @params = params
       @running = true
 
-      # get the message
-      message = @.panelCommandMessage params, util.isUiCommand params
-
       # scope this panel by the promiseId
-      @promiseId = params.promiseId
+      @promiseId = @params.promiseId
       @item.attr 'id', @promiseId
 
       # write the message to the terminal
-      @terminal.html message
+      @terminal.html @.getMessage()
 
     initGenericMessage: (message, status) ->
       # write the message to the terminal
@@ -86,22 +85,20 @@ module.exports =
 
     # returns the command message to be displayed in the panel
     # todo: refactor to something like parsers.coffee
-    panelCommandMessage: (params, isUi=false) ->      
+    getMessage: ->
       console.log('.....')
       console.log(@command)
+      console.log(@params)
 
-      if commands.applicationCommands[@command]
-        commandConfig = commands.applicationCommands[@command]
-      else if commands.projectCommands[@command]
-        commandConfig = commands.projectCommands[@command]
+      cmdDef = @params.commandDefinition
 
-      if commandConfig and commandConfig.panelMessage
-        msg = commandConfig.panelMessage
+      if cmdDef and cmdDef.panelMessage
+        msg = cmdDef.panelMessage
       else
         msg = 'mavensmate ' + @command
 
-      if params.payload? and params.payload.paths? and params.payload.paths.length is 1
-        msg += ' '+params.payload.paths[0].split(/[\\/]/).pop() # extract base name
+      if @params.payload? and @params.payload.paths? and @params.payload.paths.length is 1
+        msg += ' '+@params.payload.paths[0].split(/[\\/]/).pop() # extract base name
         
       console.log msg
       header = '['+moment().format('MMMM Do YYYY, h:mm:ss a')+']<br/>'

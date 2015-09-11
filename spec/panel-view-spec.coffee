@@ -23,19 +23,6 @@ describe 'PanelView', ->
     activationPromise = atom.packages.activatePackage('MavensMate-Atom').then ({mainModule}) ->
       mavensmate = mainModule.mavensmate
 
-      spyOn(mavensmate.mavensmateAdapter, 'setProject').andCallFake ->
-        deferred = Q.defer()
-        deferred.resolve()
-        deferred.promise
-
-      spyOn(mavensmate.mavensmateAdapter.client, 'getProject').andCallFake ->
-        project =
-          path: projectPath
-          name: 'bar'
-          logService:
-            on: ->
-        return project
-      
     waitsForPromise ->
       activationPromise
 
@@ -53,19 +40,20 @@ describe 'PanelView', ->
   afterEach ->
     panel.clear()
 
-  it 'should be instantiated', ->
+  it 'should be instantiated and attached to window', ->
     expect(panel).toBeDefined()
     expect(panel).toBeDefined()
     expect(panel.find('h3')[0].innerHTML).toBe('MavensMate Salesforce1 IDE for Atom')
     expect(panel.myHeader).toBeDefined()
     expect(panel.myOutput).toBeDefined()
 
-  it 'should add text', ->
-    expect(panel.find('.panel-item').length).toBe(2) # package init adds 2 items
-    expect(Object.keys(panel.panelDictionary).length).toBe(2)
+  it 'should add items', ->
     panel.addPanelViewItem('unit test', 'danger')
-    expect(Object.keys(panel.panelDictionary).length).toBe(3)
-    expect(panel.find('.panel-item').length).toBe(3)
+    expect(Object.keys(panel.panelDictionary).length).toBe(1)
+    expect(panel.find('.panel-item').length).toBe(1)
+    panel.addPanelViewItem('unit test', 'success')
+    expect(Object.keys(panel.panelDictionary).length).toBe(2)
+    expect(panel.find('.panel-item').length).toBe(2)
 
   it 'should expand', ->
     panel.expand()
