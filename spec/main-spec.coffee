@@ -89,8 +89,10 @@ describe 'main.coffee', ->
     #   expect(mavensmate.openProject).toHaveBeenCalled()
     #   jasmine.unspy mavensmate, 'openProject'
 
-    it 'calls newProject() method for mavensmate:new-project event', ->
-      spyOn mavensmate.mavensmateAdapter, 'executeCommand'
+    fit 'calls newProject() method for mavensmate:new-project event', ->
+      deferred = Q.defer()
+      deferred.resolve()
+      spyOn(mavensmate.mavensmateAdapter,'executeCommand').andCallFake -> deferred.promise
       atom.commands.dispatch(editorView, 'mavensmate:new-project')
       expect(mavensmate.mavensmateAdapter.executeCommand).toHaveBeenCalled()
       jasmine.unspy mavensmate.mavensmateAdapter, 'executeCommand'
