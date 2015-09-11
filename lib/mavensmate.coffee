@@ -51,30 +51,29 @@ module.exports =
       @init()
 
     # Activates the package, instantiates the views, etc.
-    #
-    # Returns nothing.
     init: ->
       self = @
 
+      self.mavensmateAdapter = CoreAdapter
+      atom.mavensmate.adapter = self.mavensmateAdapter
+
+      self.panel = PanelView
       self.registerApplicationCommands()
+      atom.project.onDidChangePaths => @onProjectPathChanged()
 
       console.log 'DOIIIING ITTTT'
       console.log atom.project
       console.log atom.project.getPaths()
+      
+      # if this window is an atom project AND a mavensmate project, initialize the project
       if atom.project? and atom.project.getPaths().length > 0 and util.hasMavensMateProjectStructure()
-        self.panel = PanelView
-        self.panel.addPanelViewItem('Initializing MavensMate, please wait...', 'info')
-
-        self.mavensmateAdapter = CoreAdapter
         self.mavensmateAdapter.initialize()
           .then(() ->
-            atom.mavensmate.adapter = self.mavensmateAdapter
             atom.project.mavensmateId = util.fileBodyAsString(path.join(atom.project.getPaths()[0], 'config', '.settings'), true).id
-            atom.workspace.mavensMateProjectInitialized ?= false
+            atom.workspace.mavensMateProjectInitialized ?= true
 
+            # TODO
             # atom.commands.add 'atom-workspace', 'mavensmate:open-project', => self.openProject()
-
-            atom.project.onDidChangePaths => @onProjectPathChanged()
             
             self.initializeProject()
           )
@@ -82,6 +81,9 @@ module.exports =
             self.panel.addPanelViewItem(err, 'danger')
             self.panel.toggle()
           )
+
+    initializeCoreAdapter: ->
+
 
     # todo: expose settings retrieval from core so we can display this list
     # openProject: ->
@@ -100,6 +102,8 @@ module.exports =
 
     initializeProject: ->
       self = @
+      self.panel.addPanelViewItem('Initializing MavensMate, please wait...', 'info')
+
       # TODO: use atom.project.getPaths()
       atom.project.mavensMateErrors = {}
       atom.project.mavensMateCheckpointCount = 0
@@ -108,11 +112,7 @@ module.exports =
       self.panel.toggle()
 
       console.log 'initializing project --> '+atom.project.getPaths()
-
-      self.panel.addPanelViewItem('MavensMate initialized successfully. Happy coding!', 'success')
-      
-      # logFetcher = new LogFetcher(self.mavensmateAdapter.client.getProject())
-      
+            
       # attach MavensMate views/handlers to each present and future workspace editor views
       atom.workspace.observeTextEditors (editor) ->
         self.handleBufferEvents editor
@@ -167,6 +167,8 @@ module.exports =
               self.adapterResponseHandler(params, result)
             .catch (err) ->
               self.adapterResponseHandler(params, err)
+
+      self.panel.addPanelViewItem('MavensMate initialized successfully. Happy coding!', 'success')
 
     registerApplicationCommands: ->
       for c in util.getCommands('application')
