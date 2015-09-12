@@ -7,7 +7,7 @@
         { 'label': 'Refresh From Server', 'command': 'mavensmate:refresh-file' }
         { 'label': 'Compile', 'command': 'mavensmate:compile-file' }
       ]
-    }   
+    }
   ]
   '.tree-view.multi-select .file': [
     {
@@ -17,7 +17,7 @@
         { 'label': 'Refresh From Server', 'command': 'mavensmate:refresh-selected-metadata' }
         { 'label': 'Compile Files', 'command': 'mavensmate:compile-selected-metadata' }
       ]
-    }   
+    }
   ]
   '.tree-view .directory .header': [
     {
@@ -25,7 +25,7 @@
       'submenu': [
         { 'label': 'Delete From Server', 'command': 'mavensmate:delete-file-from-server' }
       ]
-    }   
+    }
   ]
   '.tree-view .file, .atom-pane .item-views': [
     {
@@ -35,7 +35,7 @@
         { 'label': 'Refresh From Server', 'command': 'mavensmate:refresh-selected-metadata' }
         { 'label': 'Compile Files', 'command': 'mavensmate:compile-selected-metadata' }
       ]
-    }   
+    }
   ]
   '.tree-view:not(.multi-select) .file span[data-name*=".resource"]': [
     {
@@ -43,7 +43,7 @@
       'submenu': [
         { 'label': 'New Resource Bundle', 'command': 'mavensmate:new-resource-bundle' }
       ]
-    }   
+    }
   ]
   '.tree-view:not(.multi-select) .directory span[data-path*="resource-bundles"]': [
     {
@@ -51,7 +51,7 @@
       'submenu': [
         { 'label': 'Deploy Resource Bundle', 'command': 'mavensmate:deploy-resource-bundle' }
       ]
-    }   
+    }
   ]
 'menu': [
   {
