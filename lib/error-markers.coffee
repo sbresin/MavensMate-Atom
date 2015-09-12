@@ -6,7 +6,7 @@ module.exports =
 class ErrorMarkers
   Subscriber.includeInto(this)
 
-  constructor: (@textEditor) ->
+  constructor: (@editor) ->
     @initialize()
     @refreshMarkers()
 
@@ -23,11 +23,11 @@ class ErrorMarkers
   refreshMarkers: ->
     try
       console.log 'refreshing buffer markers ...'
-      if @textEditor.getPath()
-        if atom.project.mavensMateErrors[@textEditor.getPath()]?
-          errors = atom.project.mavensMateErrors[@textEditor.getPath()]
+      if @editor.getPath()
+        if atom.project.mavensMateErrors[@editor.getPath()]?
+          errors = atom.project.mavensMateErrors[@editor.getPath()]
         else
-          currentFileNameWithoutExtension = util.withoutExtension(util.baseName(@textEditor.getPath()))
+          currentFileNameWithoutExtension = util.withoutExtension(util.baseName(@editor.getPath()))
           errors = atom.project.mavensMateErrors[currentFileNameWithoutExtension] ? []
         
       @clearMarkers()
@@ -42,7 +42,7 @@ class ErrorMarkers
       console.error error
 
   markRange: (startRow, endRow, klass, type) ->
-    marker = @textEditor.markBufferRange([[startRow, 0], [endRow, Infinity]], invalidate: 'never')
-    @textEditor.decorateMarker(marker, type: type, class: klass)
+    marker = @editor.markBufferRange([[startRow, 0], [endRow, Infinity]], invalidate: 'never')
+    @editor.decorateMarker(marker, type: type, class: klass)
     @markers ?= []
     @markers.push(marker)

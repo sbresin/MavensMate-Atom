@@ -7,6 +7,7 @@ path                  = require 'path'
 EventEmitter          = require('./emitter').pubsub
 CoreAdapter           = require('./adapter')
 ProjectListView       = require './project-list-view'
+ErrorMarkers          = require './error-markers'
 PanelView             = require('./panel/panel-view').panel
 StatusBarView         = require './status-bar-view'
 LogFetcher            = require './log-fetcher'
@@ -112,6 +113,7 @@ module.exports =
       atom.workspace.observeTextEditors (editor) ->
         self.handleBufferEvents editor
         self.registerGrammars editor
+        editor.errorMarkers = new ErrorMarkers(editor)
 
       # instantiate client interface
       self.registerProjectCommands()
