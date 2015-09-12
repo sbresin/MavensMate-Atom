@@ -29,7 +29,7 @@ module.exports =
       title: 'Close panel delay'
       description: 'Delay in milliseconds before panel closes on successful operation'
       type: 'integer'
-      default: 1000
+      default: 2000
       order: 120
     mm_apex_file_extensions:
       title: 'Salesforce file extensions'
