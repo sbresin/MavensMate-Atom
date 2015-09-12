@@ -141,7 +141,7 @@ module.exports =
           filePaths = [util.activeFile()]
         params =
           command: 'delete-metadata'
-          commandDefinition: 
+          commandDefinition:
             coreName: 'delete-metadata'
             atomName: 'delete-metadata'
             panelMessage: 'Deleting'

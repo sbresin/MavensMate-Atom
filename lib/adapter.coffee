@@ -114,9 +114,9 @@ class CoreAdapter
                   console.log(res)
                   res.promiseId = promiseId
                   deferred.resolve res
-            )  
+            )
 
-          poll()      
+          poll()   
     )
        
     # add to promise tracker,

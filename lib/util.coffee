@@ -59,10 +59,6 @@ module.exports =
       else
         return fileBody
 
-    # returns the fully resolved file path given a path relative to the root of the project
-    @filePathFromTreePath: (treePath) ->
-      atom.project.resolve('./' + treePath)
-
     # returns the name of the command
     # useful because the command can reside in args or payload
     @getCommandName: (params) ->
@@ -85,30 +81,9 @@ module.exports =
           selectedFilePaths.push(filePath)
       return selectedFilePaths
 
-    @openUrlInAtom: (params, split = 'right') ->
-      resource = Object.keys(params.result)[0]
-      # console.log 'RESOURCE IS: '+resource
-      params.textEditor = atom.workspace.getActiveEditor()
-      if resource.indexOf('.page') >= 0
-        params.split = split
-        atom.workspace.open('mavensmate://salesforceView', params)
-      # else
-      #   # params.split = split
-      #   # atom.workspace.open('mavensmate://salesforceBrowserView', params) --> this currently crashes Atom, ostensibly due to an atom-shell issue
-      #   # browserView = new BrowserView(params)
-      #   # atom.workspace.addRightPanel(item:browserView)
-
     # whether the given file is a trigger or apex class
     @isClassOrTrigger: (currentFile) ->
       return currentFile? and (currentFile.indexOf('.trigger') >= 0 or currentFile.indexOf('.cls') >= 0)
-
-    # returns true if on linux
-    @isLinux: ->
-      @platform() == 'linux'
-
-    # returns true if on mac
-    @isMac: ->
-      @platform() == 'osx'
 
     @hasMavensMateProjectStructure: (filePath=atom.project.getPaths()[0]) ->
       try
@@ -121,42 +96,6 @@ module.exports =
       console.log 'checking whether file is valid sfdc metadata: '+filePath
       apex_file_extensions = atom.config.get('MavensMate-Atom').mm_apex_file_extensions
       return (path.extname(filePath) in apex_file_extensions || path.basename(path.dirname(path.dirname(filePath))) == 'aura') and path.basename(path.dirname(filePath)) != 'config'
-
-    # whether the given command is a request for a ui
-    @isUiCommand: (params) ->
-      if params.args? and params.args.ui?
-        params.args.ui
-      else
-        false
-
-    # returns true if on windows
-    @isWindows: ->
-      @platform() == 'windows'
-
-    # returns full path to the mm core api
-    # the default value for mm_path is "default" which refers to ~/.atom/storage (on osx)
-    # if mm_path is custom (not default), this will return the full path to the executable
-    @mmHome: ->
-      if atom.config.get('MavensMate-Atom.mm_path') == 'default'
-        path.join(atom.getConfigDirPath(), 'storage')
-      else
-        atom.config.get('MavensMate-Atom.mm_path')
-
-    @isStandardMmConfiguration: ->
-      atom.config.get('MavensMate-Atom.mm_path') == 'default'
-
-    # returns full path for atom package home
-    @mmPackageHome: ->
-      atom.packages.resolvePackagePath('MavensMate-Atom')
-
-    # ui commands that use a modal (others use an atom pane)
-    @modalCommands: ->
-      [
-        'new-project',
-        'edit-project',
-        'deploy',
-        'new-metadata'
-      ]
 
     # compile-related commands
     @compileCommands: ->
@@ -187,12 +126,6 @@ module.exports =
         'list-metadata'
       ]
 
-    # returns platform flag (windows|osx|linux[default])
-    @platform: ->
-      return 'windows' if process.platform == 'win32'
-      return 'osx' if process.platform == 'darwin'
-      return 'linux'
-
     # setting object to configure MavensMate for future SFDC updates
     @sfdcSettings:
       maxCheckpoints: 5
@@ -201,10 +134,6 @@ module.exports =
     @treeView: ->
       atom.packages.getActivePackage('tree-view').mainModule.treeView
       
-    @typeIsArray: (value) ->
-      Array.isArray or (value) ->
-        {}.toString.call(value) is "[object Array]"
-
     @withoutExtension: (filePath) ->
       filePath.split(/[.]/).shift()
 

@@ -135,7 +135,7 @@ module.exports =
           operation: op
           pane: atom.workspace.getActivePane()
         payload: payload
-      @mm.run(params).then (result) =>
+      @mm.run(params).then (result) ->
         marker.mm_checkpointId = result.id
         if params.command is 'new_apex_overlay'
           decoration.update {type: 'gutter', class: 'mm-checkpoint-gutter'}

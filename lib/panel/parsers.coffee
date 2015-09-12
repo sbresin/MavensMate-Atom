@@ -322,16 +322,7 @@ class LoggingParser extends CommandParser
       @obj.message = @result.result.message
 
     return @obj
-
-class OpenMetadataParser extends CommandParser
-
-  parse: ->
-    self = @
-    setTimeout(->
-      util.openUrlInAtom(self.result)
-    , 100)
-    super
-      
+ 
 parsers = {
   CommandParser: CommandParser,
   DeleteParser: DeleteParser,
@@ -344,8 +335,7 @@ parsers = {
   StopLoggingParser: LoggingParser,
   GetOrgWideTestCoverageParser: GetOrgWideTestCoverageParser,
   RefreshMetadataParser: RefreshMetadataParser,
-  CleanProjectParser: CleanProjectParser,
-  OpenMetadataParser: OpenMetadataParser
+  CleanProjectParser: CleanProjectParser
 }
 
 getCommandParser = (command, params, result) ->
