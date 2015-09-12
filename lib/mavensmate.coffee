@@ -227,7 +227,7 @@ module.exports =
                 if util.activeFile().indexOf('.cls') >= 0
                   payload.classes = [util.activeFileBaseName().split('.')[0]]
           if 'payloadMetadata' of cmd
-            payload.metadataType = cmd.payloadMetadata
+            payload.args.type = cmd.payloadMetadata
           
           if Object.keys(payload).length != 0
             params.payload = payload
