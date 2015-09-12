@@ -65,7 +65,11 @@ class CoreAdapter
       console.log response
       console.log body
       if err
+        # if not err.message?
+        console.log 'oh no --->'
+        err.message = 'Error reaching local MavensMate server'
         err.promiseId = promiseId
+        console.log err
         deferred.reject err
       else
         console.log('response from mavensmate', response, body) 

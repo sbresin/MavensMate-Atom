@@ -55,8 +55,11 @@
   ]
 'menu': [
   {
-    'label': 'MavensMate'
+    'label': 'MavensMate',
     'submenu': [
+      { 'label': 'Open MavensMate UI', 'command': 'mavensmate:open-mavensmate-ui' },
+      { 'label': 'Open Salesforce Org', 'command': 'mavensmate:open-salesforce-org' },
+      {type: 'separator'},
       {
         'label': 'Project'
         'submenu': [

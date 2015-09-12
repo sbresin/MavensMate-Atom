@@ -7,6 +7,20 @@
         "scope": "application"
     },
     {
+        "coreName": "open-ui",
+        "atomName": "open-mavensmate-ui",
+        "ui": true,
+        "panelMessage": "Opening MavensMate UI",
+        "scope": "application"
+    },
+    {
+        "coreName": "open-sfdc",
+        "atomName": "open-salesforce-org",
+        "ui": true,
+        "panelMessage": "Opening Salesforce org in your default browser",
+        "scope": "project"
+    },
+    {
         "atomName": "compile-file",
         "coreName": "compile-metadata",
         "paths": "active",
