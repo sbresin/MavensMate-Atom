@@ -1,5 +1,6 @@
 {View}      = require 'atom-space-pen-views'
 _           = require 'underscore-plus'
+__          = require 'lodash'
 util        = require '../util'
 pluralize   = require 'pluralize'
 emitter     = require('../emitter').pubsub
@@ -17,9 +18,14 @@ class CommandParser
     @obj.result = result
 
   parse: ->
-    console.log('parsing!')
+    console.log('CommandParser parsing ... -->')
     console.log @result
-    if @result.result? and not @result.error?
+    
+    if __.isError(@result)
+      @result.success = false
+      @obj.message = @result.message
+      @obj.indicator = 'danger'
+    else if @result.result? and not @result.error?
       @result.success = true
       @obj.message = @result.result.message
       @obj.indicator = if @result.success then 'success' else 'danger'
@@ -292,29 +298,18 @@ class RunTestsParser extends CommandParser
   parse: ->
     passCounter = 0
     failedCounter = 0
-
-    message = 'Results:\n'
-      
-    # console.log parserViews
+    
+    message = 'Results:\n'      
+    
     testResultView = new TestResultView(message:'> Results:')
     testKey = Object.keys(@result.result.testResults)[0]
     testResultsForThisClass = @result.result.testResults[testKey]
     testResultView.addTestResults(testResultsForThisClass)
     console.log testResultView
-    # # console.log markdown
-    # htmlMessage = converter.makeHtml(markdown)
+    
     @obj.indicator = 'info'
-    # @obj.message = message + htmlMessage
     @obj.message = testResultView
-
-    # totalTests = passCounter + failedCounter
-    # if failedCounter == 0
-    #   @obj.message = "Run tests. #{passCounter} tests " + (if passCounter > 1 then "s " else " ") + "passed."
-    #   @obj.indicator = 'success'
-    # else
-    #   @obj.indicator = 'danger'
-    #   @obj.isException = true
-
+    
     return @obj
 
 class LoggingParser extends CommandParser
@@ -353,12 +348,13 @@ parsers = {
   OpenMetadataParser: OpenMetadataParser
 }
 
-getCommandParser = (command, params) ->
+getCommandParser = (command, params, result) ->
   console.log 'determing parser for command'
   console.log command
   console.log params
-
-  if params.payload? and params.payload.args? and params.payload.args.ui
+  if __.isError(result)
+    return CommandParser
+  else if params.payload? and params.payload.args? and params.payload.args.ui
     return UiParser
   else
     parserClassName = _.camelize(command)
@@ -373,7 +369,7 @@ getCommandParser = (command, params) ->
 module.exports =
   
   parse: (command, params, result) ->
-    Parser = getCommandParser(command, params)
+    Parser = getCommandParser(command, params, result)
     console.log 'parser is: '
     console.log Parser
     parser = new Parser(command, params, result)

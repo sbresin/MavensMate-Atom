@@ -18,9 +18,9 @@ class PanelView extends View
   constructor: ->
     super
 
-  # 
+  #
   # handlers for resizing
-  # 
+  #
   resizeStarted: =>
     $(document).on('mousemove', @resizePanelHandler)
     $(document).on('mouseup', @resizeStopped)

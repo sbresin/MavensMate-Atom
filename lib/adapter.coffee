@@ -21,11 +21,11 @@ class CoreAdapter
           deferred.resolve()
         else
           console.log(response)
-          deferred.reject('Could not contact local MavensMate server, please ensure the MavensMate app is installed and running (https://github.com/joeferraro/mavensmate-app/releases). MavensMate will not run properly until resolved.')
+          deferred.reject('Could not contact the local MavensMate server, please ensure the MavensMate app is installed and running (https://github.com/joeferraro/mavensmate-app/releases). MavensMate will not run properly until resolved.')
       )
       .on('error', (err) ->
         console.log(err)
-        deferred.reject('Could not contact local MavensMate server, please ensure the MavensMate app is installed and running (https://github.com/joeferraro/mavensmate-app/releases). MavensMate will not run properly until resolved.')
+        deferred.reject('Could not contact the local MavensMate server, please ensure the MavensMate app is installed and running (https://github.com/joeferraro/mavensmate-app/releases). MavensMate will not run properly until resolved.')
       )
 
     deferred.promise
