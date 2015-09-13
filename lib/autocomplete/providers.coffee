@@ -6,7 +6,7 @@ __          = require 'lodash'
 
 trailingWhitespace = /\s$/
 attributePattern = /\s+([a-zA-Z][-a-zA-Z]*)\s*=\s*$/
-tagPattern = /<(apex:([a-zA-Z][-a-zA-Z]*)|<chatter:([a-zA-Z][-a-zA-Z]*))(?:\s|$)/
+tagPattern = /<(apex:([a-zA-Z][-a-zA-Z]*)|social:([a-zA-Z][-a-zA-Z]*)|site:([a-zA-Z][-a-zA-Z]*)|ideas:([a-zA-Z][-a-zA-Z]*)|support:([a-zA-Z][-a-zA-Z]*)|chatter:([a-zA-Z][-a-zA-Z]*)|chatter:([a-zA-Z][-a-zA-Z]*))(?:\s|$)/
 
 firstCharsEqual = (str1, str2) ->
   str1[0].toLowerCase() is str2[0].toLowerCase()
@@ -50,6 +50,26 @@ VisualforceTagProvider =
   selector: '.visualforce.text.html.basic'
   disableForSelector: '.visualforce.text.html.basic .comment'
   filterSuggestions: true
+
+  getSuggestions: (request) ->
+    console.log 'getting suggestions ...', request
+
+    if request.scopeDescriptor.scopes.indexOf('string.quoted.double.html') == -1
+      {prefix} = request
+      if @isAttributeValueStartWithNoPrefix(request)
+        @getAttributeValueCompletions(request)
+      else if @isAttributeValueStartWithPrefix(request)
+        @getAttributeValueCompletions(request, prefix)
+      else if @isAttributeStartWithNoPrefix(request)
+        @getAttributeNameCompletions(request)
+      else if @isAttributeStartWithPrefix(request)
+        @getAttributeNameCompletions(request, prefix)
+      else if @isTagStartWithNoPrefix(request)
+        @getTagNameCompletions()
+      else if @isTagStartTagWithPrefix(request)
+        @getTagNameCompletions(prefix)
+      else
+        []
 
   isTagStartWithNoPrefix: ({prefix, scopeDescriptor}) ->
     scopes = scopeDescriptor.getScopesArray()
@@ -125,7 +145,7 @@ VisualforceTagProvider =
     
     for name, val of tagAttributes when not prefix or firstCharsEqual(name, prefix)
       console.log(val, name)
-      completions.push(@buildAttributeCompletion(name, tag))
+      completions.push(@buildAttributeCompletion(name, val, tag))
 
     for attribute, options of @vfDefs.attribs when not prefix or firstCharsEqual(attribute, prefix)
       console.log(attribute, options)
@@ -133,20 +153,20 @@ VisualforceTagProvider =
 
     completions
 
-  buildAttributeCompletion: (attribute, tag) ->
+  buildAttributeCompletion: (attribute, def, tag) ->
     if tag?
       snippet: "#{attribute}=\"$1\"$0"
       displayText: attribute
       type: 'attribute'
       rightLabel: "<#{tag}>"
-      description: "#{attribute} attribute local to <#{tag}> tags"
-      descriptionMoreURL: @getLocalAttributeDocsURL(attribute, tag)
+      description: "(#{def.type}) #{attribute} attribute local to <#{tag}> tags"
+      # descriptionMoreURL: @getLocalAttributeDocsURL(attribute, tag)
     else
       snippet: "#{attribute}=\"$1\"$0"
       displayText: attribute
       type: 'attribute'
       description: "Global #{attribute} attribute"
-      descriptionMoreURL: @getGlobalAttributeDocsURL(attribute)
+      # descriptionMoreURL: @getGlobalAttributeDocsURL(attribute)
 
   getAttributeValueCompletions: ({editor, bufferPosition}, prefix) ->
     tag = @getPreviousTag(editor, bufferPosition)
@@ -207,23 +227,6 @@ VisualforceTagProvider =
   getGlobalAttributeDocsURL: (attribute) ->
     "https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/#{attribute}"
 
-  getSuggestions: (request) ->
-    {prefix} = request
-    if @isAttributeValueStartWithNoPrefix(request)
-      @getAttributeValueCompletions(request)
-    else if @isAttributeValueStartWithPrefix(request)
-      @getAttributeValueCompletions(request, prefix)
-    else if @isAttributeStartWithNoPrefix(request)
-      @getAttributeNameCompletions(request)
-    else if @isAttributeStartWithPrefix(request)
-      @getAttributeNameCompletions(request, prefix)
-    else if @isTagStartWithNoPrefix(request)
-      @getTagNameCompletions()
-    else if @isTagStartTagWithPrefix(request)
-      @getTagNameCompletions(prefix)
-    else
-      []
-
   getSuggestionsOLD: (options) ->
     console.log 'vf provider'
     console.log options
@@ -258,85 +261,6 @@ VisualforceTagProvider =
           suggestions.push(suggestion)
         )
     return suggestions
-      
-  # provides code assist for visualforce tags
-  #
-  # e.g. when user types "<", list of vf tags is presented
-# class VisualforceTagContextProvider
-#   # wordRegex: /<apex:[a-z]*\b/gi
-#   # exclusive: true
-  
-#   vfTags: []
-
-#   constructor: ->
-#     @vfTags = vf.tags
-
-#   requestHandler: (options) ->
-#     console.log 'vf context provider'
-#     console.log options
-#     suggestions = []
-#     if options.scopeChain == '.visualforce.text.html.basic .meta.tag.other.html'
-#       console.log(getPreviousTag())
-#       # if options.prefix == ' ' # display all
-#       # words = fuzzaldrin.filter @vfTags, options.prefix
-#       # for word in words
-#       #   suggestion =
-#       #     prefix: options.prefix
-#       #     word: word
-#       #     label: 'Visualforce'
-#       #   suggestions.push(suggestion)
-#     return suggestions
-
-    # buildSuggestions: ->
-    #   console.log 'building suggestions for vf tag context ...'
-    #   selection = @editor.getSelection()
-    #   console.log selection
-    #   prefix = @prefixOfSelection selection
-    #   console.log '----'
-    #   console.log prefix
-    #   return unless prefix.length
-
-    #   suggestions = @findSuggestionsForPrefix prefix
-    #   return unless suggestions.length
-    #   return suggestions
-
-    # findSuggestionsForPrefix: (prefix) ->
-    #   # Filter the words using fuzzaldrin
-    #   prefix = prefix.replace '<', ''
-    #   words = fuzzaldrin.filter @vfTags, prefix
-
-    #   # Builds suggestions for the words
-    #   suggestions = for word in words
-    #     new Suggestion this, word: word, prefix: prefix, label: "@#{word} (Visualforce)"
-    #   return suggestions
-
-  # # provides list of Sobjects available in the source org
-  # #
-  # # e.g. when user types "O" list of options may include Opportunity, OpportunityLineItem, OpportunityContactRole, etc.
-  # SobjectProvider: class SobjectProvider extends Provider
-  #   wordRegex: /[A-Z].*/g
-  #   sobjects: ["Account", "Contact", "Opportunity"] #todo: populate sobjects
-
-  #   buildSuggestions: ->
-  #     selection = @editor.getSelection()
-  #     prefix = @prefixOfSelection selection
-  #     return unless prefix.length
-
-  #     suggestions = @findSuggestionsForPrefix prefix
-  #     return unless suggestions.length
-  #     return suggestions
-
-  #   findSuggestionsForPrefix: (prefix) ->
-  #       # Filter the words using fuzzaldrin
-  #       words = fuzzaldrin.filter @sobjects, prefix
-
-  #       # console.log words
-
-  #       # Builds suggestions for the words
-  #       suggestions = for word in words
-  #         new Suggestion this, word: word, prefix: prefix, label: "@#{word} (Sobject)"
-
-  #       return suggestions
 
 module.exports.ApexProvider = ApexProvider
 module.exports.VisualforceTagProvider = VisualforceTagProvider
