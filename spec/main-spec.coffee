@@ -8,33 +8,34 @@ describe 'main.coffee', ->
 
   describe 'package pre activation', ->
     
-    mmMain = null
+    packageMain = null
 
     beforeEach ->
       runs ->
         workspaceElement = atom.views.getView(atom.workspace)
         jasmine.attachToDOM(workspaceElement)
 
-        pack = atom.packages.loadPackage('MavensMate-Atom')
-        mmMain = pack.mainModule
-        spyOn(mmMain, 'provide').andCallThrough()
-        pack = atom.packages.loadPackage('autocomplete-plus')
+        pkg = atom.packages.loadPackage('MavensMate-Atom')
+        packageMain = pkg.mainModule
+        spyOn(packageMain, 'provide').andCallThrough()
+        pkg = atom.packages.loadPackage('autocomplete-plus')
       
     it 'should not have settings', ->
       expect(atom.config.get('MavensMate-Atom')).toBeUndefined()
 
-    it 'is not be activated', ->
+    it 'should not be activated', ->
       expect(atom.packages.activePackages['MavensMate-Atom']).toBeUndefined()
 
-    it 'should have autocomplete providers', ->
-      mmMain.provide()
-      expect(mmMain.apexProvider).toBeDefined()
-      expect(mmMain.apexProvider.apexClasses.length).toEqual(447)
-      expect(mmMain.vfProvider).toBeDefined()
-      expect(mmMain.vfProvider.vfTags.length).toEqual(131)
+    it 'should have apex and vf autocomplete providers', ->
+      packageMain.provide()
+      expect(packageMain.apexProvider).toBeDefined()
+      expect(packageMain.apexProvider.apexClasses.length).toEqual(447)
+      expect(packageMain.vfProvider).toBeDefined()
+      expect(packageMain.vfProvider.vfTags.length).toEqual(131)
 
-  describe 'package activation', ->
+  describe 'package activation with mavensmate project already loaded', ->
     [buffer, directory, editor, editorView, filePath, workspaceElement] = []
+    
     mavensmate = null
     projectPath = null
 
@@ -45,9 +46,7 @@ describe 'main.coffee', ->
       jasmine.attachToDOM(workspaceElement)
 
       runs ->
-        console.log 'setting project'
         projectPath = path.join(__dirname, 'fixtures', 'testProject')
-        console.log(projectPath)
         atom.project.setPaths([projectPath])
 
       activationPromise = atom.packages.activatePackage('MavensMate-Atom').then ({mainModule}) ->
@@ -96,6 +95,33 @@ describe 'main.coffee', ->
       atom.commands.dispatch(editorView, 'mavensmate:new-project')
       expect(mavensmate.mavensmateAdapter.executeCommand).toHaveBeenCalled()
       jasmine.unspy mavensmate.mavensmateAdapter, 'executeCommand'
+
+  describe 'package activation without mavensmate project loaded', ->
+    workspaceElement = []
+    mavensmate = null
+    projectPath = null
+
+    beforeEach ->
+      atom.project.setPaths([''])
+
+      workspaceElement = atom.views.getView(atom.workspace)
+      jasmine.attachToDOM(workspaceElement)
+
+      activationPromise = atom.packages.activatePackage('MavensMate-Atom').then ({mainModule}) ->
+        mavensmate = mainModule.mavensmate
+
+      waitsForPromise ->
+        activationPromise
+
+    it 'should activate package in Atom', ->
+      expect(atom.packages.isPackageActive('MavensMate-Atom')).toBe true
+
+    it 'should attach project commands when project is loaded', ->
+      projectPath = path.join(__dirname, 'fixtures', 'testProject')
+      expect(helper.hasCommand(workspaceElement, 'mavensmate:compile-project')).toBeFalsy()
+      expect(helper.hasCommand(workspaceElement, 'mavensmate:new-project')).toBeTruthy()
+      atom.project.setPaths([projectPath])
+      expect(helper.hasCommand(workspaceElement, 'mavensmate:compile-project')).toBeTruthy()
 
   describe 'package deactivation', ->
 

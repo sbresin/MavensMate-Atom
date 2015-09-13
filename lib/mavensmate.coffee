@@ -294,7 +294,7 @@ module.exports =
       @mavensmateStatusBar = null
 
       # remove the MavensMate panel
-      if panel?
+      if @panel?
         @panel.destroy()
         @panel = null
 

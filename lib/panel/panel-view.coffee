@@ -42,7 +42,7 @@ class PanelView extends View
 
     @on 'mousedown', '.mavensmate-panel-view-resize-handle', (e) => @resizeStarted(e)
 
-  # explicitly set height of panel 
+  # explicitly set height of panel
   setPanelViewHeight: (height, animate = true, setPanelHeight = true) =>
     if animate
       jQuery(@).animate({ height:height }, 'fast')
