@@ -1,8 +1,6 @@
 helper                    = require './spec-helper'
-temp                      = require 'temp' # npm install temp
 path                      = require 'path' # npm install path
 Q                         = require 'q'
-adapter                   = require '../lib/adapter'
 
 describe 'main.coffee', ->
 

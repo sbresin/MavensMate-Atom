@@ -3,21 +3,18 @@ window.jQuery         = $
 fs                    = require 'fs'
 path                  = require 'path'
 {exec}                = require 'child_process'
-{Subscriber,Emitter}  = require 'emissary'
+{Subscriber}  = require 'emissary'
 EventEmitter          = require('./emitter').pubsub
 CoreAdapter           = require('./adapter')
 ProjectListView       = require './project-list-view'
 ErrorMarkers          = require './error-markers'
 PanelView             = require('./panel/panel-view').panel
 StatusBarView         = require './status-bar-view'
-LogFetcher            = require './log-fetcher'
 tracker               = require('./promise-tracker').tracker
 util                  = require './util'
-emitter               = require('./emitter').pubsub
 commands              = require './commands.json'
 ErrorsView            = require './errors-view'
 atom.mavensmate       = {}
-AtomWatcher           = require('./watchers/atom-watcher').watcher
 
 require '../scripts/bootstrap'
 
@@ -270,7 +267,7 @@ module.exports =
         editor.onDidSave () ->
           params =
             command: 'compile-metadata'
-            commandDefinition: 
+            commandDefinition:
               coreName: 'compile-metadata'
               atomName: 'compile-metadata'
               panelMessage: 'Compiling'
