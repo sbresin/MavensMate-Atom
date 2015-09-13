@@ -53,9 +53,9 @@ module.exports =
 
   # instanstiate autocomplete providers
   provide: ->
-    @apexProvider = new AutoCompleteProviders.ApexProvider()
-    @vfProvider = new AutoCompleteProviders.VisualforceTagProvider()
-    return {providers: [@apexProvider, @vfProvider]}
+    # @apexProvider = new AutoCompleteProviders.ApexProvider()
+    # @vfProvider = new AutoCompleteProviders.VisualforceTagProvider()
+    [AutoCompleteProviders.ApexProvider, AutoCompleteProviders.VisualforceTagProvider]
 
   deactivate: ->
     console.log '===========> Deactivating MavensMate-Atom'
