@@ -58,7 +58,7 @@ class PanelView extends View
         @div class: 'container-fluid', =>
           @div class: 'row', style: 'padding:10px 0px', =>
             @div class: 'col-md-6', =>
-              @h3 'MavensMate Salesforce1 IDE for Atom', outlet: 'myHeader', class: 'clearfix', ->
+              @h3 'MavensMate Salesforce IDE for Atom', outlet: 'myHeader', class: 'clearfix', ->
             @div class: 'col-md-6', =>
               @span class: 'config', style: 'float:right', =>
                 @button class: 'btn btn-sm btn-default btn-view-errors', outlet: 'btnViewErrors', =>
