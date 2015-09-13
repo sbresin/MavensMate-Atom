@@ -22,7 +22,7 @@ module.exports =
     # Internal: Initialize the status bar view and event handlers.
     initialize: ->
       # add svg icon via markup explicitly so we can style it with css
-      @mavensMateIconWrapper.append('<svg version="1.1" id="mavensmateSvgIcon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="24px" height="24px" viewBox="0 0 24 24" enable-background="new 0 0 24 24" xml:space="preserve"> <g> <g> <g> <circle class="circle1" fill="#C3C3C2" cx="7.771" cy="6.747" r="4.12"/> </g> <circle class="circle2" fill="#C3C3C2" cx="7.771" cy="16.982" r="3.981"/> <circle class="circle3" fill="#C3C3C2" cx="16.292" cy="12.011" r="4.058"/> </g> </g> </svg> ')
+      @mavensMateIconWrapper.append('<svg version="1.1" id="mavensmateSvgIcon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="38.667px" height="12.667px" viewBox="0 0 38.667 12.667" enable-background="new 0 0 38.667 12.667" xml:space="preserve"><g><circle fill="#60BBE2" cx="6.781" cy="6.478" r="4.818" class="circle1"/><circle fill="#5681C2" cx="19.281" cy="6.478" r="4.655" class="circle2"/><circle fill="#7979B9" cx="31.67" cy="6.404" r="4.745" class="circle3"/></g></svg>')
 
       # attach to atom worksapce
       @attach()

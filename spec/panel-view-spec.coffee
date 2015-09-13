@@ -43,7 +43,7 @@ describe 'PanelView', ->
   it 'should be instantiated and attached to window', ->
     expect(panel).toBeDefined()
     expect(panel).toBeDefined()
-    expect(panel.find('h3')[0].innerHTML).toBe('MavensMate Salesforce1 IDE for Atom')
+    expect(panel.find('h3')[0].innerHTML).toBe('MavensMate Salesforce IDE for Atom')
     expect(panel.myHeader).toBeDefined()
     expect(panel.myOutput).toBeDefined()
 
