@@ -109,7 +109,9 @@ module.exports =
       # attach MavensMate views/handlers to each present and future workspace editor views
       atom.workspace.observeTextEditors (editor) ->
         self.handleBufferEvents editor
+
         self.registerGrammars editor
+
         editor.errorMarkers = new ErrorMarkers(editor)
 
       # instantiate client interface
@@ -253,11 +255,15 @@ module.exports =
     # TODO: refactor
     registerGrammars: (editor) ->
       self = @
-      buffer = editor.getBuffer()
-      if buffer.file?
-        ext = path.extname(buffer.file.path)
-        if ext == '.auradoc' || ext == '.app' || ext == '.evt' || ext == '.cmp' || ext == '.object'
-          editor.setGrammar atom.syntax.grammarForScopeName('text.xml')
+      # we place this in a timeout (1 second seems to work) bc grammar are loaded async and there doesn't seem to be
+      # an event that we can monitor that fires when grammars are fully-loaded
+      setTimeout( ->
+        buffer = editor.getBuffer()
+        if buffer.file?
+          ext = path.extname(buffer.file.path)
+          if ext == '.auradoc' || ext == '.app' || ext == '.evt' || ext == '.cmp' || ext == '.object'
+            editor.setGrammar(atom.grammars.grammarForScopeName('text.xml'))
+      , 1000)
 
     # watches active editors for events like save
     handleBufferEvents: (editor) ->
