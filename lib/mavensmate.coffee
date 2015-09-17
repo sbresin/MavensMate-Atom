@@ -3,7 +3,7 @@ window.jQuery         = $
 fs                    = require 'fs'
 path                  = require 'path'
 {exec}                = require 'child_process'
-{Subscriber}  = require 'emissary'
+{Subscriber}          = require 'emissary'
 EventEmitter          = require('./emitter').pubsub
 CoreAdapter           = require('./adapter')
 ProjectListView       = require './project-list-view'
@@ -23,10 +23,6 @@ module.exports =
   class MavensMate
     self = @
     Subscriber.includeInto this
-
-    editorSubscription: null
-    apexAutocompleteRegistration: null
-    vfAutocompleteRegistration: null
 
     panel: null # mavensmate status panel
     mavensmateAdapter: null
@@ -94,8 +90,8 @@ module.exports =
       self = @
       self.panel.addPanelViewItem('Initializing MavensMate, please wait...', 'info')
 
+      # set the assigned mavensmate project id so we can use it when calling the core over local HTTP
       atom.project.mavensmateId = util.fileBodyAsString(path.join(atom.project.getPaths()[0], 'config', '.settings'), true).id
-      atom.workspace.mavensMateProjectInitialized ?= true
 
       # TODO: use atom.project.getPaths()
       atom.project.mavensMateErrors = {}
@@ -120,10 +116,11 @@ module.exports =
       # places mavensmate 3 dot icon in the status bar
       @mavensmateStatusBar = new StatusBarView(self.panel)
       
+      # initiate errors view
       self.createErrorsView(util.uris.errorsView)
+      
       atom.workspace.addOpener (uri) ->
         self.errorsView if uri is util.uris.errorsView
-
       atom.deserializers.add(self.errorsDeserializer)
 
       atom.commands.add 'atom-workspace', 'mavensmate:view-errors', ->
@@ -164,7 +161,11 @@ module.exports =
             .catch (err) ->
               self.adapterResponseHandler(params, err)
 
+      # add success message!
       self.panel.addPanelViewItem('MavensMate initialized successfully. Happy coding!', 'success')
+
+      # done
+      atom.workspace.mavensMateProjectInitialized ?= true
 
     registerApplicationCommands: ->
       self = @
