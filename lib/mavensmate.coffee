@@ -52,7 +52,8 @@ module.exports =
 
       self.panel = PanelView
       self.registerApplicationCommands()
-      atom.commands.add 'atom-workspace', 'mavensmate:open-project', => self.openProject()
+      atom.commands.add 'atom-workspace', 'mavensmate:open-project', -> self.openProject()
+      atom.commands.add 'atom-workspace', 'mavensmate:open-plugin-settings', -> self.openPluginSettings()
 
       console.log atom.project
       console.log atom.project.getPaths()
@@ -76,6 +77,9 @@ module.exports =
     openProject: ->
       @selectList = new ProjectListView()
       @selectList.show()
+
+    openPluginSettings: ->
+      atom.workspace.open('atom://config/packages/MavensMate-Atom')
 
     createErrorsView: (params) ->
       @errorsView = new ErrorsView(params)

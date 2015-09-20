@@ -91,22 +91,11 @@
         ]
       }
       {
-        'label': 'Deploy'
-        'submenu': [
-          { 'label': 'Deploy to Server(s)...', 'command': 'mavensmate:deploy-to-server' }
-        ]
-      }
-      {
-        'label': 'Execute Apex'
-        'submenu': [
-          { 'label': 'Execute Apex UI...', 'command': 'mavensmate:execute-apex' }
-        ]
-      }
-      {
         'label': 'Debugging'
         'submenu': [
           { 'label': 'Start Logging', 'command': 'mavensmate:start-logging' }
           { 'label': 'Stop Logging', 'command': 'mavensmate:stop-logging' }
+          { 'label': 'Flugh Debug Logs', 'command': 'mavensmate:flush-debug-logs' }
         ]
       }
       {
@@ -123,9 +112,25 @@
         ]
       }
       {
+        'label': 'Apex Scripting'
+        'submenu': [
+          {
+            'label': 'Execute Apex UI...',
+            'command': 'mavensmate:execute-apex'
+          }
+        ]
+      }
+      {type: 'separator'}
+      {
+        'label': 'Deploy to Server(s)...',
+        'command': 'mavensmate:deploy-to-server'
+      }
+      {type: 'separator'}
+      {
         'label': 'Settings'
         'submenu': [
           { 'label': 'Global MavensMate Settings', 'command': 'mavensmate:open-global-settings' }
+          { 'label': 'MavensMate for Atom Settings', 'command': 'mavensmate:open-plugin-settings' }
         ]
       }
     ]
