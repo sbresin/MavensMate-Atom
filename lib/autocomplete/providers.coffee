@@ -6,7 +6,15 @@ __          = require 'lodash'
 
 trailingWhitespace = /\s$/
 attributePattern = /\s+([a-zA-Z][-a-zA-Z]*)\s*=\s*$/
-tagPattern = /<(apex:([a-zA-Z][-a-zA-Z]*)|social:([a-zA-Z][-a-zA-Z]*)|site:([a-zA-Z][-a-zA-Z]*)|ideas:([a-zA-Z][-a-zA-Z]*)|support:([a-zA-Z][-a-zA-Z]*)|chatter:([a-zA-Z][-a-zA-Z]*)|chatter:([a-zA-Z][-a-zA-Z]*))(?:\s|$)/
+# tagPattern = /<(apex:([a-zA-Z][-a-zA-Z]*)|social:([a-zA-Z][-a-zA-Z]*)|site:([a-zA-Z][-a-zA-Z]*)|ideas:([a-zA-Z][-a-zA-Z]*)|support:([a-zA-Z][-a-zA-Z]*)|chatter:([a-zA-Z][-a-zA-Z]*)|chatter:([a-zA-Z][-a-zA-Z]*))(?:\s|$)/
+# tagPattern = /<([a-zA-Z][-a-zA-Z]*)(?:\s|$)/
+tagPattern = /<([a-zA-Z]*:?[a-zA-Z]*)(?:\s|$)/
+
+apexClasses = []
+apexNamespaces = apex.publicDeclarations
+_.each _.keys(apexNamespaces), (ns) ->
+  _.each _.keys(apexNamespaces[ns]), (cls) ->
+    apexClasses.push cls
 
 firstCharsEqual = (str1, str2) ->
   str1[0].toLowerCase() is str2[0].toLowerCase()
@@ -17,33 +25,30 @@ firstCharsEqual = (str1, str2) ->
 ApexProvider =
   id: 'mavensmate-apexprovider'
   selector: '.source.apex'
-  apexClasses: null
-
-  constructor: ->
-    apexClasses = []
-    apexNamespaces = apex.publicDeclarations
-    _.each _.keys(apexNamespaces), (ns) ->
-      _.each _.keys(apexNamespaces[ns]), (cls) ->
-        apexClasses.push cls
-    @apexClasses = apexClasses
+  filterSuggestions: true
 
   getSuggestions: (options) ->
     suggestions = []
-    words = fuzzaldrin.filter @apexClasses, options.prefix
-    for word in words
-      suggestion =
-        prefix: options.prefix
-        word: word
-        label: 'Apex'
-      suggestions.push(suggestion)
+    console.log('apex suggestions', options)
+    [first, ..., last] = options.scopeDescriptor.scopes
+    if last == 'meta.definition.variable.apex'
+      # variable name, skip
+    else
+      words = fuzzaldrin.filter apexClasses, options.prefix
+      for word in words
+        suggestion =
+          prefix: options.prefix
+          word: word
+          label: 'Apex'
+        suggestions.push(suggestion)
     return suggestions
   
 # provides code assist for visualforce tags
 #
 # e.g. when user types "<", list of vf tags is presented
-VisualforceTagProvider = 
+VisualforceTagProvider =
   id: 'mavensmate-vfprovider'
-  selector: '.visualforce'
+  # selector: '.visualforce'
   vfTags: vf.tags
   vfDefs: vf.tagDefs
 
@@ -132,7 +137,7 @@ VisualforceTagProvider =
   buildTagCompletion: (tag) ->
     text: tag
     type: 'tag'
-    description: "HTML <#{tag}> tag"
+    description: "Visualforce <#{tag}> tag"
     descriptionMoreURL: @getTagDocsURL(tag)
 
   getAttributeNameCompletions: ({editor, bufferPosition}, prefix) ->
@@ -140,7 +145,7 @@ VisualforceTagProvider =
     tag = @getPreviousTag(editor, bufferPosition)
     tagAttributes = @getTagAttributes(tag)
 
-    console.log(prefix)
+    console.log('prefix', prefix)
     console.log('tagAttributes', tagAttributes)
     
     for name, val of tagAttributes when not prefix or firstCharsEqual(name, prefix)
@@ -197,6 +202,7 @@ VisualforceTagProvider =
     {row} = bufferPosition
     while row >= 0
       tag = tagPattern.exec(editor.lineTextForBufferRow(row))?[1]
+      console.log('getPreviousTag', tag)
       return tag if tag
       row--
     return

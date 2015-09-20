@@ -19,6 +19,12 @@ module.exports =
       type: 'boolean'
       default: true
       order: 200
+    mm_autocomplete:
+      title: 'Enable autocomplete for Apex/Visualforce (in development)'
+      description: ''
+      type: 'boolean'
+      default: true
+      order: 210
     mm_close_panel_delay:
       title: 'Close panel delay'
       description: 'Delay in milliseconds before panel closes on successful operation'
@@ -81,7 +87,9 @@ module.exports =
   provide: ->
     # @apexProvider = new AutoCompleteProviders.ApexProvider()
     # @vfProvider = new AutoCompleteProviders.VisualforceTagProvider()
-    [AutoCompleteProviders.ApexProvider, AutoCompleteProviders.VisualforceTagProvider]
+    config = atom.config.get('MavensMate-Atom')
+    if config.mm_autocomplete
+      [AutoCompleteProviders.ApexProvider, AutoCompleteProviders.VisualforceTagProvider]
 
   deactivate: ->
     console.log '===========> Deactivating MavensMate-Atom'

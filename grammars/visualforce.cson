@@ -247,6 +247,24 @@
     ]
   }
   {
+    'begin': '(</?)((?i:chatter:[a-zA-Z0-9:]+|apex:[a-zA-Z0-9:]+|chatteranswers:[a-zA-Z0-9:]+|flow:[a-zA-Z0-9:]+|ideas:[a-zA-Z0-9:]+|knowledge:[a-zA-Z0-9:]+|liveAgent:[a-zA-Z0-9:]+|messaging:[a-zA-Z0-9:]+|site:[a-zA-Z0-9:]+|social:[a-zA-Z0-9:]+|support:[a-zA-Z0-9:]+|topics:[a-zA-Z0-9:]+)\\b)'
+    'beginCaptures':
+      '1':
+        'name': 'punctuation.definition.tag.begin.visualforce'
+      '2':
+        'name': 'entity.name.tag.inline.any.visualforce'
+    'end': '(>)'
+    'endCaptures':
+      '1':
+        'name': 'punctuation.definition.tag.end.html'
+    'name': 'meta.tag.block.any.html'
+    'patterns': [
+      {
+        'include': '#tag-stuff'
+      }
+    ]
+  }
+  {
     'begin': '(</?)((?i:address|blockquote|dd|div|section|article|aside|header|footer|nav|menu|dl|dt|fieldset|form|frame|frameset|h1|h2|h3|h4|h5|h6|iframe|noframes|object|ol|p|ul|applet|center|dir|hr|pre)\\b)'
     'beginCaptures':
       '1':
@@ -256,7 +274,7 @@
     'end': '(>)'
     'endCaptures':
       '1':
-        'name': 'punctuation.definition.tag.end.html'
+        'name': 'punctuation.definition.tag.end.visualforce'
     'name': 'meta.tag.block.any.html'
     'patterns': [
       {
