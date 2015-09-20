@@ -52,7 +52,8 @@ module.exports =
 
       self.panel = PanelView
       self.registerApplicationCommands()
-      
+      atom.commands.add 'atom-workspace', 'mavensmate:open-project', => self.openProject()
+
       console.log atom.project
       console.log atom.project.getPaths()
       
@@ -61,7 +62,6 @@ module.exports =
         self.mavensmateAdapter.checkStatus()
           .then(() ->
             # TODO
-            # atom.commands.add 'atom-workspace', 'mavensmate:open-project', => self.openProject()
             if not atom.workspace.mavensMateProjectInitialized
               self.initializeProject()
           )
@@ -73,9 +73,9 @@ module.exports =
       atom.project.onDidChangePaths => @onProjectPathChanged()
 
     # todo: expose settings retrieval from core so we can display this list
-    # openProject: ->
-    #   @selectList = new ProjectListView()
-    #   @selectList.show()
+    openProject: ->
+      @selectList = new ProjectListView()
+      @selectList.show()
 
     createErrorsView: (params) ->
       @errorsView = new ErrorsView(params)

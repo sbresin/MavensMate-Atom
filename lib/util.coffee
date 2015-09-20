@@ -126,6 +126,24 @@ module.exports =
         'list-metadata'
       ]
 
+    @isWindows = ->
+      os.platform() == 'win32'
+
+    @isLinux = ->
+      os.platform() == 'linux'
+
+    @isMac = ->
+      os.platform() == 'darwin'
+
+    @getHomeDirectory = ->
+      if @isMac()
+        return process.env.HOME
+      else if @isWindows()
+        return process.env[if process.platform == 'win32' then 'USERPROFILE' else 'HOME']
+      else if @isLinux()
+        return process.env.HOME
+      return
+
     # setting object to configure MavensMate for future SFDC updates
     @sfdcSettings:
       maxCheckpoints: 5

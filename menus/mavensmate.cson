@@ -122,6 +122,12 @@
           }
         ]
       }
+      {
+        'label': 'Settings'
+        'submenu': [
+          { 'label': 'Global MavensMate Settings', 'command': 'mavensmate:open-global-settings' }
+        ]
+      }
     ]
   }
 ]

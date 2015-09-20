@@ -36,9 +36,10 @@ class ProjectListView extends SelectListView
   # returns list of project directories based on workspace setting
   getDirs: ->
     dirs = []
-    cfg = atom.config.get('MavensMate-Atom')
-    workspaces = cfg.mm_workspace
     
+    home = util.getHomeDirectory()
+    cfg = util.fileBodyAsString(path.join(home, '.mavensmate-config.json'), true)
+    workspaces = cfg.mm_workspace
     for workspace in workspaces
       if fs.existsSync workspace
         files = fs.readdirSync workspace
