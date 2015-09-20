@@ -16,20 +16,12 @@ describe 'main.coffee', ->
         pkg = atom.packages.loadPackage('MavensMate-Atom')
         packageMain = pkg.mainModule
         spyOn(packageMain, 'provide').andCallThrough()
-        pkg = atom.packages.loadPackage('autocomplete-plus')
       
     it 'should not have settings', ->
       expect(atom.config.get('MavensMate-Atom')).toBeUndefined()
 
     it 'should not be activated', ->
       expect(atom.packages.activePackages['MavensMate-Atom']).toBeUndefined()
-
-    it 'should have apex and vf autocomplete providers', ->
-      packageMain.provide()
-      expect(packageMain.apexProvider).toBeDefined()
-      expect(packageMain.apexProvider.apexClasses.length).toEqual(447)
-      expect(packageMain.vfProvider).toBeDefined()
-      expect(packageMain.vfProvider.vfTags.length).toEqual(131)
 
   describe 'package activation with mavensmate project already loaded', ->
     [buffer, directory, editor, editorView, filePath, workspaceElement] = []
@@ -49,6 +41,7 @@ describe 'main.coffee', ->
 
       activationPromise = atom.packages.activatePackage('MavensMate-Atom').then ({mainModule}) ->
         console.log 'spec: MavensMate-Atom activated ...'
+        console.log mainModule
         mavensmate = mainModule.mavensmate
         console.log mavensmate
 
@@ -74,6 +67,7 @@ describe 'main.coffee', ->
       expect(config.mm_close_panel_delay).toBeDefined()
       expect(config.mm_apex_file_extensions).toBeDefined()
       expect(config.mm_app_server_port).toBeDefined()
+      expect(config.mm_autocomplete).toBeDefined()
 
     it 'should attach commands', ->
       expect(helper.hasCommand(workspaceElement, 'mavensmate:new-project')).toBeTruthy()

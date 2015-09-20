@@ -88,7 +88,7 @@ module.exports =
     # @apexProvider = new AutoCompleteProviders.ApexProvider()
     # @vfProvider = new AutoCompleteProviders.VisualforceTagProvider()
     config = atom.config.get('MavensMate-Atom')
-    if config.mm_autocomplete
+    if config && config.mm_autocomplete
       [AutoCompleteProviders.ApexProvider, AutoCompleteProviders.VisualforceTagProvider]
 
   deactivate: ->
