@@ -37,18 +37,21 @@ class ProjectListView extends SelectListView
   getDirs: ->
     dirs = []
     
-    home = util.getHomeDirectory()
-    cfg = util.fileBodyAsString(path.join(home, '.mavensmate-config.json'), true)
-    workspaces = cfg.mm_workspace
-    for workspace in workspaces
-      if fs.existsSync workspace
-        files = fs.readdirSync workspace
-        for file in files
-          if file[0] != '.'
-            filePath = path.join workspace, file
-            stat = fs.statSync filePath
-            if stat.isDirectory() and util.hasMavensMateProjectStructure(filePath)
-              dirs.push { name : file, path: filePath }
+    try
+      home = util.getHomeDirectory()
+      cfg = util.fileBodyAsString(path.join(home, '.mavensmate-config.json'), true)
+      workspaces = cfg.mm_workspace
+      for workspace in workspaces
+        if fs.existsSync workspace
+          files = fs.readdirSync workspace
+          for file in files
+            if file[0] != '.'
+              filePath = path.join workspace, file
+              stat = fs.statSync filePath
+              if stat.isDirectory() and util.hasMavensMateProjectStructure(filePath)
+                dirs.push { name : file, path: filePath }
+    catch error
+      console.log('error getting project list ...', error)
 
     return dirs
 
