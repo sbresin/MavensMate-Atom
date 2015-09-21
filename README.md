@@ -7,22 +7,29 @@ MavensMate for Atom (beta)
 [![APM License](https://img.shields.io/apm/l/mavensmate-atom.svg)](https://atom.io/packages/mavensmate-atom)
 
 
+MavensMate for Atom is a plugin for the Atom text editor that enables Salesforce developers to build App Cloud/Force.com applications inside Atom.
 
-MavensMate for Atom is a plugin for the Atom text editor that enables Salesforce.com developers to build Salesforce1/Force.com applications inside Atom.
+<img width="720" alt="changepasswordcontroller_cls_-__users_josephferraro_desktop_another_cool_project_-_atom" src="https://cloud.githubusercontent.com/assets/54157/9984476/ed8db9f8-5fe5-11e5-9f5d-de3288b87b4d.png">
 
-**Note:** MavensMate for Atom is still very much in active development. By installing the plugin at this stage, you are a beta user. You may encounter unexpected behavior, bugs, and general weirdness. Please submit all bugs with specific steps to reproduce: https://github.com/joeferraro/MavensMate-Atom/issues.
+### Platform Support
 
-## Important Note for Windows Users
-
-MavensMate for Atom is currently not supported on Windows due to an open issue in Atom related to file system permissions. https://github.com/atom/atom/issues/5481
+Tested on OSX 10.10.x, Windows 7/8, Ubuntu 12
 
 ### Installation
 
-#### From Atom
+#### Prerequisites
+
+##### MavensMate-app
+
+MavensMate for Atom requires [MavensMate-app](https://github.com/joeferraro/mavensmate-app/releases) to be installed and running.
+
+#### Plugin Installation
+
+##### From Atom
 
 `Open Atom > Preferences... > + Install > Search for "MavensMate" > Install`
 
-#### From Command Line
+##### From Command Line
 
 `apm install MavensMate-Atom`
 
@@ -32,25 +39,25 @@ MavensMate for Atom is currently not supported on Windows due to an open issue i
 
 ### Configuration
 
-To configure MavensMate for Atom:
+#### Global Settings (settings managed by [MavensMate-app](https://github.com/joeferraro/mavensmate-app/releases))
 
-`Atom > Preferences > Packages > Select MavensMate package`
+`MavensMate > Settings > Global Settings`
 
-**You must restart Atom after modifying MavensMate for Atom package settings**
+#### Plugin Settings
 
-![Alt Text](http://i.imgur.com/NmapjKE.gif?1 "Configure")
+`MavensMate > Settings > Plugin Settings`
 
 ### Create a Project
 
 To create your first MavensMate for Atom project:
 
-1. Be sure to configure your `mm workspace` (see Configuration)
+1. Be sure to configure your `mm_workspace`: `MavensMate menu > Settings > Global Settings`
 2. MavensMate > New Project
  
 ![Alt Text](http://i.imgur.com/SCDknHg.gif?1 "New Project")
 
 ### Run MavensMate Commands
 
-To run MavensMate commands, use the Atom command palette. On OSX: `command + shift + p`
+To run MavensMate commands, use the Atom command palette (on OSX: `command + shift + p`) or use the MavensMate menu in Atom.
 
 ![Alt Text](http://i.imgur.com/IuYO4pU.gif?1 "Commands")

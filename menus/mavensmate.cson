@@ -129,8 +129,8 @@
       {
         'label': 'Settings'
         'submenu': [
-          { 'label': 'Global MavensMate Settings', 'command': 'mavensmate:open-global-settings' }
-          { 'label': 'MavensMate for Atom Settings', 'command': 'mavensmate:open-plugin-settings' }
+          { 'label': 'Global Settings', 'command': 'mavensmate:open-global-settings' }
+          { 'label': 'Plugin Settings', 'command': 'mavensmate:open-plugin-settings' }
         ]
       }
     ]
