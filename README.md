@@ -21,7 +21,7 @@ Tested on OSX 10.10.x, Windows 7/8, Ubuntu 12
 
 ##### MavensMate-app
 
-MavensMate for Atom requires [MavensMate-app](https://github.com/joeferraro/mavensmate-app/releases) to be installed and running.
+MavensMate for Atom requires [MavensMate-app](https://github.com/joeferraro/mavensmate-app) to be installed and running.
 
 #### Plugin Installation
 
