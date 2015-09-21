@@ -8,6 +8,8 @@ request       = require 'request'
 
 class CoreAdapter
 
+  couldNotContactMessage: 'Error: Could not contact the local MavensMate server. Please ensure MavensMate-app is installed and running (https://github.com/joeferraro/mavensmate-app/releases). MavensMate will not run properly until resolved.\n\nMore Information: This version of MavensMate for Atom requires MavensMate-app. MavensMate-app is a new executable that makes it easy to use MavensMate from Sublime Text, Atom, Visual Studio Code, etc.'
+
   checkStatus: () ->
     self = @
     
@@ -15,17 +17,17 @@ class CoreAdapter
 
     request
       .get("http://localhost:#{atom.config.get('MavensMate-Atom').mm_app_server_port}/app/home/index")
-      .on('response', (response) ->
+      .on('response', (response) =>
         if response.statusCode == 200
           # mavensmate-app is up and running
           deferred.resolve()
         else
           console.log(response)
-          deferred.reject('Could not contact the local MavensMate server, please ensure the MavensMate app is installed and running (https://github.com/joeferraro/mavensmate-app/releases). MavensMate will not run properly until resolved.')
+          deferred.reject(@couldNotContactMessage)
       )
-      .on('error', (err) ->
+      .on('error', (err) =>
         console.log(err)
-        deferred.reject('Could not contact the local MavensMate server, please ensure the MavensMate app is installed and running (https://github.com/joeferraro/mavensmate-app/releases). MavensMate will not run properly until resolved.')
+        deferred.reject(@couldNotContactMessage)
       )
 
     deferred.promise
@@ -72,9 +74,9 @@ class CoreAdapter
         console.log err
         deferred.reject err
       else
-        console.log('response from mavensmate', response, body) 
+        console.log('response from mavensmate', response, body)
         if response.statusCode > 300
-          res = 
+          res =
             promiseId: promiseId
             error: new Error body
           deferred.resolve res

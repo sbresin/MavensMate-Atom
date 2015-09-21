@@ -7,6 +7,13 @@
         "scope": "application"
     },
     {
+        "coreName": "open-settings",
+        "atomName": "open-global-settings",
+        "ui": true,
+        "panelMessage": "Opening settings UI",
+        "scope": "application"
+    },
+    {
         "coreName": "open-ui",
         "atomName": "open-mavensmate-ui",
         "ui": true,

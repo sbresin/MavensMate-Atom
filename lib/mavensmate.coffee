@@ -3,7 +3,7 @@ window.jQuery         = $
 fs                    = require 'fs'
 path                  = require 'path'
 {exec}                = require 'child_process'
-{Subscriber}  = require 'emissary'
+{Subscriber}          = require 'emissary'
 EventEmitter          = require('./emitter').pubsub
 CoreAdapter           = require('./adapter')
 ProjectListView       = require './project-list-view'
@@ -23,10 +23,6 @@ module.exports =
   class MavensMate
     self = @
     Subscriber.includeInto this
-
-    editorSubscription: null
-    apexAutocompleteRegistration: null
-    vfAutocompleteRegistration: null
 
     panel: null # mavensmate status panel
     mavensmateAdapter: null
@@ -56,7 +52,9 @@ module.exports =
 
       self.panel = PanelView
       self.registerApplicationCommands()
-      
+      atom.commands.add 'atom-workspace', 'mavensmate:open-project', -> self.openProject()
+      atom.commands.add 'atom-workspace', 'mavensmate:open-plugin-settings', -> self.openPluginSettings()
+
       console.log atom.project
       console.log atom.project.getPaths()
       
@@ -65,7 +63,6 @@ module.exports =
         self.mavensmateAdapter.checkStatus()
           .then(() ->
             # TODO
-            # atom.commands.add 'atom-workspace', 'mavensmate:open-project', => self.openProject()
             if not atom.workspace.mavensMateProjectInitialized
               self.initializeProject()
           )
@@ -77,9 +74,12 @@ module.exports =
       atom.project.onDidChangePaths => @onProjectPathChanged()
 
     # todo: expose settings retrieval from core so we can display this list
-    # openProject: ->
-    #   @selectList = new ProjectListView()
-    #   @selectList.show()
+    openProject: ->
+      @selectList = new ProjectListView()
+      @selectList.show()
+
+    openPluginSettings: ->
+      atom.workspace.open('atom://config/packages/MavensMate-Atom')
 
     createErrorsView: (params) ->
       @errorsView = new ErrorsView(params)
@@ -94,8 +94,8 @@ module.exports =
       self = @
       self.panel.addPanelViewItem('Initializing MavensMate, please wait...', 'info')
 
+      # set the assigned mavensmate project id so we can use it when calling the core over local HTTP
       atom.project.mavensmateId = util.fileBodyAsString(path.join(atom.project.getPaths()[0], 'config', '.settings'), true).id
-      atom.workspace.mavensMateProjectInitialized ?= true
 
       # TODO: use atom.project.getPaths()
       atom.project.mavensMateErrors = {}
@@ -109,7 +109,9 @@ module.exports =
       # attach MavensMate views/handlers to each present and future workspace editor views
       atom.workspace.observeTextEditors (editor) ->
         self.handleBufferEvents editor
+
         self.registerGrammars editor
+
         editor.errorMarkers = new ErrorMarkers(editor)
 
       # instantiate client interface
@@ -118,10 +120,11 @@ module.exports =
       # places mavensmate 3 dot icon in the status bar
       @mavensmateStatusBar = new StatusBarView(self.panel)
       
+      # initiate errors view
       self.createErrorsView(util.uris.errorsView)
+      
       atom.workspace.addOpener (uri) ->
         self.errorsView if uri is util.uris.errorsView
-
       atom.deserializers.add(self.errorsDeserializer)
 
       atom.commands.add 'atom-workspace', 'mavensmate:view-errors', ->
@@ -162,7 +165,11 @@ module.exports =
             .catch (err) ->
               self.adapterResponseHandler(params, err)
 
+      # add success message!
       self.panel.addPanelViewItem('MavensMate initialized successfully. Happy coding!', 'success')
+
+      # done
+      atom.workspace.mavensMateProjectInitialized ?= true
 
     registerApplicationCommands: ->
       self = @
@@ -253,11 +260,15 @@ module.exports =
     # TODO: refactor
     registerGrammars: (editor) ->
       self = @
-      buffer = editor.getBuffer()
-      if buffer.file?
-        ext = path.extname(buffer.file.path)
-        if ext == '.auradoc' || ext == '.app' || ext == '.evt' || ext == '.cmp' || ext == '.object'
-          editor.setGrammar atom.syntax.grammarForScopeName('text.xml')
+      # we place this in a timeout (1 second seems to work) bc grammar are loaded async and there doesn't seem to be
+      # an event that we can monitor that fires when grammars are fully-loaded
+      setTimeout( ->
+        buffer = editor.getBuffer()
+        if buffer.file?
+          ext = path.extname(buffer.file.path)
+          if ext == '.auradoc' || ext == '.app' || ext == '.evt' || ext == '.cmp' || ext == '.object'
+            editor.setGrammar(atom.grammars.grammarForScopeName('text.xml'))
+      , 1000)
 
     # watches active editors for events like save
     handleBufferEvents: (editor) ->
