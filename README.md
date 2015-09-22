@@ -11,25 +11,25 @@ MavensMate for Atom is a plugin for the Atom text editor that enables Salesforce
 
 <img width="720" alt="changepasswordcontroller_cls_-__users_josephferraro_desktop_another_cool_project_-_atom" src="https://cloud.githubusercontent.com/assets/54157/9984476/ed8db9f8-5fe5-11e5-9f5d-de3288b87b4d.png">
 
-### Platform Support
+## Platform Support
 
 Tested on OSX 10.10.x, Windows 7/8, Ubuntu 12
 
-### Installation
+## Installation
 
-#### Prerequisites
+### Prerequisites
 
-##### MavensMate-app
+#### MavensMate-app
 
 MavensMate for Atom requires [MavensMate-app](https://github.com/joeferraro/mavensmate-app) to be installed and running.
 
-#### Plugin Installation
+### Plugin Installation
 
-##### From Atom
+#### From Atom
 
 `Open Atom > Preferences... > + Install > Search for "MavensMate" > Install`
 
-##### From Command Line
+#### From Command Line
 
 `apm install MavensMate-Atom`
 
@@ -37,17 +37,17 @@ MavensMate for Atom requires [MavensMate-app](https://github.com/joeferraro/mave
 
 ![Alt Text](http://i.imgur.com/RiBsW0N.gif?1 "Install")
 
-### Configuration
+## Configuration
 
-#### Global Settings (settings managed by [MavensMate-app](https://github.com/joeferraro/mavensmate-app/releases))
+### Global Settings (settings managed by [MavensMate-app](https://github.com/joeferraro/mavensmate-app/releases))
 
 `MavensMate > Settings > Global Settings`
 
-#### Plugin Settings
+### Plugin Settings
 
 `MavensMate > Settings > Plugin Settings`
 
-### Create a Project
+## Create a Project
 
 To create your first MavensMate for Atom project:
 
@@ -56,7 +56,7 @@ To create your first MavensMate for Atom project:
  
 ![Alt Text](http://i.imgur.com/SCDknHg.gif?1 "New Project")
 
-### Run MavensMate Commands
+## Run MavensMate Commands
 
 To run MavensMate commands, use the Atom command palette (on OSX: `command + shift + p`) or use the MavensMate menu in Atom.
 
