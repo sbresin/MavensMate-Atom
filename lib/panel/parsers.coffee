@@ -31,6 +31,8 @@ class CommandParser
       @obj.indicator = if @result.success then 'success' else 'danger'
       @obj.stackTrace = @result.stack
       @obj.isException = @result.stack?
+    else if @result.error?
+      @obj = @getErrorOutput()
     else if @result.result? and @result.error
       @obj = @getErrorOutput()
     else
@@ -43,7 +45,7 @@ class CommandParser
 
   getErrorOutput: ->
     output =
-      message: @result.result
+      message: @result.result or @result.error
       indicator: 'danger'
       stackTrace: @result.stack
       isException: @result.stack?
@@ -342,7 +344,7 @@ getCommandParser = (command, params, result) ->
   console.log 'determing parser for command'
   console.log command
   console.log params
-  if __.isError(result)
+  if __.isError(result) or result.error?
     return CommandParser
   else if params.payload? and params.payload.args? and params.payload.args.ui
     return UiParser
