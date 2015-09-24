@@ -57,7 +57,7 @@ module.exports =
 
       console.log atom.project
       console.log atom.project.getPaths()
-      
+
       # if this window is an atom project AND a mavensmate project, initialize the project
       if atom.project? and atom.project.getPaths().length > 0 and util.hasMavensMateProjectStructure()
         self.mavensmateAdapter.checkStatus()
@@ -72,6 +72,11 @@ module.exports =
           )
 
       atom.project.onDidChangePaths => @onProjectPathChanged()
+
+      # places mavensmate 3 dot icon in the status bar
+      setTimeout(->
+        @mavensmateStatusBar = new StatusBarView(self.panel)
+      , 1000)
 
     # todo: expose settings retrieval from core so we can display this list
     openProject: ->
@@ -117,9 +122,6 @@ module.exports =
       # instantiate client interface
       self.registerProjectCommands()
 
-      # places mavensmate 3 dot icon in the status bar
-      @mavensmateStatusBar = new StatusBarView(self.panel)
-      
       # initiate errors view
       self.createErrorsView(util.uris.errorsView)
       

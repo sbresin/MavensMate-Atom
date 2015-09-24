@@ -37,7 +37,7 @@ class PromiseTracker
 
   start: (promiseId, promise) ->
     emitter.emit 'mavensmate:promise-started', promiseId, promise
-    @tracked[promiseId].work = promise.then @completePromise
+    @tracked[promiseId].work = promise.then(@completePromise).catch(@completePromise)
 
   # utility method for determining whether the promiseId pass is finished
   #

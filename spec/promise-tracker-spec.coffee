@@ -1,16 +1,11 @@
-temp            = require 'temp' # npm install temp
-path            = require 'path' # npm install path
-Q               = require 'q'
+Promise         = require('bluebird')
 tracker         = require('../lib/promise-tracker').tracker
 emitter         = require('../lib/emitter').pubsub
-
-# Automatically track and cleanup files at exit
-temp.track()
 
 describe 'PromiseTracker', ->
 
   afterEach ->
-    tracker.tracked = {}
+    tracker = require('../lib/promise-tracker').tracker
 
   describe 'enqueuePromise', ->
 
@@ -33,11 +28,15 @@ describe 'PromiseTracker', ->
       promiseId = tracker.enqueuePromise('some-operation')
       expect(emitter.emit.mostRecentCall.args[0]).toEqual('mavensmate:promise-enqueued')
 
-      deferred = Q.defer()
-      deferred.promise
-      tracker.start(promiseId, deferred.promise)
+      p = new Promise((resolve, reject) ->
+        res =
+          promiseId: promiseId
+          foo: 'bar'
+        resolve(res)
+      )
+      tracker.start(promiseId, p)
       expect(emitter.emit.mostRecentCall.args[0]).toEqual('mavensmate:promise-started')
-      expect(tracker.tracked[promiseId].work = deferred.promise)
+      expect(tracker.tracked[promiseId].work = p)
 
   describe 'isPromiseComplete', ->
 

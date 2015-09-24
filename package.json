@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "atom-space-pen-views": "^2.0.3",
+    "bluebird": "^2.10.1",
     "emissary": "1.2.1",
     "fuzzaldrin": "~1.0.0",
     "jquery": "2.1.0",
@@ -34,7 +35,6 @@
     "node-uuid": "1.4.1",
     "open": "0.0.5",
     "pluralize": "1.0.1",
-    "q": "^1.0.1",
     "repeat": "0.0.6",
     "request": "^2.44.0",
     "typechecker": "2.0.8",

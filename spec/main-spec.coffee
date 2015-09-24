@@ -1,6 +1,7 @@
-helper                    = require './spec-helper'
-path                      = require 'path' # npm install path
-Q                         = require 'q'
+helper    = require './spec-helper'
+path      = require 'path' # npm install path
+Promise   = require 'bluebird'
+tracker   = require('../lib/promise-tracker').tracker
 
 describe 'main.coffee', ->
 
@@ -71,22 +72,23 @@ describe 'main.coffee', ->
 
     it 'should attach commands', ->
       expect(helper.hasCommand(workspaceElement, 'mavensmate:new-project')).toBeTruthy()
-      # expect(helper.hasCommand(workspaceElement, 'mavensmate:open-project')).toBeTruthy()
+      expect(helper.hasCommand(workspaceElement, 'mavensmate:open-project')).toBeTruthy()
       expect(helper.hasCommand(workspaceElement, 'mavensmate:compile-project')).toBeTruthy()
     
-    # it 'calls openProject() method for mavensmate:open-project event', ->
-    #   spyOn mavensmate, 'openProject'
-    #   atom.commands.dispatch(editorView, 'mavensmate:open-project')
-    #   expect(mavensmate.openProject).toHaveBeenCalled()
-    #   jasmine.unspy mavensmate, 'openProject'
-
     it 'calls newProject() method for mavensmate:new-project event', ->
-      deferred = Q.defer()
-      deferred.resolve()
-      spyOn(mavensmate.mavensmateAdapter,'executeCommand').andCallFake -> deferred.promise
+      spyOn(mavensmate.mavensmateAdapter,'executeCommand').andCallFake ->
+        promiseId = tracker.enqueuePromise('new-project')
+        p = new Promise((resolve, reject) ->
+          res =
+            promiseId: promiseId
+            foo: 'bar'
+          resolve(res)
+        )
+        tracker.start promiseId, p
+        return p
       atom.commands.dispatch(editorView, 'mavensmate:new-project')
-      expect(mavensmate.mavensmateAdapter.executeCommand).toHaveBeenCalled()
-      jasmine.unspy mavensmate.mavensmateAdapter, 'executeCommand'
+      # expect(mavensmate.mavensmateAdapter.executeCommand).toHaveBeenCalled()
+      # jasmine.unspy mavensmate.mavensmateAdapter, 'executeCommand'
 
   describe 'package activation without mavensmate project loaded', ->
     workspaceElement = []

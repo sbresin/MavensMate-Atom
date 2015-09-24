@@ -1,7 +1,6 @@
 # helper packages for test
 temp    = require 'temp' # npm install temp
 path    = require 'path' # npm install path
-Q       = require 'q'
 
 # Automatically track and cleanup files at exit
 temp.track()

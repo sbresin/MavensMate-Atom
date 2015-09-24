@@ -122,21 +122,27 @@ class PanelView extends View
         console.log params
         console.log result
 
-        promisePanelViewItem = self.panelDictionary[promiseId]
-        promisePanelViewItem.update self, params, result
+        if self.panelDictionary[promiseId]
+          promisePanelViewItem = self.panelDictionary[promiseId]
+          promisePanelViewItem.update self, params, result
         
-        if promisePanelViewItem.command in util.compileCommands()
-          emitter.emit 'mavensmate:compile-finished', params, promiseId
+          if promisePanelViewItem.command in util.compileCommands()
+            emitter.emit 'mavensmate:compile-finished', params, promiseId
 
-        # todo: in order to hide panel when the command completes, we need a way of knowing whether
-        #       the command was ultimately successful (collapse panel) or a failure (keep panel open)
-        #       bc the responses do not always contain a success property, for example, this is current difficult to do
-        console.log self
-        closePanelOnSuccess = atom.config.get('MavensMate-Atom.mm_close_panel_on_successful_operation')
-        if closePanelOnSuccess and promisePanelViewItem.closePanelOnFinish
-          setTimeout(
-            -> self.collapseIfNoRunning(),
-          promisePanelViewItem.closePanelDelay)
+          # if the panel isn't attached to the editor, attach it and expand it
+          if not self.hasParent()
+            self.toggle()
+            self.expand()
+
+          # todo: in order to hide panel when the command completes, we need a way of knowing whether
+          #       the command was ultimately successful (collapse panel) or a failure (keep panel open)
+          #       bc the responses do not always contain a success property, for example, this is current difficult to do
+          console.log self
+          closePanelOnSuccess = atom.config.get('MavensMate-Atom.mm_close_panel_on_successful_operation')
+          if closePanelOnSuccess and promisePanelViewItem.closePanelOnFinish
+            setTimeout(
+              -> self.collapseIfNoRunning(),
+            promisePanelViewItem.closePanelDelay)
 
     # if compile finishes, be sure to keep errors view up-to-date
     emitter.on 'mavensmate:compile-finished', (params, promiseId) ->
