@@ -193,6 +193,8 @@ module.exports =
 
           if 'ui' of cmd
             payload.args.ui = cmd.ui
+          if cmd.coreName == 'new-project-from-existing-directory'
+            payload.args.directory = atom.project.getPaths()[0]
 
           if Object.keys(payload).length != 0
             params.payload = payload

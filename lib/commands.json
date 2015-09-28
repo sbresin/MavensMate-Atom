@@ -7,6 +7,13 @@
         "scope": "application"
     },
     {
+        "coreName": "new-project-from-existing-directory",
+        "atomName": "new-mavensmate-project-from-existing-directory",
+        "ui": true,
+        "panelMessage": "Opening new project from existing directory UI",
+        "scope": "application"
+    },
+    {
         "coreName": "open-settings",
         "atomName": "open-global-settings",
         "ui": true,
