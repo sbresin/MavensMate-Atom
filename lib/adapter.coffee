@@ -65,7 +65,7 @@ class CoreAdapter
         console.log response
         console.log body
         if err
-          err.message = 'Error reaching local MavensMate server. Please ensure MavensMate-app (https://github.com/joeferraro/mavnesmate-app) is installed and running.'
+          err.message = 'Error reaching local MavensMate server. Please ensure MavensMate-app (https://github.com/joeferraro/mavensmate-app) is installed and running.'
           err.promiseId = promiseId
           console.log err
           reject err
