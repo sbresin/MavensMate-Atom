@@ -95,7 +95,7 @@
         'submenu': [
           { 'label': 'Start Logging', 'command': 'mavensmate:start-logging' }
           { 'label': 'Stop Logging', 'command': 'mavensmate:stop-logging' }
-          { 'label': 'Flugh Debug Logs', 'command': 'mavensmate:flush-debug-logs' }
+          { 'label': 'Flush Debug Logs', 'command': 'mavensmate:flush-debug-logs' }
         ]
       }
       {
