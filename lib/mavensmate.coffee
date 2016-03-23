@@ -286,7 +286,7 @@ module.exports =
           resourceBundle = buffer.file.path.match(resourceExp)
 
           # If so do nothing for now
-          if resourceBundle.length > 0
+          if resourceBundle
             return
 
           params =
