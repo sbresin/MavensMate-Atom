@@ -6,7 +6,7 @@ tracker   = require('../lib/promise-tracker').tracker
 describe 'main.coffee', ->
 
   describe 'package pre activation', ->
-    
+
     packageMain = null
 
     beforeEach ->
@@ -17,7 +17,7 @@ describe 'main.coffee', ->
         pkg = atom.packages.loadPackage('MavensMate-Atom')
         packageMain = pkg.mainModule
         spyOn(packageMain, 'provide').andCallThrough()
-      
+
     it 'should not have settings', ->
       expect(atom.config.get('MavensMate-Atom')).toBeUndefined()
 
@@ -26,7 +26,7 @@ describe 'main.coffee', ->
 
   describe 'package activation with mavensmate project already loaded', ->
     [buffer, directory, editor, editorView, filePath, workspaceElement] = []
-    
+
     mavensmate = null
     projectPath = null
 
@@ -73,8 +73,8 @@ describe 'main.coffee', ->
     it 'should attach commands', ->
       expect(helper.hasCommand(workspaceElement, 'mavensmate:new-project')).toBeTruthy()
       expect(helper.hasCommand(workspaceElement, 'mavensmate:open-project')).toBeTruthy()
-      expect(helper.hasCommand(workspaceElement, 'mavensmate:compile-project')).toBeTruthy()
-    
+      expect(helper.hasCommand(workspaceElement, 'mavensmate:compile-project')).toBeFalsy()
+
     it 'calls newProject() method for mavensmate:new-project event', ->
       spyOn(mavensmate.mavensmateAdapter,'executeCommand').andCallFake ->
         promiseId = tracker.enqueuePromise('new-project')
@@ -124,6 +124,3 @@ describe 'main.coffee', ->
 
     it 'should deactivate package in Atom', ->
       expect(atom.packages.activePackages['MavensMate-Atom']).toBeUndefined()
-
-
-     

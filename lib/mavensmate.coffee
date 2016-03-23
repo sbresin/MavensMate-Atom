@@ -36,11 +36,11 @@ module.exports =
 
     constructor: ->
       console.log 'Creating new instance of MavensMate plugin...'
-      
+
       # temporary hack to workaround cert issues introduced by chrome 39
       # (https://github.com/joeferraro/MavensMate-Atom/issues/129#issuecomment-69847533)
       process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
-      
+
       # initiate mavensmate for this atom workspace
       @init()
 
@@ -105,12 +105,12 @@ module.exports =
       # TODO: use atom.project.getPaths()
       atom.project.mavensMateErrors = {}
       atom.project.mavensMateCheckpointCount = 0
-      
+
       # instantiate mavensmate panel, show it
       self.panel.toggle()
 
       console.log 'initializing project --> '+atom.project.getPaths()
-            
+
       # attach MavensMate views/handlers to each present and future workspace editor views
       atom.workspace.observeTextEditors (editor) ->
         self.handleBufferEvents editor
@@ -124,7 +124,7 @@ module.exports =
 
       # initiate errors view
       self.createErrorsView(util.uris.errorsView)
-      
+
       atom.workspace.addOpener (uri) ->
         self.errorsView if uri is util.uris.errorsView
       atom.deserializers.add(self.errorsDeserializer)
@@ -209,7 +209,7 @@ module.exports =
       # attach commands to workspace based on commands.json
       for c in util.getCommands('project')
         resolvedName = 'mavensmate:' + c.atomName
-        
+
         atom.commands.add 'atom-workspace', resolvedName, (options) ->
           commandName = options.type.split(':').pop()
           cmd = util.getCommandByAtomName(commandName)
@@ -222,7 +222,7 @@ module.exports =
 
           payload = {}
           payload.args = {}
-          
+
           if 'ui' of cmd
             payload.args.ui = cmd.ui
           if 'paths' of cmd
@@ -238,7 +238,7 @@ module.exports =
                   payload.classes = [util.activeFileBaseName().split('.')[0]]
           if 'payloadMetadata' of cmd
             payload.args.type = cmd.payloadMetadata
-          
+
           if Object.keys(payload).length != 0
             params.payload = payload
 
@@ -280,6 +280,15 @@ module.exports =
       buffer = editor.getBuffer()
       if buffer.file? and util.isMetadata(buffer.file.path) and atom.config.get('MavensMate-Atom').mm_compile_on_save
         editor.onDidSave () ->
+
+          # Check if the current file is within a resource bundle
+          resourceExp = /([a-zA-Z0-9\x00-\x7F\u0000-\u007F-_.\s\\\/\:])+(?:\.resource\\)/i
+          resourceBundle = buffer.file.path.match(resourceExp)
+
+          # If so do nothing for now
+          if resourceBundle
+            return
+
           params =
             command: 'compile-metadata'
             commandDefinition:
