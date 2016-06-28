@@ -1,6 +1,16 @@
 MavensMate for Atom (beta)
 ===============
 
+## Development Suspended
+
+MavensMate users, 
+
+I have temporarily suspended development & support for MavensMate to focus on spending time with my newborn daughter. If you are experiencing an issue with MavensMate, I encourage you to use the Force.com IDE, Developer Console, or one of the many other 3rd party tools for building Salesforce applications until development resumes.
+
+Thanks very much for your support.
+
+-Joe
+
 [![Build Status](https://travis-ci.org/joeferraro/MavensMate-Atom.svg?branch=master)](https://travis-ci.org/joeferraro/MavensMate-Atom)
 
 [![APM](https://img.shields.io/apm/v/mavensmate-atom.svg)](https://atom.io/packages/mavensmate-atom)
