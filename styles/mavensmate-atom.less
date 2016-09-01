@@ -32,7 +32,7 @@
 @syntax-color-added: #A8FF60;
 @syntax-color-modified: #E9C062;
 @syntax-color-removed: #CC6666;*/
-  
+
 div.mavensmate-health-check-item {
   z-index:9998;
 }
@@ -116,6 +116,7 @@ div.highlight.mavensmate-health-check-item > div.region {
   pre.terminal {
     word-break: break-word;
     white-space: pre-wrap;
+    margin-bottom: 10px;
   }
 
   pre.terminal.active {
@@ -244,11 +245,12 @@ svg.busy circle.circle3 {
   }
 
   .panel-header {
-    padding: 0px;
+    padding: 0px 0px;
     margin: 0px;
+    height:40px;
     border-bottom: 1px solid rgba(0, 0, 0, 0.5);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
-    padding-left:0px;  
+    padding-left:0px;
     background-color: #20242a;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -333,7 +335,7 @@ svg.busy circle.circle3 {
       margin-right: 0;
     }
   }
-  
+
   .btn:focus {
     outline:0;
   }
@@ -404,11 +406,11 @@ svg.busy circle.circle3 {
   }
 
   .table-striped > tbody > tr:nth-child(odd) > td, .table-striped > tbody > tr:nth-child(odd) > th {
-    background-color: lighten(@syntax-background-color, 10%);    
+    background-color: lighten(@syntax-background-color, 10%);
   }
 
   .table-striped > tbody > tr:nth-child(even) > td, .table-striped > tbody > tr:nth-child(even) > th {
-    background-color: lighten(@syntax-background-color, 5%);    
+    background-color: lighten(@syntax-background-color, 5%);
   }
 
   tr.active {
