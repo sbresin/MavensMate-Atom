@@ -1,6 +1,6 @@
 logs/
 node_modules/
 /mm/
-
+*.DS_Store
 *.log
 *.orig
