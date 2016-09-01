@@ -8,5 +8,8 @@ module.exports =
 
   hasCommand: (element, name) ->
     commands = atom.commands.findCommands(target: element)
-    found = true for command in commands when command.name is name
-    found
+    exists = false
+    for command in commands
+      if command.name == name
+        exists = true
+    exists
