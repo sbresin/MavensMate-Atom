@@ -1,16 +1,6 @@
 MavensMate for Atom (beta)
 ===============
 
-## Development Suspended
-
-MavensMate users, 
-
-I have temporarily suspended development & support for MavensMate to focus on spending time with my newborn daughter. If you are experiencing an issue with MavensMate, I encourage you to use the Force.com IDE, Developer Console, or one of the many other 3rd party tools for building Salesforce applications until development resumes.
-
-Thanks very much for your support.
-
--Joe
-
 [![Build Status](https://travis-ci.org/joeferraro/MavensMate-Atom.svg?branch=master)](https://travis-ci.org/joeferraro/MavensMate-Atom)
 
 [![APM](https://img.shields.io/apm/v/mavensmate-atom.svg)](https://atom.io/packages/mavensmate-atom)
@@ -21,6 +11,10 @@ MavensMate for Atom is a plugin for the Atom text editor that enables Salesforce
 
 <img width="720" alt="changepasswordcontroller_cls_-__users_josephferraro_desktop_another_cool_project_-_atom" src="https://cloud.githubusercontent.com/assets/54157/9984476/ed8db9f8-5fe5-11e5-9f5d-de3288b87b4d.png">
 
+## Issues
+
+All issues are managed by the [central MavensMate project](https://github.com/joeferraro/MavensMate)
+
 ## Platform Support
 
 Tested on OSX 10.10.x, Windows 7/8, Ubuntu 12
@@ -29,9 +23,9 @@ Tested on OSX 10.10.x, Windows 7/8, Ubuntu 12
 
 ### Prerequisites
 
-#### MavensMate-app
+#### MavensMate Desktop
 
-MavensMate for Atom requires [MavensMate-app](https://github.com/joeferraro/mavensmate-app) to be installed and running.
+MavensMate for Atom requires [MavensMate Desktop](https://github.com/joeferraro/mavensmate-desktop) to be installed and running.
 
 ### Plugin Installation
 
