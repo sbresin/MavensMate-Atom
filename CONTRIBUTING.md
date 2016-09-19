@@ -1,6 +1,6 @@
 # Contributing to MavensMate for Atom
 
-The following is a set of guidelines for contributing to MavensMate for Sublime Text.
+The following is a set of guidelines for contributing to MavensMate for Atom.
 
 This project adheres to the [Contributor Covenant 1.2](http://contributor-covenant.org/version/1/2/0).
 By participating, you are expected to uphold this code. Please report unacceptable behavior to [info@mavensmate.com](mailto:info@mavensmate.com).
