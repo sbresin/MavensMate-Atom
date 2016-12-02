@@ -15,7 +15,7 @@ class CommandParser
     isException: false
 
   constructor: (@command, @params, @result) ->
-    @obj.result = result
+    @obj.result = @result
 
   parse: ->
     console.log('CommandParser parsing ... -->')
