@@ -1,5 +1,5 @@
 {$, View}               = require 'atom-space-pen-views'
-{Subscriber,Emitter}    = require 'emissary'
+# {Subscriber,Emitter}    = require 'emissary'
 emitter                 = require('../emitter').pubsub
 util                    = require '../util'
 moment                  = require 'moment'
@@ -9,7 +9,7 @@ PanelViewItem           = require './panel-view-item'
 
 # The status panel that shows the result of command execution, etc.
 class PanelView extends View
-  Subscriber.includeInto this
+  # Subscriber.includeInto this
 
   panelDictionary: {} # dictionary of promise (job) id to panel item
   collapsed: true # whether the panel is collapsed

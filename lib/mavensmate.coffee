@@ -3,7 +3,7 @@ window.jQuery         = $
 fs                    = require 'fs'
 path                  = require 'path'
 {exec}                = require 'child_process'
-{Subscriber}          = require 'emissary'
+# {Subscriber}          = require 'emissary'
 EventEmitter          = require('./emitter').pubsub
 CoreAdapter           = require('./adapter')
 ProjectListView       = require './project-list-view'
@@ -22,7 +22,7 @@ module.exports =
 
   class MavensMate
     self = @
-    Subscriber.includeInto this
+    # Subscriber.includeInto this
 
     panel: null # mavensmate status panel
     mavensmateAdapter: null

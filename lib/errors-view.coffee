@@ -1,5 +1,4 @@
 {$, $$, View, ScrollView} = require 'atom-space-pen-views'
-{Subscriber,Emitter}      = require 'emissary'
 emitter                   = require('./emitter').pubsub
 util                      = require './util'
 pluralize                 = require 'pluralize'

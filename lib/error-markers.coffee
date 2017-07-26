@@ -1,10 +1,10 @@
-{Subscriber,Emitter}  = require 'emissary'
+# {Subscriber,Emitter}  = require 'emissary'
 util                  = require './util'
 emitter               = require('./emitter').pubsub
 
 module.exports =
 class ErrorMarkers
-  Subscriber.includeInto(this)
+  # Subscriber.includeInto(this)
 
   constructor: (@editor) ->
     @initialize()

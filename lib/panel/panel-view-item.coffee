@@ -1,5 +1,4 @@
 {$, View}             = require 'atom-space-pen-views'
-{Subscriber,Emitter}  = require 'emissary'
 _                     = require 'lodash'
 emitter               = require('../emitter').pubsub
 util                  = require '../util'
