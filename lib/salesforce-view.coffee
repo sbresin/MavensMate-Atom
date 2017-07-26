@@ -2,7 +2,7 @@
 path          = require 'path'
 emitter       = require('./emitter').pubsub
 remote        = require 'remote'
-BrowserWindow = remote.require('browser-window')
+BrowserWindow = remote.BrowserWindow;
 
 class BrowserView extends ScrollView
   
